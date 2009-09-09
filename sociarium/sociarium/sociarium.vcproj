@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -117,9 +117,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_JAPANESE_DIALOGUE"
+				FavorSizeOrSpeed="1"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -182,7 +183,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\color.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\common.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\community_transition_diagram.cpp"
 				>
 			</File>
 			<File
@@ -194,11 +203,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\force_direction.cpp"
+				RelativePath="..\fps_manager.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\fps_counter.cpp"
+				RelativePath="..\glew.cpp"
 				>
 			</File>
 			<File
@@ -210,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\language.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\layout.cpp"
 				>
 			</File>
@@ -218,11 +231,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\message.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\mouse_and_selection.cpp"
+				RelativePath="..\selection.cpp"
 				>
 			</File>
 			<File
@@ -238,7 +247,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\thread.cpp"
+				RelativePath="..\thread_manager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\timeline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\update_predefined_parameters.cpp"
 				>
 			</File>
 			<File
@@ -246,35 +263,43 @@
 				>
 			</File>
 			<File
-				RelativePath="..\world.cpp"
+				RelativePath="..\world_impl_draw.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_do_force_direction.cpp"
+				RelativePath="..\world_impl_draw_orthogonal_part.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_do_mouse_action.cpp"
+				RelativePath="..\world_impl_draw_perspective_part.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_draw.cpp"
+				RelativePath="..\world_impl_edit_graph.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_edit_graph.cpp"
+				RelativePath="..\world_impl_initialize.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_initialize.cpp"
+				RelativePath="..\world_impl_mouse_action.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_run_thread.cpp"
+				RelativePath="..\world_impl_others.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\world_select.cpp"
+				RelativePath="..\world_impl_select.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\world_impl_thread.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\world_impl_view.cpp"
 				>
 			</File>
 			<Filter
@@ -361,6 +386,18 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\..\shared\mutex.cpp"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath="..\..\shared\win32api.cpp"
 					>
 					<FileConfiguration
@@ -387,14 +424,6 @@
 				<File
 					RelativePath="..\..\graph\graph.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\graph\"
-						/>
-					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
 						>
@@ -441,7 +470,15 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\thread\creation.cpp"
+					RelativePath="..\thread\edge_width_update.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\thread\force_direction.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\thread\graph_creation.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -459,6 +496,10 @@
 							ObjectFile="$(IntDir)\thread\"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\thread\graph_retouch.cpp"
+					>
 				</File>
 				<File
 					RelativePath="..\thread\layout.cpp"
@@ -481,7 +522,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\thread\node_size.cpp"
+					RelativePath="..\thread\node_size_update.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -499,6 +540,10 @@
 							ObjectFile="$(IntDir)\thread\"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\thread\detail\read_file.cpp"
+					>
 				</File>
 			</Filter>
 			<Filter
@@ -525,7 +570,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\module\creation.cpp"
+					RelativePath="..\module\graph_creation.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -584,6 +629,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\community_transition_diagram.h"
+				>
+			</File>
+			<File
 				RelativePath="..\draw.h"
 				>
 			</File>
@@ -596,11 +645,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\force_direction.h"
+				RelativePath="..\fps_manager.h"
 				>
 			</File>
 			<File
-				RelativePath="..\fps_counter.h"
+				RelativePath="..\glew.h"
 				>
 			</File>
 			<File
@@ -612,19 +661,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\language.h"
+				>
+			</File>
+			<File
 				RelativePath="..\layout.h"
 				>
 			</File>
 			<File
-				RelativePath="..\message.h"
-				>
-			</File>
-			<File
-				RelativePath="..\mouse_and_selection.h"
+				RelativePath="..\main.h"
 				>
 			</File>
 			<File
 				RelativePath="..\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\selection.h"
 				>
 			</File>
 			<File
@@ -640,7 +693,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\thread.h"
+				RelativePath="..\thread_manager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\timeline.h"
+				>
+			</File>
+			<File
+				RelativePath="..\update_predefined_parameters.h"
 				>
 			</File>
 			<File
@@ -683,6 +744,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\shared\mutex.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\shared\predefined_color.h"
 					>
 				</File>
@@ -719,6 +784,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\graph\graphex.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\graph\property_graph.h"
 					>
 				</File>
@@ -735,7 +804,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\thread\creation.h"
+					RelativePath="..\thread\edge_width_update.h"
+					>
+				</File>
+				<File
+					RelativePath="..\thread\force_direction.h"
+					>
+				</File>
+				<File
+					RelativePath="..\thread\graph_creation.h"
+					>
+				</File>
+				<File
+					RelativePath="..\thread\graph_retouch.h"
 					>
 				</File>
 				<File
@@ -743,7 +824,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\thread\node_size.h"
+					RelativePath="..\thread\node_size_update.h"
+					>
+				</File>
+				<File
+					RelativePath="..\thread\detail\read_file.h"
 					>
 				</File>
 			</Filter>
@@ -755,7 +840,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\module\creation.h"
+					RelativePath="..\module\graph_creation.h"
 					>
 				</File>
 				<File

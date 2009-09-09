@@ -1,59 +1,60 @@
-﻿// s.o.c.i.a.r.i.u.m
+﻿// s.o.c.i.a.r.i.u.m: main.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
-// update: 2009/05/10
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- *   - Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   - Neither the name of the University of Tokyo nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
- *   - Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *
- *   - Neither the name of the University of Tokyo nor the names of its contributors
- *     may be used to endorse or promote products derived from this software without
- *     specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include <vector>
-#include <memory>
-#include <fstream>
+#include <unordered_map>
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 #include <zmouse.h>
 #include <GL/gl.h>
+#include "main.h"
 #include "resource.h"
 #include "common.h"
-#include "message.h"
+#include "language.h"
 #include "view.h"
 #include "draw.h"
 #include "layout.h"
 #include "font.h"
-#include "thread.h"
+#include "thread_manager.h"
 #include "algorithm_selector.h"
-#include "mouse_and_selection.h"
+#include "selection.h"
+#include "timeline.h"
+#include "sociarium_graph_time_series.h"
+#include "community_transition_diagram.h"
 #include "world.h"
+#include "thread/force_direction.h"
 #include "../shared/general.h"
-#include "../shared/wndbase.h"
 #include "../shared/win32api.h"
 #include "../shared/thread.h"
-#include "../shared/vector2.h"
 #include "../shared/timer.h"
 #include "../shared/msgbox.h"
 
@@ -62,535 +63,917 @@
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "ftgl.lib")
 
+//#include "designtide.h"
+
 namespace hashimoto_ut {
 
   using std::vector;
   using std::string;
   using std::wstring;
+  using std::pair;
+  using std::make_pair;
   using std::tr1::shared_ptr;
+  using std::tr1::unordered_map;
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  class MainWindow : public WindowBase {
-  private:
-    void wmCreate(HWND hwnd);
-    void wmDestroy(HWND hwnd);
-    void wmCommand(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmSize(HWND hwnd);
-    void wmPaint(HWND hwnd);
-    void wmTimer(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmActivate(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmKeyUp(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmLButtonDown(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmRButtonDown(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmLButtonUp(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmRButtonUp(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmLButtonDBL(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmRButtonDBL(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmMButtonDown(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmMButtonUp(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmMouseWheel(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmDropFiles(HWND hwnd, WPARAM wp, LPARAM lp);
-    void wmClose(HWND hwnd);
+  using namespace sociarium_project_common;
+  using namespace sociarium_project_language;
 
-    LRESULT WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-      switch (msg) {
-      case WM_CREATE:        wmCreate(hwnd); break;
-      case WM_DESTROY:       wmDestroy(hwnd); return 0;
-      case WM_COMMAND:       wmCommand(hwnd, wp, lp); break;
-      case WM_SIZE:          wmSize(hwnd); break;
-      case WM_PAINT:         wmPaint(hwnd); break;
-      case WM_TIMER:         wmTimer(hwnd, wp, lp); break;
-      case WM_ACTIVATE:      wmActivate(hwnd, wp, lp); break;
-      case WM_INITMENU:      wmInitMenu(hwnd, wp, lp); break;
-      case WM_KEYUP:         wmKeyUp(hwnd, wp, lp); break;
-      case WM_LBUTTONDOWN:   wmLButtonDown(hwnd, wp, lp); break;
-      case WM_RBUTTONDOWN:   wmRButtonDown(hwnd, wp, lp); break;
-      case WM_LBUTTONUP:     wmLButtonUp(hwnd, wp, lp); break;
-      case WM_RBUTTONUP:     wmRButtonUp(hwnd, wp, lp); break;
-      case WM_LBUTTONDBLCLK: wmLButtonDBL(hwnd, wp, lp); break;
-      case WM_RBUTTONDBLCLK: wmRButtonDBL(hwnd, wp, lp); break;
-      case WM_MBUTTONDOWN:   wmMButtonDown(hwnd, wp, lp); break;
-      case WM_MBUTTONUP:     wmMButtonUp(hwnd, wp, lp); break;
-      case WM_MOUSEMOVE:     wmMouseMove(hwnd, wp, lp); break;
-      case WM_MOUSEWHEEL:    wmMouseWheel(hwnd, wp, lp); break;
-      case WM_DROPFILES:     wmDropFiles(hwnd, wp, lp); break;
-      case WM_CLOSE:         wmClose(hwnd); return 0;
-      default: break;
-      }
-
-      return DefWindowProc(hwnd, msg, wp, lp);
-    }
-
-    // Convert window coordinates (the origin is upper-left) to viewport coordinates (the origin is lower-left)
-    Vector2<int> window2viewport(LPARAM lp) const { return Vector2<int>(GET_X_LPARAM(lp), wsize_.y-GET_Y_LPARAM(lp)); }
-    Vector2<int> window2viewport(const POINT& pt) const { return Vector2<int>(pt.x, wsize_.y-pt.y); }
-
-    // Get a position of the mouse pointer (in window coordinates)
-    POINT get_mouse_position(HWND hwnd) const {
-      POINT pt;
-      GetCursorPos(&pt);
-      ScreenToClient(hwnd, &pt);
-      return pt;
-    }
-
-  public:
-    MainWindow(void) : force_direction_(0) {}
-    ~MainWindow() {}
-
-  private:
-    Vector2<int> wsize_; // window size
-    shared_ptr<Timer> timer_; // event timer
-    shared_ptr<World> world_;
-    int zoom_; // flag for the timer (0:zoom-in, 1:zoom-out)
-    int force_direction_; // flag for the timer (0:stop, 1:running)
-  };
-
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmCreate(HWND hwnd) {
-    // module path
+    // Module path.
     wchar_t filename[65536];
     GetModuleFileName(GetModuleHandle(NULL), filename, 65536);
     PathSplitter path(filename);
-    sociarium_project_common::set_module_path(path.drive()+path.dir());
-    SetCurrentDirectory(sociarium_project_common::get_module_path().c_str());
-    // window handle
-    sociarium_project_common::set_window_handle(hwnd);
-    // Create the OpenGL window
-    world_.reset(new World);
-    // Create and start the timer
+    set_module_path(path.drive()+path.dir());
+    SetCurrentDirectory(get_module_path().c_str());
+
+    // Read *.ini file.
+    wstring const ini_filename = get_module_path()+L"sociarium.ini";
+    wchar_t buf[1024];
+    GetPrivateProfileSection(L"system", buf, 1024, ini_filename.c_str());
+
+    vector<wstring> tok1 = tokenize(buf, '\0');
+    unordered_map<wstring, wstring> ini_data;
+
+    for (size_t i=0; i<tok1.size(); ++i) {
+      vector<wstring> tok2 = tokenize(tok1[i], '=');
+      if (tok2.size()>1)
+        ini_data.insert(make_pair(tok2[0], tok2[1]));
+    }
+
+    unordered_map<wstring, wstring>::const_iterator m = ini_data.find(L"language");
+
+    if (m!=ini_data.end())
+      sociarium_project_language::initialize(hwnd, m->second.c_str());
+    else
+      sociarium_project_language::initialize(hwnd, L"language_en.dll");
+
+    // Set a window handle.
+    set_window_handle(hwnd);
+
+    // Set a device context.
+    HDC dc = GetDC(hwnd);
+
+    if (dc==NULL) {
+      show_last_error(L"MainWindow::wmCreate");
+      exit(1);
+    }
+
+    set_device_context(dc);
+
+    // Create the OpenGL world.
+    world_ = World::create();
+
+    // Create and start the timer.
     timer_.reset(new Timer(hwnd));
-    timer_->add(ID_TIMER_DRAW, 10);
-    timer_->add(ID_TIMER_SELECT, 20);
+    timer_->add(ID_TIMER_DRAW, 1);
+    //timer_->add(ID_TIMER_SELECT, 20);
     timer_->add(ID_TIMER_ZOOM, 10);
-    timer_->add(ID_TIMER_FORCE_DIRECTION, 20);
+    timer_->add(ID_TIMER_AUTO_RUN, 1000);
     timer_->start(ID_TIMER_DRAW);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmDestroy(HWND hwnd) {
     world_.reset();
     PostQuitMessage(0);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmCommand(HWND hwnd, WPARAM wp, LPARAM lp) {
     switch (LOWORD(wp)) {
 
+    case IDM_KEY_Q:
+      //sociarium_project_designtide::popup();
+      break;
+
     case IDM_KEY_ESCAPE: {
-      // Cancel the running thread
-      shared_ptr<Thread> const& graph_creation_thread = sociarium_project_thread::get_current_graph_creation_thread();
-      shared_ptr<Thread> const& graph_layout_thread = sociarium_project_thread::get_current_graph_layout_thread();
-      shared_ptr<Thread> const& community_detection_thread = sociarium_project_thread::get_current_community_detection_thread();
-      if (graph_creation_thread!=0) {
-        graph_creation_thread->suspend();
-        if (MessageBox(hwnd, sociarium_project_message::DO_YOU_CANCEL_THE_RUNNING_THREAD,
-                       sociarium_project_common::APPLICATION_TITLE,
-                       MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1)==IDOK) graph_creation_thread->cancel();
-        else graph_creation_thread->resume();
-      } else if (graph_layout_thread!=0) {
-        graph_layout_thread->suspend();
-        if (MessageBox(hwnd, sociarium_project_message::DO_YOU_CANCEL_THE_RUNNING_THREAD,
-                       sociarium_project_common::APPLICATION_TITLE,
-                       MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1)==IDOK) graph_layout_thread->cancel();
-        else graph_layout_thread->resume();
-      } else if (community_detection_thread!=0) {
-        if (MessageBox(hwnd, sociarium_project_message::DO_YOU_CANCEL_THE_RUNNING_THREAD,
-                       sociarium_project_common::APPLICATION_TITLE,
-                       MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1)==IDOK) community_detection_thread->cancel();
-        else community_detection_thread->resume();
-      }
+      using namespace sociarium_project_thread_manager;
+      shared_ptr<ThreadManager> tm = get(GRAPH_CREATION);
 
-      else {
+      if (tm->is_running()) {
+        tm->get()->suspend();
+        if (message_box(
+          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          APPLICATION_TITLE,
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
+          tm->get()->cancel();
+        else
+          tm->get()->resume();
+      } else
         SendMessage(hwnd, WM_CLOSE, 0, 0);
+
+      break;
+    }
+
+    case IDM_FILE_QUIT:
+      SendMessage(hwnd, WM_CLOSE, 0, 0);
+      break;
+
+    case IDM_FILE_CANCEL: {
+      using namespace sociarium_project_thread_manager;
+      shared_ptr<ThreadManager> tm = get(GRAPH_CREATION);
+
+      if (tm->is_running()) {
+        tm->get()->suspend();
+        if (message_box(
+          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          APPLICATION_TITLE,
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
+          tm->get()->cancel();
+        else
+          tm->get()->resume();
       }
+
       break;
     }
 
-    case IDM_LAYOUT_EXECUTE:
-    case IDM_KEY_SPACE: {
-      world_->layout_graph();
+    case IDM_LAYOUT_CANCEL: {
+      using namespace sociarium_project_thread_manager;
+      shared_ptr<ThreadManager> tm = get(LAYOUT);
+
+      if (tm->is_running()) {
+        tm->get()->suspend();
+        if (message_box(
+          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          APPLICATION_TITLE,
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
+          tm->get()->cancel();
+        else
+          tm->get()->resume();
+      }
+
       break;
     }
 
-    case IDM_COMMUNITY_DETECTION_EXECUTE:
-    case IDM_KEY_ENTER: {
+    case IDM_COMMUNITY_DETECTION_CANCEL: {
+      using namespace sociarium_project_thread_manager;
+      shared_ptr<ThreadManager> tm = get(COMMUNITY_DETECTION);
+
+      if (tm->is_running()) {
+        tm->get()->suspend();
+        if (message_box(
+          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          APPLICATION_TITLE,
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
+          tm->get()->cancel();
+        else
+          tm->get()->resume();
+      }
+
+      break;
+    }
+
+    case IDM_VIEW_NODE_SIZE_CANCEL: {
+      using namespace sociarium_project_thread_manager;
+      shared_ptr<ThreadManager> tm = get(NODE_SIZE_UPDATE);
+
+      if (tm->is_running()) {
+        tm->get()->suspend();
+        if (message_box(
+          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          APPLICATION_TITLE,
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
+          tm->get()->cancel();
+        else
+          tm->get()->resume();
+      }
+
+      break;
+    }
+
+    case IDM_VIEW_EDGE_WIDTH_CANCEL: {
+      using namespace sociarium_project_thread_manager;
+      shared_ptr<ThreadManager> tm = get(EDGE_WIDTH_UPDATE);
+
+      if (tm->is_running()) {
+        tm->get()->suspend();
+        if (message_box(
+          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          APPLICATION_TITLE,
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
+          tm->get()->cancel();
+        else
+          tm->get()->resume();
+      }
+
+      break;
+    }
+
+    case IDM_LAYOUT_UPDATE:
+    case IDM_KEY_SPACE:
+      world_->layout();
+      break;
+
+    case IDM_COMMUNITY_DETECTION_UPDATE:
+    case IDM_KEY_ENTER:
       world_->detect_community();
       break;
-    }
 
-    case IDM_KEY_HOME: {
+    case IDM_LAYOUT_INITIALIZE_EYEPOINT:
+    case IDM_KEY_HOME:
       world_->initialize_view();
       break;
-    }
 
+    case IDM_LAYOUT_INITIALIZE_LAYOUT_FRAME:
     case IDM_KEY_CTRL_HOME: {
-      sociarium_project_draw::set_layout_frame_size(sociarium_project_draw::get_layout_frame_default_size());
-      sociarium_project_draw::set_layout_frame_previous_size(sociarium_project_draw::get_layout_frame_size());
-      sociarium_project_draw::set_layout_frame_position(Vector2<int>(0, 0));
-      sociarium_project_draw::set_layout_frame_previous_position(sociarium_project_draw::get_layout_frame_position());
+
+      using namespace sociarium_project_layout;
+      using namespace sociarium_project_algorithm_selector;
+
+      set_layout_frame_size(get_layout_frame_default_size());
+      set_layout_frame_previous_size(get_layout_frame_size());
+      set_layout_frame_position(Vector2<int>(0, 0));
+      set_layout_frame_previous_position(get_layout_frame_position());
+
+      if (get_force_direction_algorithm()
+          ==RealTimeForceDirectionAlgorithm::LATTICE_GAS_METHOD)
+        sociarium_project_force_direction::should_be_updated();
+
       break;
     }
 
-    case IDM_KEY_NEXT: {
+    case IDM_KEY_NEXT:
       if (!timer_->is_active(ID_TIMER_ZOOM)) {
         zoom_ = 0;
         timer_->start(ID_TIMER_ZOOM);
       }
       break;
-    }
 
-    case IDM_KEY_PRIOR: {
+    case IDM_KEY_PRIOR:
       if (!timer_->is_active(ID_TIMER_ZOOM)) {
         zoom_ = 1;
         timer_->start(ID_TIMER_ZOOM);
       }
       break;
-    }
 
-    case IDM_KEY_RIGHT: {
-      world_->move_layer(world_->index_of_current_layer()+1);
+    case IDM_TIMELINE_NEXT:
+    case IDM_KEY_RIGHT:
+    case IDM_KEY_UP:
+      world_->forward_layer(window2viewport(get_mouse_position(hwnd)));
       break;
-    }
 
-    case IDM_KEY_LEFT: {
-      world_->move_layer(world_->index_of_current_layer()-1);
+    case IDM_TIMELINE_PREV:
+    case IDM_KEY_LEFT:
+    case IDM_KEY_DOWN:
+      world_->backward_layer(window2viewport(get_mouse_position(hwnd)));
       break;
-    }
 
-    case IDM_KEY_UP: {
-      world_->move_layer(world_->index_of_current_layer()+1);
-      break;
-    }
+      {
+        // --------------------------------------------------------------------------------
+        // COMMUNITY TRANSITION DIAGRAM
 
-    case IDM_KEY_DOWN: {
-      world_->move_layer(world_->index_of_current_layer()-1);
-      break;
-    }
+        using namespace sociarium_project_community_transition_diagram;
 
-      // ----------------------------------------------------------------------------------------------------
+      case IDM_KEY_CTRL_RIGHT: {
+        pair<int, int> const& scope = get_scope();
+        set_scope(scope.first-1, scope.second+1);
+        break;
+      }
+
+      case IDM_KEY_CTRL_LEFT: {
+        pair<int, int> const& scope = get_scope();
+        set_scope(scope.first+1, scope.second-1);
+        break;
+      }
+
+      case IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER: {
+        timer_->stop(ID_TIMER_DRAW);
+        int const size = int(2*get_resolution());
+        for (int i=0; i<size; ++i) {
+          pair<int, int> const& scope = get_scope();
+          set_scope(scope.first-1, scope.second+1);
+          world_->draw();
+        }
+        timer_->start(ID_TIMER_DRAW);
+        break;
+      }
+
+      case IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER: {
+        timer_->stop(ID_TIMER_DRAW);
+        int const size = int(2*get_resolution());
+        for (int i=0; i<size; ++i) {
+          pair<int, int> const& scope = get_scope();
+          set_scope(scope.first+1, scope.second-1);
+          world_->draw();
+        }
+        timer_->start(ID_TIMER_DRAW);
+        break;
+      }
+
+      }
+
+      {
+        // --------------------------------------------------------------------------------
+        // TIMELINE
+
+        using namespace sociarium_project_timeline;
+
+      case IDM_TIMELINE_STOP:
+        set_auto_run_id(AutoRun::STOP);
+        timer_->stop(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_FORWARD_1:
+        set_auto_run_id(AutoRun::FORWARD_1);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_FORWARD_2:
+        set_auto_run_id(AutoRun::FORWARD_2);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_FORWARD_3:
+        set_auto_run_id(AutoRun::FORWARD_3);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_FORWARD_4:
+        set_auto_run_id(AutoRun::FORWARD_4);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_BACKWARD_1:
+        set_auto_run_id(AutoRun::BACKWARD_1);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_BACKWARD_2:
+        set_auto_run_id(AutoRun::BACKWARD_2);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_BACKWARD_3:
+        set_auto_run_id(AutoRun::BACKWARD_3);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+
+      case IDM_TIMELINE_BACKWARD_4:
+        set_auto_run_id(AutoRun::BACKWARD_4);
+        timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+        timer_->start(ID_TIMER_AUTO_RUN);
+        break;
+      }
+
+
+      // --------------------------------------------------------------------------------
       // EDIT
 
       // MARK
-    case IDM_EDIT_FOR_CURRENT_SELECT_NODES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_EDGES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_COMMUNITIES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_COMMUNITY_EDGES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_INNER_COMMUNITY_NODES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_INNER_COMMUNITY_EDGES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_INNER_COMMUNITY_ELEMENTS:
-    case IDM_EDIT_FOR_CURRENT_SELECT_OUTER_COMMUNITY_NODES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_OUTER_COMMUNITY_EDGES:
-    case IDM_EDIT_FOR_CURRENT_SELECT_OUTER_COMMUNITY_ELEMENTS:
+    case IDM_EDIT_MARK_NODES_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_EDGES_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_COMMUNITIES_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_COMMUNITY_EDGES_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER:
       world_->mark_elements(LOWORD(wp));
       break;
 
-    case IDM_EDIT_FOR_ALL_SELECT_NODES:
-    case IDM_EDIT_FOR_ALL_SELECT_EDGES:
-    case IDM_EDIT_FOR_ALL_SELECT_COMMUNITIES:
-    case IDM_EDIT_FOR_ALL_SELECT_COMMUNITY_EDGES:
-    case IDM_EDIT_FOR_ALL_SELECT_INNER_COMMUNITY_NODES:
-    case IDM_EDIT_FOR_ALL_SELECT_INNER_COMMUNITY_EDGES:
-    case IDM_EDIT_FOR_ALL_SELECT_INNER_COMMUNITY_ELEMENTS:
-    case IDM_EDIT_FOR_ALL_SELECT_OUTER_COMMUNITY_NODES:
-    case IDM_EDIT_FOR_ALL_SELECT_OUTER_COMMUNITY_EDGES:
-    case IDM_EDIT_FOR_ALL_SELECT_OUTER_COMMUNITY_ELEMENTS:
+    case IDM_EDIT_MARK_NODES_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_EDGES_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_COMMUNITIES_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_COMMUNITY_EDGES_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER:
       world_->mark_elements(LOWORD(wp));
       break;
 
     case IDM_KEY_CTRL_A:
-    case IDM_EDIT_FOR_CURRENT_SELECT_ALL:
-      world_->mark_elements(IDM_EDIT_FOR_CURRENT_SELECT_ALL);
+    case IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER:
+      world_->mark_elements(IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER);
       break;
 
     case IDM_KEY_SHIFT_CTRL_A:
-    case IDM_EDIT_FOR_ALL_SELECT_ALL:
-      world_->mark_elements(IDM_EDIT_FOR_ALL_SELECT_ALL);
+    case IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER:
+      world_->mark_elements(IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER);
       break;
 
     case IDM_KEY_CTRL_I:
-    case IDM_EDIT_FOR_CURRENT_SELECT_INVERT:
-      world_->inverse_mark(IDM_EDIT_FOR_CURRENT_SELECT_INVERT);
+    case IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER:
+      world_->inverse_mark(IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER);
       break;
 
     case IDM_KEY_SHIFT_CTRL_I:
-    case IDM_EDIT_FOR_ALL_SELECT_INVERT:
-      world_->inverse_mark(IDM_EDIT_FOR_ALL_SELECT_INVERT);
+    case IDM_EDIT_INVERT_MARK_ON_EACH_LAYER:
+      world_->inverse_mark(IDM_EDIT_INVERT_MARK_ON_EACH_LAYER);
       break;
 
       // HIDE
-    case IDM_EDIT_FOR_CURRENT_HIDE_MARKED_NODES:
-    case IDM_EDIT_FOR_CURRENT_HIDE_MARKED_EDGES:
+    case IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER:
+    case IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER:
       world_->hide_marked_element(LOWORD(wp));
       break;
 
     case IDM_KEY_CTRL_H:
-    case IDM_EDIT_FOR_CURRENT_HIDE_MARKED_ELEMENTS:
-      world_->hide_marked_element(IDM_EDIT_FOR_CURRENT_HIDE_MARKED_ELEMENTS);
+    case IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER:
+      world_->hide_marked_element(IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER);
       break;
 
-    case IDM_EDIT_FOR_ALL_HIDE_MARKED_NODES:
-    case IDM_EDIT_FOR_ALL_HIDE_MARKED_EDGES:
+    case IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER:
+    case IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER:
       world_->hide_marked_element(LOWORD(wp));
       break;
 
     case IDM_KEY_SHIFT_CTRL_H:
-    case IDM_EDIT_FOR_ALL_HIDE_MARKED_ELEMENTS:
-      world_->hide_marked_element(IDM_EDIT_FOR_ALL_HIDE_MARKED_ELEMENTS);
+    case IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER:
+      world_->hide_marked_element(IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER);
       break;
 
-    case IDM_EDIT_FOR_CURRENT_HIDE_MARKED_NODES_ALL:
-    case IDM_EDIT_FOR_CURRENT_HIDE_MARKED_EDGES_ALL:
-    case IDM_EDIT_FOR_CURRENT_HIDE_MARKED_ELEMENTS_ALL:
+    case IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL:
+    case IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL:
+    case IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL:
       world_->hide_marked_element(LOWORD(wp));
       break;
 
-    case IDM_EDIT_FOR_ALL_HIDE_MARKED_NODES_ALL:
-    case IDM_EDIT_FOR_ALL_HIDE_MARKED_EDGES_ALL:
-    case IDM_EDIT_FOR_ALL_HIDE_MARKED_ELEMENTS_ALL:
+    case IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL:
+    case IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL:
+    case IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL:
       world_->hide_marked_element(LOWORD(wp));
       break;
 
       // REMOVE
-    case IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_NODES:
-    case IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_EDGES:
+    case IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER:
+    case IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER:
       world_->remove_marked_elements(LOWORD(wp));
       break;
 
     case IDM_KEY_DELETE:
-    case IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_ELEMENTS:
-      world_->remove_marked_elements(IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_ELEMENTS);
+    case IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER:
+      world_->remove_marked_elements(IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER);
       break;
 
-    case IDM_EDIT_FOR_ALL_REMOVE_MARKED_NODES:
-    case IDM_EDIT_FOR_ALL_REMOVE_MARKED_EDGES:
+    case IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER:
+    case IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER:
       world_->remove_marked_elements(LOWORD(wp));
       break;
 
     case IDM_KEY_CTRL_DELETE:
-    case IDM_EDIT_FOR_ALL_REMOVE_MARKED_ELEMENTS:
-      world_->remove_marked_elements(IDM_EDIT_FOR_ALL_REMOVE_MARKED_ELEMENTS);
+    case IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER:
+      world_->remove_marked_elements(IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER);
       break;
 
-    case IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_NODES_ALL:
-    case IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_EDGES_ALL:
-    case IDM_EDIT_FOR_CURRENT_REMOVE_MARKED_ELEMENTS_ALL:
+    case IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL:
+    case IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL:
+    case IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL:
       world_->remove_marked_elements(LOWORD(wp));
       break;
 
-    case IDM_EDIT_FOR_ALL_REMOVE_MARKED_NODES_ALL:
-    case IDM_EDIT_FOR_ALL_REMOVE_MARKED_EDGES_ALL:
-    case IDM_EDIT_FOR_ALL_REMOVE_MARKED_ELEMENTS_ALL:
+    case IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL:
+    case IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL:
+    case IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL:
       world_->remove_marked_elements(LOWORD(wp));
       break;
 
       // SHOW
-    case IDM_EDIT_FOR_CURRENT_SHOW_NODES:
-    case IDM_EDIT_FOR_CURRENT_SHOW_EDGES:
+    case IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER:
+    case IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER:
       world_->show_elements(LOWORD(wp));
       break;
 
     case IDM_KEY_CTRL_U:
-    case IDM_EDIT_FOR_CURRENT_SHOW_ELEMENTS:
-      world_->show_elements(IDM_EDIT_FOR_CURRENT_SHOW_ELEMENTS);
+    case IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER:
+      world_->show_elements(IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER);
       break;
 
-    case IDM_EDIT_FOR_ALL_SHOW_EDGES:
-    case IDM_EDIT_FOR_ALL_SHOW_NODES:
+    case IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER:
+    case IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER:
       world_->show_elements(LOWORD(wp));
       break;
 
     case IDM_KEY_SHIFT_CTRL_U:
-    case IDM_EDIT_FOR_ALL_SHOW_ELEMENTS:
-      world_->show_elements(IDM_EDIT_FOR_ALL_SHOW_ELEMENTS);
+    case IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER:
+      world_->show_elements(IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER);
       break;
 
-      // ----------------------------------------------------------------------------------------------------
-      // VIEW
+      {
+        // --------------------------------------------------------------------------------
+        // VIEW
 
-    case IDM_KEY_1:
-    case IDM_SHOW_NODE: {
-      sociarium_project_view::set_show_node(!sociarium_project_view::get_show_node());
+        using namespace sociarium_project_view;
+
+      case IDM_KEY_1:
+      case IDM_VIEW_SHOW_NODE:
+        set_show_node(!get_show_node());
+        break;
+
+      case IDM_KEY_2:
+      case IDM_VIEW_SHOW_EDGE:
+        set_show_edge(!get_show_edge());
+        break;
+
+      case IDM_KEY_3:
+      case IDM_VIEW_SHOW_COMMUNITY:
+        set_show_community(!get_show_community());
+        break;
+
+      case IDM_KEY_4:
+      case IDM_VIEW_SHOW_COMMUNITY_EDGE:
+        set_show_community_edge(!get_show_community_edge());
+        break;
+
+      case IDM_KEY_CTRL_1:
+      case IDM_STRING_SHOW_NODE_NAME:
+        set_show_node_name(!get_show_node_name());
+        break;
+
+      case IDM_KEY_CTRL_2:
+      case IDM_STRING_SHOW_EDGE_NAME:
+        set_show_edge_name(!get_show_edge_name());
+        break;
+
+      case IDM_KEY_CTRL_3:
+      case IDM_STRING_SHOW_COMMUNITY_NAME:
+        set_show_community_name(!get_show_community_name());
+        break;
+
+      case IDM_KEY_CTRL_4:
+      case IDM_STRING_SHOW_COMMUNITY_EDGE_NAME:
+        set_show_community_edge_name(!get_show_community_edge_name());
+        break;
+
+      case IDM_STRING_NODE_NAME_SIZE_VARIABLE:
+        set_node_name_size_variable(!get_node_name_size_variable());
+        break;
+
+      case IDM_STRING_EDGE_NAME_SIZE_VARIABLE:
+        set_edge_name_size_variable(!get_edge_name_size_variable());
+        break;
+
+      case IDM_STRING_COMMUNITY_NAME_SIZE_VARIABLE:
+        set_community_name_size_variable(!get_community_name_size_variable());
+        break;
+
+      case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_VARIABLE:
+        set_community_edge_name_size_variable(!get_community_edge_name_size_variable());
+        break;
+
+      case IDM_KEY_SHIFT_CTRL_1:
+        shift_node_style();
+        break;
+
+      case IDM_KEY_SHIFT_CTRL_2:
+        shift_edge_style();
+        break;
+
+      case IDM_KEY_SHIFT_CTRL_3:
+        shift_community_style();
+        break;
+
+      case IDM_KEY_SHIFT_CTRL_4:
+        shift_community_edge_style();
+        break;
+
+      case IDM_VIEW_NODE_STYLE_POLYGON:
+        set_node_style(NodeStyle::POLYGON);
+        break;
+
+      case IDM_VIEW_NODE_STYLE_TEXTURE:
+        set_node_style(NodeStyle::TEXTURE);
+        break;
+
+      case IDM_VIEW_EDGE_STYLE_LINE:
+        set_edge_style(EdgeStyle::LINE);
+        break;
+
+      case IDM_VIEW_EDGE_STYLE_POLYGON:
+        set_edge_style(EdgeStyle::POLYGON);
+        break;
+
+      case IDM_VIEW_COMMUNITY_STYLE_POLYGON_CIRCLE:
+        set_community_style(CommunityStyle::POLYGON_CIRCLE);
+        break;
+
+      case IDM_VIEW_COMMUNITY_STYLE_TEXTURE:
+        set_community_style(CommunityStyle::TEXTURE);
+        break;
+
+      case IDM_VIEW_COMMUNITY_EDGE_STYLE_LINE:
+        set_community_edge_style(CommunityEdgeStyle::LINE);
+        break;
+
+      case IDM_VIEW_COMMUNITY_EDGE_STYLE_POLYGON:
+        set_community_edge_style(CommunityEdgeStyle::POLYGON);
+        break;
+
+      case IDM_KEY_S:
+      case IDM_TIMELINE_SHOW_SLIDER:
+        set_show_slider(!get_show_slider());
+        break;
+
+      case IDM_KEY_L:
+      case IDM_STRING_SHOW_LAYER_NAME:
+        set_show_layer_name(!get_show_layer_name());
+        break;
+
+      case IDM_KEY_F:
+      case IDM_LAYOUT_SHOW_LAYOUT_FRAME:
+        set_show_layout_frame(!get_show_layout_frame());
+        break;
+
+      case IDM_KEY_G:
+      case IDM_LAYOUT_SHOW_GRID:
+        set_show_grid(!get_show_grid());
+        break;
+
+      case IDM_KEY_CTRL_F:
+      case IDM_STRING_SHOW_FPS:
+        set_show_fps(!get_show_fps());
+        break;
+
+      case IDM_LAYOUT_SHOW_CENTER:
+        set_show_center(!get_show_center());
+        break;
+
+      }
+
+      {
+        // --------------------------------------------------------------------------------
+        // NODE SIZE
+
+        using namespace sociarium_project_algorithm_selector;
+
+      case IDM_VIEW_NODE_SIZE_UPDATE:
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_UNIFORM:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::UNIFORM);
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_WEIGHT:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::WEIGHT);
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_DEGREE_CENTRALITY:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::DEGREE_CENTRALITY);
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_CLOSENESS_CENTRALITY:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::CLOSENESS_CENTRALITY);
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_BETWEENNESS_CENTRALITY:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::BETWEENNESS_CENTRALITY);
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_PAGERANK:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::PAGERANK);
+        world_->update_node_size();
+        break;
+
+      case IDM_VIEW_NODE_SIZE_POINT:
+        set_node_size_update_algorithm(NodeSizeUpdateAlgorithm::POINT);
+        world_->update_node_size();
+        break;
+
+      }
+
+      {
+        // --------------------------------------------------------------------------------
+        // EDGE WIDTH
+
+        using namespace sociarium_project_algorithm_selector;
+
+      case IDM_VIEW_EDGE_WIDTH_UPDATE:
+        world_->update_edge_width();
+        break;
+
+      case IDM_VIEW_EDGE_WIDTH_UNIFORM:
+        set_edge_width_update_algorithm(EdgeWidthUpdateAlgorithm::UNIFORM);
+        world_->update_edge_width();
+        break;
+
+      case IDM_VIEW_EDGE_WIDTH_WEIGHT:
+        set_edge_width_update_algorithm(EdgeWidthUpdateAlgorithm::WEIGHT);
+        world_->update_edge_width();
+        break;
+
+      case IDM_VIEW_EDGE_WIDTH_BETWEENNESS_CENTRALITY:
+        set_edge_width_update_algorithm(EdgeWidthUpdateAlgorithm::BETWEENNESS_CENTRALITY);
+        world_->update_edge_width();
+        break;
+
+      }
+
+      {
+        // --------------------------------------------------------------------------------
+        // FONT
+
+        using namespace sociarium_project_font;
+
+      case IDM_STRING_NODE_NAME_SIZE_0: set_font_scale(FontCategory::NODE_NAME, 0); break;
+      case IDM_STRING_NODE_NAME_SIZE_1: set_font_scale(FontCategory::NODE_NAME, 1); break;
+      case IDM_STRING_NODE_NAME_SIZE_2: set_font_scale(FontCategory::NODE_NAME, 2); break;
+      case IDM_STRING_NODE_NAME_SIZE_3: set_font_scale(FontCategory::NODE_NAME, 3); break;
+      case IDM_STRING_NODE_NAME_SIZE_4: set_font_scale(FontCategory::NODE_NAME, 4); break;
+
+      case IDM_STRING_EDGE_NAME_SIZE_0: set_font_scale(FontCategory::EDGE_NAME, 0); break;
+      case IDM_STRING_EDGE_NAME_SIZE_1: set_font_scale(FontCategory::EDGE_NAME, 1); break;
+      case IDM_STRING_EDGE_NAME_SIZE_2: set_font_scale(FontCategory::EDGE_NAME, 2); break;
+      case IDM_STRING_EDGE_NAME_SIZE_3: set_font_scale(FontCategory::EDGE_NAME, 3); break;
+      case IDM_STRING_EDGE_NAME_SIZE_4: set_font_scale(FontCategory::EDGE_NAME, 4); break;
+
+      case IDM_STRING_COMMUNITY_NAME_SIZE_0: set_font_scale(FontCategory::COMMUNITY_NAME, 0); break;
+      case IDM_STRING_COMMUNITY_NAME_SIZE_1: set_font_scale(FontCategory::COMMUNITY_NAME, 1); break;
+      case IDM_STRING_COMMUNITY_NAME_SIZE_2: set_font_scale(FontCategory::COMMUNITY_NAME, 2); break;
+      case IDM_STRING_COMMUNITY_NAME_SIZE_3: set_font_scale(FontCategory::COMMUNITY_NAME, 3); break;
+      case IDM_STRING_COMMUNITY_NAME_SIZE_4: set_font_scale(FontCategory::COMMUNITY_NAME, 4); break;
+
+      case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_0: set_font_scale(FontCategory::COMMUNITY_EDGE_NAME, 0); break;
+      case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_1: set_font_scale(FontCategory::COMMUNITY_EDGE_NAME, 1); break;
+      case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_2: set_font_scale(FontCategory::COMMUNITY_EDGE_NAME, 2); break;
+      case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_3: set_font_scale(FontCategory::COMMUNITY_EDGE_NAME, 3); break;
+      case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_4: set_font_scale(FontCategory::COMMUNITY_EDGE_NAME, 4); break;
+
+      case IDM_STRING_FONT_TYPE_POLYGON: set_font_type(FontType::POLYGON_FONT); break;
+      case IDM_STRING_FONT_TYPE_TEXTURE: set_font_type(FontType::TEXTURE_FONT); break;
+
+      }
+
+      {
+        // --------------------------------------------------------------------------------
+        // LAYOUT
+
+        using namespace sociarium_project_algorithm_selector;
+
+      case IDM_LAYOUT_KAMADA_KAWAI_METHOD:
+        set_layout_algorithm(LayoutAlgorithm::KAMADA_KAWAI_METHOD);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_2:
+        set_layout_algorithm(LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_3:
+        set_layout_algorithm(LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_2_3:
+        set_layout_algorithm(LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_CIRCLE:
+        set_layout_algorithm(LayoutAlgorithm::CIRCLE);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER:
+        set_layout_algorithm(LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_LATTICE:
+        set_layout_algorithm(LayoutAlgorithm::LATTICE);
+        world_->layout();
+        break;
+
+      case IDM_LAYOUT_RANDOM:
+        set_layout_algorithm(LayoutAlgorithm::RANDOM);
+        world_->layout();
+        break;
+
+      case IDM_KEY_CTRL_SPACE:
+      case IDM_LAYOUT_FORCE_DIRECTION_RUN: {
+        using namespace sociarium_project_thread_manager;
+        sociarium_project_force_direction::toggle_execution(get(FORCE_DIRECTION)->get());
+        break;
+      }
+
+      case IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD:
+        set_force_direction_algorithm(
+          RealTimeForceDirectionAlgorithm::KAMADA_KAWAI_METHOD);
+        break;
+
+      case IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION:
+        set_force_direction_algorithm(
+          RealTimeForceDirectionAlgorithm::KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION);
+        break;
+
+      case IDM_LAYOUT_FORCE_DIRECTION_COMMUNITY_ORIENTED:
+        set_force_direction_algorithm(
+          RealTimeForceDirectionAlgorithm::COMMUNITY_ORIENTED);
+        break;
+
+      case IDM_LAYOUT_FORCE_DIRECTION_SPRING_AND_REPULSIVE_FORCE:
+        set_force_direction_algorithm(
+          RealTimeForceDirectionAlgorithm::SPRING_AND_REPULSIVE_FORCE);
+        break;
+
+      case IDM_LAYOUT_FORCE_DIRECTION_LATTICE_GAS_METHOD:
+        set_force_direction_algorithm(
+          RealTimeForceDirectionAlgorithm::LATTICE_GAS_METHOD);
+        break;
+
+      case IDM_LAYOUT_FORCE_DIRECTION_DESIGNTIDE:
+        set_force_direction_algorithm(
+          RealTimeForceDirectionAlgorithm::DESIGNTIDE);
+        break;
+
+      }
+
+      {
+        // --------------------------------------------------------------------------------
+        // COMMUNITY_DETECTION
+
+        using namespace sociarium_project_algorithm_selector;
+
+      case IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::CONNECTED_COMPONENTS);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_STRONGLY_CONNECTED_COMPONENTS:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::STRONGLY_CONNECTED_COMPONENTS);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_TEO_METHOD:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_TEO_METHOD);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY:
+        use_weighted_modularity(!use_weighted_modularity());
+        break;
+
+      case IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_3:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_4:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_4);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_5:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_5);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING);
+        world_->detect_community();
+        break;
+
+      case IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING:
+        set_community_detection_algorithm(
+          CommunityDetectionAlgorithm::INFORMATION_FLOW_MAPPING);
+        world_->detect_community();
+        break;
+
+      }
+
+    case IDM_COMMUNITY_DETECTION_CLEAR:
+      world_->clear_community();
       break;
-    }
 
-    case IDM_KEY_2:
-    case IDM_SHOW_EDGE: {
-      sociarium_project_view::set_show_edge(!sociarium_project_view::get_show_edge());
+    case IDM_KEY_D:
+    case IDM_COMMUNITY_TRANSITION_DIAGRAM:
+      sociarium_project_view::set_show_diagram(!sociarium_project_view::get_show_diagram());
       break;
-    }
 
-    case IDM_KEY_3:
-    case IDM_SHOW_COMMUNITY: {
-      sociarium_project_view::set_show_community(!sociarium_project_view::get_show_community());
-      break;
-    }
-
-    case IDM_KEY_4:
-    case IDM_SHOW_COMMUNITY_EDGE: {
-      sociarium_project_view::set_show_community_edge(!sociarium_project_view::get_show_community_edge());
-      break;
-    }
-
-    case IDM_KEY_SHIFT_CTRL_1:
-    case IDM_SHOW_NODE_LABEL: {
-      sociarium_project_view::set_show_node_label(!sociarium_project_view::get_show_node_label());
-      break;
-    }
-
-    case IDM_KEY_SHIFT_CTRL_2:
-    case IDM_SHOW_EDGE_LABEL: {
-      sociarium_project_view::set_show_edge_label(!sociarium_project_view::get_show_edge_label());
-      break;
-    }
-
-    case IDM_KEY_SHIFT_CTRL_3:
-    case IDM_SHOW_COMMUNITY_LABEL: {
-      sociarium_project_view::set_show_community_label(!sociarium_project_view::get_show_community_label());
-      break;
-    }
-
-    case IDM_KEY_SHIFT_CTRL_4:
-    case IDM_SHOW_COMMUNITY_EDGE_LABEL: {
-      sociarium_project_view::set_show_community_edge_label(!sociarium_project_view::get_show_community_edge_label());
-      break;
-    }
-
-    case IDM_KEY_CTRL_1: {
-      sociarium_project_view::shift_node_style();
-      break;
-    }
-
-    case IDM_KEY_CTRL_2: {
-      sociarium_project_view::shift_edge_style();
-      break;
-    }
-
-    case IDM_KEY_CTRL_3: {
-      sociarium_project_view::shift_community_style();
-      break;
-    }
-
-    case IDM_KEY_CTRL_4: {
-      sociarium_project_view::shift_community_edge_style();
-      break;
-    }
-
-    case IDM_NODE_STYLE_POLYGON: {
-      sociarium_project_view::set_node_style(sociarium_project_view::NodeView::Style::POLYGON);
-      break;
-    }
-
-    case IDM_NODE_STYLE_TEXTURE: {
-      sociarium_project_view::set_node_style(sociarium_project_view::NodeView::Style::TEXTURE);
-      break;
-    }
-
-      //     case IDM_EDGE_STYLE_STRAIGHT: {
-      //       sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::STRAIGHT);
-      //       break;
-      //     }
-      //
-      //     case IDM_EDGE_STYLE_HCURVE: {
-      //       sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::HCURVE);
-      //       break;
-      //     }
-      //
-      //     case IDM_EDGE_STYLE_VCURVE: {
-      //       sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::VCURVE);
-      //       break;
-      //     }
-
-    case IDM_EDGE_STYLE_LINE: {
-      sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::LINE);
-      break;
-    }
-
-    case IDM_EDGE_STYLE_TEXTURE: {
-      sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::TEXTURE);
-      break;
-    }
-
-    case IDM_COMMUNITY_STYLE_POLYGON_CIRCLE: {
-      sociarium_project_view::set_community_style(sociarium_project_view::CommunityView::Style::POLYGON_CIRCLE);
-      break;
-    }
-
-    case IDM_COMMUNITY_STYLE_POLYGON_CURVE: {
-      sociarium_project_view::set_community_style(sociarium_project_view::CommunityView::Style::POLYGON_CURVE);
-      break;
-    }
-
-    case IDM_COMMUNITY_STYLE_TEXTURE: {
-      sociarium_project_view::set_community_style(sociarium_project_view::CommunityView::Style::TEXTURE);
-      break;
-    }
-
-    case IDM_COMMUNITY_EDGE_STYLE_LINE: {
-      sociarium_project_view::set_community_edge_style(sociarium_project_view::CommunityEdgeView::Style::LINE);
-      break;
-    }
-
-    case IDM_COMMUNITY_EDGE_STYLE_TEXTURE: {
-      sociarium_project_view::set_community_edge_style(sociarium_project_view::CommunityEdgeView::Style::TEXTURE);
-      break;
-    }
-
-    case IDM_NODE_SIZE_UNIFORM: {
-      world_->update_node_size(sociarium_project_view::NodeView::SizeFactor::UNIFORM);
-      break;
-    }
-
-    case IDM_NODE_SIZE_REPRESENTS_DEGREE_CENTRALITY: {
-      world_->update_node_size(sociarium_project_view::NodeView::SizeFactor::DEGREE_CENTRALITY);
-      break;
-    }
-
-    case IDM_NODE_SIZE_REPRESENTS_CLOSENESS_CENTRALITY: {
-      world_->update_node_size(sociarium_project_view::NodeView::SizeFactor::CLOSENESS_CENTRALITY);
-      break;
-    }
-
-    case IDM_NODE_SIZE_REPRESENTS_BETWEENNESS_CENTRALITY: {
-      world_->update_node_size(sociarium_project_view::NodeView::SizeFactor::BETWEENNESS_CENTRALITY);
-      break;
-    }
-
-    case IDM_NODE_SIZE_REPRESENTS_PAGERANK: {
-      world_->update_node_size(sociarium_project_view::NodeView::SizeFactor::PAGERANK);
-      break;
-    }
-
-    case IDM_NODE_SIZE_NONE: {
-      world_->update_node_size(sociarium_project_view::NodeView::SizeFactor::NONE);
-      break;
-    }
-
-    case IDM_FONT_SIZE_NODE_0: { sociarium_project_font::set_node_font_scale(0); break; }
-    case IDM_FONT_SIZE_NODE_1: { sociarium_project_font::set_node_font_scale(1); break; }
-    case IDM_FONT_SIZE_NODE_2: { sociarium_project_font::set_node_font_scale(2); break; }
-    case IDM_FONT_SIZE_NODE_3: { sociarium_project_font::set_node_font_scale(3); break; }
-
-    case IDM_FONT_SIZE_EDGE_0: { sociarium_project_font::set_edge_font_scale(0); break; }
-    case IDM_FONT_SIZE_EDGE_1: { sociarium_project_font::set_edge_font_scale(1); break; }
-    case IDM_FONT_SIZE_EDGE_2: { sociarium_project_font::set_edge_font_scale(2); break; }
-    case IDM_FONT_SIZE_EDGE_3: { sociarium_project_font::set_edge_font_scale(3); break; }
-
-    case IDM_FONT_SIZE_COMMUNITY_0: { sociarium_project_font::set_community_font_scale(0); break; }
-    case IDM_FONT_SIZE_COMMUNITY_1: { sociarium_project_font::set_community_font_scale(1); break; }
-    case IDM_FONT_SIZE_COMMUNITY_2: { sociarium_project_font::set_community_font_scale(2); break; }
-    case IDM_FONT_SIZE_COMMUNITY_3: { sociarium_project_font::set_community_font_scale(3); break; }
-
-    case IDM_FONT_SIZE_COMMUNITY_EDGE_0: { sociarium_project_font::set_community_edge_font_scale(0); break; }
-    case IDM_FONT_SIZE_COMMUNITY_EDGE_1: { sociarium_project_font::set_community_edge_font_scale(1); break; }
-    case IDM_FONT_SIZE_COMMUNITY_EDGE_2: { sociarium_project_font::set_community_edge_font_scale(2); break; }
-    case IDM_FONT_SIZE_COMMUNITY_EDGE_3: { sociarium_project_font::set_community_edge_font_scale(3); break; }
-
-    case IDM_KEY_SHIFT_CTRL_Z: {
+    case IDM_LAYOUT_ZOOM_OUT:
       timer_->stop(ID_TIMER_DRAW);
       for (int i=0; i<10; ++i) {
         world_->zoom(1.05);
@@ -598,9 +981,8 @@ namespace hashimoto_ut {
       }
       timer_->start(ID_TIMER_DRAW);
       break;
-    }
 
-    case IDM_KEY_SHIFT_CTRL_X: {
+    case IDM_LAYOUT_ZOOM_IN:
       timer_->stop(ID_TIMER_DRAW);
       for (int i=0; i<10; ++i) {
         world_->zoom(1.0/1.05);
@@ -608,151 +990,13 @@ namespace hashimoto_ut {
       }
       timer_->start(ID_TIMER_DRAW);
       break;
-    }
 
-    case IDM_KEY_S:
-    case IDM_SHOW_SLIDER: {
-      sociarium_project_view::set_show_slider(!sociarium_project_view::get_show_slider());
-      break;
-    }
-
-    case IDM_KEY_T:
-    case IDM_SHOW_TIME_LABEL: {
-      sociarium_project_view::set_show_time_label(!sociarium_project_view::get_show_time_label());
-      break;
-    }
-
-    case IDM_KEY_F:
-    case IDM_SHOW_LAYOUT_FRAME: {
-      sociarium_project_view::set_show_layout_frame(!sociarium_project_view::get_show_layout_frame());
-      break;
-    }
-
-    case IDM_KEY_G:
-    case IDM_SHOW_GRID: {
-      sociarium_project_view::set_show_grid(!sociarium_project_view::get_show_grid());
-      break;
-    }
-
-    case IDM_KEY_CTRL_F:
-    case IDM_SHOW_FPS: {
-      sociarium_project_view::set_show_fps(!sociarium_project_view::get_show_fps());
-      break;
-    }
-
-    case IDM_SHOW_CENTER: {
-      sociarium_project_view::set_show_center(!sociarium_project_view::get_show_center());
-      break;
-    }
-
-      // ----------------------------------------------------------------------------------------------------
-      // LAYOUT
-
-    case IDM_LAYOUT_KAMADA_KAWAI_METHOD: {
-      sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::KAMADA_KAWAI_METHOD);
-      break;
-    }
-
-    case IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING: {
-      sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::HDE);
-      break;
-    }
-
-    case IDM_LAYOUT_CIRCLE: {
-      sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE);
-      break;
-    }
-
-    case IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER: {
-      sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER);
-      break;
-    }
-
-    case IDM_LAYOUT_ARRAY: {
-      sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::ARRAY);
-      break;
-    }
-
-    case IDM_LAYOUT_RANDOM: {
-      sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::RANDOM);
-      break;
-    }
-
-    case IDM_KEY_CTRL_SPACE:
-    case IDM_LAYOUT_FORCE_DIRECTION: {
-      if (force_direction_==0) {
-        force_direction_ = 1;
-        timer_->start(ID_TIMER_FORCE_DIRECTION);
-      } else {
-        force_direction_ = 0;
-        timer_->stop(ID_TIMER_FORCE_DIRECTION);
-      }
-      break;
-    }
-
-    case IDM_LAYOUT_AUTO: {
-      sociarium_project_layout::set_auto_layout(!sociarium_project_layout::get_auto_layout());
-      break;
-    }
-
-      // ----------------------------------------------------------------------------------------------------
-      // COMMUNITY_DETECTION
-
-    case IDM_CONNECTED_COMPONENTS: {
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::CONNECTED_COMPONENTS);
-      break;
-    }
-
-    case IDM_STRONGLY_CONNECTED_COMPONENTS: {
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::STRONGLY_CONNECTED_COMPONENTS);
-      break;
-    }
-
-    case IDM_CLIQUE_PERCOLATION_3: {
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3);
-      break;
-    }
-
-    case IDM_CLIQUE_PERCOLATION_4: {
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_4);
-      break;
-    }
-
-    case IDM_CLIQUE_PERCOLATION_5: {
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_5);
-      break;
-    }
-
-    case IDM_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD: {
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD);
-      break;
-    }
-
-    case IDM_MODULARITY_MAXIMIZATION_USING_TEO_METHOD:
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_TEO_METHOD);
-      break;
-
-    case IDM_BETWEENNESS_CENTRALITY_CLUSTERING:
-      sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING);
-      break;
-
-    case IDM_USE_WEIGHTED_MODULARITY:
-      sociarium_project_algorithm_selector::use_weighted_modularity(!sociarium_project_algorithm_selector::use_weighted_modularity());
-      break;
-
-    case IDM_COMMUNITY_DETECTION_CLEAR: {
-      world_->clear_community();
-      break;
-    }
-
-    default: {
-      break;
-    }
+    default: break;
     }
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmSize(HWND hwnd) {
     RECT rect;
     GetClientRect(hwnd, &rect);
@@ -762,14 +1006,14 @@ namespace hashimoto_ut {
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmPaint(HWND hwnd) {
     world_->draw();
     ValidateRect(hwnd, NULL);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmTimer(HWND hwnd, WPARAM wp, LPARAM lp) {
 
     switch (wp) {
@@ -781,13 +1025,18 @@ namespace hashimoto_ut {
       break;
     }
 
-    case ID_TIMER_ZOOM: {
+    case ID_TIMER_ZOOM:
       world_->zoom(zoom_?1.05:1.0/1.05);
       break;
-    }
 
-    case ID_TIMER_FORCE_DIRECTION: {
-      world_->do_force_direction();
+    case ID_TIMER_AUTO_RUN: {
+      using namespace sociarium_project_timeline;
+      if (AutoRun::FORWARD_1<=sociarium_project_timeline::get_auto_run_id()
+          && sociarium_project_timeline::get_auto_run_id()<=AutoRun::FORWARD_4)
+        world_->forward_layer(window2viewport(get_mouse_position(hwnd)));
+      else if (AutoRun::BACKWARD_1<=sociarium_project_timeline::get_auto_run_id()
+               && sociarium_project_timeline::get_auto_run_id()<=AutoRun::BACKWARD_4)
+        world_->backward_layer(window2viewport(get_mouse_position(hwnd)));
       break;
     }
 
@@ -798,14 +1047,12 @@ namespace hashimoto_ut {
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmActivate(HWND hwnd, WPARAM wp, LPARAM lp) {
-    //if (LOWORD(wp)==WA_INACTIVE) timer_->stop(ID_TIMER_SELECT);
-    //else timer_->start(ID_TIMER_SELECT);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmInitMenu(HWND hwnd, WPARAM wp, LPARAM lp) {
     HMENU hmenu = HMENU(wp);
 
@@ -813,378 +1060,647 @@ namespace hashimoto_ut {
     using namespace sociarium_project_font;
     using namespace sociarium_project_algorithm_selector;
 
-    // ----------------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
+    // FILE
+
+    {
+      using namespace sociarium_project_thread_manager;
+
+      if (get(GRAPH_CREATION)->get() || get(GRAPH_RETOUCH)->get())
+        EnableMenuItem(GetMenu(hwnd), IDM_FILE_CANCEL, MF_BYCOMMAND|MF_ENABLED);
+      else
+        EnableMenuItem(GetMenu(hwnd), IDM_FILE_CANCEL, MF_BYCOMMAND|MF_GRAYED);
+    }
+
+    // --------------------------------------------------------------------------------
     // SHOW/HIDE
 
-    { // Show/Hide nodes
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_node()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_NODE, FALSE, &mii);
-    }{ // Show/Hide edges
+      SetMenuItemInfo(hmenu, IDM_VIEW_SHOW_NODE, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_edge()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_EDGE, FALSE, &mii);
-    }{ // Show/Hide communities
+      SetMenuItemInfo(hmenu, IDM_VIEW_SHOW_EDGE, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_community()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_COMMUNITY, FALSE, &mii);
-    }{ // Show/Hide community edges
+      SetMenuItemInfo(hmenu, IDM_VIEW_SHOW_COMMUNITY, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_community_edge()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_COMMUNITY_EDGE, FALSE, &mii);
+      SetMenuItemInfo(hmenu, IDM_VIEW_SHOW_COMMUNITY_EDGE, FALSE, &mii);
     }
 
-    { // Show/Hide node label
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_show_node_label()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_NODE_LABEL, FALSE, &mii);
-    }{ // Show/Hide edge label
+      mii.fState = get_show_node_name()?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_STRING_SHOW_NODE_NAME, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_show_edge_label()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_EDGE_LABEL, FALSE, &mii);
-    }{ // Show/Hide community label
+      mii.fState = get_show_edge_name()?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_STRING_SHOW_EDGE_NAME, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_show_community_label()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_COMMUNITY_LABEL, FALSE, &mii);
-    }{ // Show/Hide community edge label
+      mii.fState = get_show_community_name()?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_STRING_SHOW_COMMUNITY_NAME, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_show_community_edge_label()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_COMMUNITY_EDGE_LABEL, FALSE, &mii);
+      mii.fState = get_show_community_edge_name()?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_STRING_SHOW_COMMUNITY_EDGE_NAME, FALSE, &mii);
     }
 
-    { // Show/Hide slider
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_slider()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_SLIDER, FALSE, &mii);
-    }{ // Show/Hide layer label
+      SetMenuItemInfo(hmenu, IDM_TIMELINE_SHOW_SLIDER, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_show_time_label()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_TIME_LABEL, FALSE, &mii);
-    }{ // Show/Hide GRID
+      mii.fState = get_show_layer_name()?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_STRING_SHOW_LAYER_NAME, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_grid()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_GRID, FALSE, &mii);
-    }{ // Show/Hide FPS
+      SetMenuItemInfo(hmenu, IDM_LAYOUT_SHOW_GRID, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_fps()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_FPS, FALSE, &mii);
-    }{ // Show/Hide reference point
+      SetMenuItemInfo(hmenu, IDM_STRING_SHOW_FPS, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_center()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_CENTER, FALSE, &mii);
-    }{ // Show/Hide layout frame
+      SetMenuItemInfo(hmenu, IDM_LAYOUT_SHOW_CENTER, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
       mii.fState = get_show_layout_frame()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_SHOW_LAYOUT_FRAME, FALSE, &mii);
+      SetMenuItemInfo(hmenu, IDM_LAYOUT_SHOW_LAYOUT_FRAME, FALSE, &mii);
     }
 
-    // ----------------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
     // DRAWING STYLE
 
-    { // Node style: polygon
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_style()&NodeView::Style::POLYGON?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_STYLE_POLYGON, FALSE, &mii);
-    }{ // Node style: texture
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_style()&NodeView::Style::TEXTURE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_STYLE_TEXTURE, FALSE, &mii);
-    }
-
-    { // Edge style
-      //       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      //       mii.fState = get_edge_style()&EdgeView::Style::STRAIGHT?MFS_CHECKED:MFS_UNCHECKED;
-      //       SetMenuItemInfo(hmenu, IDM_EDGE_STYLE_STRAIGHT, FALSE, &mii);
-      //     }{
-      //       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      //       mii.fState = get_edge_style()&EdgeView::Style::HCURVE?MFS_CHECKED:MFS_UNCHECKED;
-      //       SetMenuItemInfo(hmenu, IDM_EDGE_STYLE_HCURVE, FALSE, &mii);
-      //     }{
-      //       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      //       mii.fState = get_edge_style()&EdgeView::Style::VCURVE?MFS_CHECKED:MFS_UNCHECKED;
-      //       SetMenuItemInfo(hmenu, IDM_EDGE_STYLE_VCURVE, FALSE, &mii);
-      //     }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_edge_style()&EdgeView::Style::LINE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_EDGE_STYLE_LINE, FALSE, &mii);
+      mii.fState = get_node_style()&NodeStyle::POLYGON
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_NODE_STYLE_POLYGON, FALSE, &mii);
     }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_edge_style()&EdgeView::Style::TEXTURE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_EDGE_STYLE_TEXTURE, FALSE, &mii);
+      mii.fState = get_node_style()&NodeStyle::TEXTURE
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_NODE_STYLE_TEXTURE, FALSE, &mii);
     }
 
-    { // Community style: polygon circle
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_style()&CommunityView::Style::POLYGON_CIRCLE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_COMMUNITY_STYLE_POLYGON_CIRCLE, FALSE, &mii);
-    }{ // Community style: polygon curve
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_style()&CommunityView::Style::POLYGON_CURVE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_COMMUNITY_STYLE_POLYGON_CURVE, FALSE, &mii);
-    }{ // Node style: texture
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_style()&CommunityView::Style::TEXTURE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_COMMUNITY_STYLE_TEXTURE, FALSE, &mii);
-    }
-
-    { // CommunityEdge style
-      //       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      //       mii.fState = get_community_edge_style()&CommunityEdgeView::Style::STRAIGHT?MFS_CHECKED:MFS_UNCHECKED;
-      //       SetMenuItemInfo(hmenu, IDM_COMMUNITY_EDGE_STYLE_STRAIGHT, FALSE, &mii);
-      //     }{
-      //       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      //       mii.fState = get_community_edge_style()&CommunityEdgeView::Style::HCURVE?MFS_CHECKED:MFS_UNCHECKED;
-      //       SetMenuItemInfo(hmenu, IDM_COMMUNITY_EDGE_STYLE_HCURVE, FALSE, &mii);
-      //     }{
-      //       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      //       mii.fState = get_community_edge_style()&CommunityEdgeView::Style::VCURVE?MFS_CHECKED:MFS_UNCHECKED;
-      //       SetMenuItemInfo(hmenu, IDM_COMMUNITY_EDGE_STYLE_VCURVE, FALSE, &mii);
-      //     }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_edge_style()&CommunityEdgeView::Style::LINE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_COMMUNITY_EDGE_STYLE_LINE, FALSE, &mii);
+      mii.fState = get_edge_style()&EdgeStyle::LINE
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_EDGE_STYLE_LINE, FALSE, &mii);
     }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_edge_style()&CommunityEdgeView::Style::TEXTURE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_COMMUNITY_EDGE_STYLE_TEXTURE, FALSE, &mii);
+      mii.fState = get_edge_style()&EdgeStyle::POLYGON
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_EDGE_STYLE_POLYGON, FALSE, &mii);
     }
 
-    { // Node size: uniform
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_size_factor()==NodeView::SizeFactor::UNIFORM?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_SIZE_UNIFORM, FALSE, &mii);
-    }{ // Node size: degree centrality
+      mii.fState = get_community_style()&CommunityStyle::POLYGON_CIRCLE
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_COMMUNITY_STYLE_POLYGON_CIRCLE, FALSE, &mii);
+    }{
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_size_factor()==NodeView::SizeFactor::DEGREE_CENTRALITY?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_SIZE_REPRESENTS_DEGREE_CENTRALITY, FALSE, &mii);
-    }{ // Node size: closeness centrality
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_size_factor()==NodeView::SizeFactor::CLOSENESS_CENTRALITY?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_SIZE_REPRESENTS_CLOSENESS_CENTRALITY, FALSE, &mii);
-    }{ // Node size: betweenness centrality
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_size_factor()==NodeView::SizeFactor::BETWEENNESS_CENTRALITY?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_SIZE_REPRESENTS_BETWEENNESS_CENTRALITY, FALSE, &mii);
-    }{ // Node size: pagerank
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_size_factor()==NodeView::SizeFactor::PAGERANK?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_SIZE_REPRESENTS_PAGERANK, FALSE, &mii);
-    }{ // Node size: point
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_size_factor()==NodeView::SizeFactor::NONE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_NODE_SIZE_NONE, FALSE, &mii);
+      mii.fState = get_community_style()&CommunityStyle::TEXTURE
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_COMMUNITY_STYLE_TEXTURE, FALSE, &mii);
     }
 
-    // ----------------------------------------------------------------------------------------------------
+    {
+      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+      mii.fState = get_community_edge_style()&CommunityEdgeStyle::LINE
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_COMMUNITY_EDGE_STYLE_LINE, FALSE, &mii);
+    }{
+      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+      mii.fState = get_community_edge_style()&CommunityEdgeStyle::POLYGON
+        ?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_VIEW_COMMUNITY_EDGE_STYLE_POLYGON, FALSE, &mii);
+    }
+
+    // --------------------------------------------------------------------------------
+    // NODE SIZE
+
+    {
+      using namespace sociarium_project_thread_manager;
+
+      if (get(NODE_SIZE_UPDATE)->get()) {
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_NODE_SIZE_UPDATE, MF_BYCOMMAND|MF_GRAYED);
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_NODE_SIZE_CANCEL, MF_BYCOMMAND|MF_ENABLED);
+      } else {
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_NODE_SIZE_UPDATE, MF_BYCOMMAND|MF_ENABLED);
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_NODE_SIZE_CANCEL, MF_BYCOMMAND|MF_GRAYED);
+      }
+    }
+
+    {
+      using namespace NodeSizeUpdateAlgorithm;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==POINT
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_POINT, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==UNIFORM
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_UNIFORM, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==WEIGHT
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_WEIGHT, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==DEGREE_CENTRALITY
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_DEGREE_CENTRALITY, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==CLOSENESS_CENTRALITY
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_CLOSENESS_CENTRALITY, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==BETWEENNESS_CENTRALITY
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_BETWEENNESS_CENTRALITY, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_size_update_algorithm()==PAGERANK
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_NODE_SIZE_PAGERANK, FALSE, &mii);
+      }
+    }
+
+    // --------------------------------------------------------------------------------
+    // EDGE WIDTH
+
+    {
+      using namespace sociarium_project_thread_manager;
+
+      if (get(EDGE_WIDTH_UPDATE)->get()) {
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_EDGE_WIDTH_UPDATE, MF_BYCOMMAND|MF_GRAYED);
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_EDGE_WIDTH_CANCEL, MF_BYCOMMAND|MF_ENABLED);
+      } else {
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_EDGE_WIDTH_UPDATE, MF_BYCOMMAND|MF_ENABLED);
+        EnableMenuItem(GetMenu(hwnd), IDM_VIEW_EDGE_WIDTH_CANCEL, MF_BYCOMMAND|MF_GRAYED);
+      }
+    }
+
+    {
+      using namespace EdgeWidthUpdateAlgorithm;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_edge_width_update_algorithm()==UNIFORM
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_EDGE_WIDTH_UNIFORM, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_edge_width_update_algorithm()==WEIGHT
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_EDGE_WIDTH_WEIGHT, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_edge_width_update_algorithm()==BETWEENNESS_CENTRALITY
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_VIEW_EDGE_WIDTH_BETWEENNESS_CENTRALITY, FALSE, &mii);
+      }
+    }
+
+    // --------------------------------------------------------------------------------
     // FONT
 
-    { // Label size of nodes
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_font_scale()==get_font_scale(0)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_NODE_0, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_font_scale()==get_font_scale(1)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_NODE_1, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_font_scale()==get_font_scale(2)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_NODE_2, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_node_font_scale()==get_font_scale(3)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_NODE_3, FALSE, &mii);
+    {
+      using namespace sociarium_project_font;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::NODE_NAME)==get_default_font_scale(0)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_NODE_NAME_SIZE_0, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::NODE_NAME)==get_default_font_scale(1)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_NODE_NAME_SIZE_1, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::NODE_NAME)==get_default_font_scale(2)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_NODE_NAME_SIZE_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::NODE_NAME)==get_default_font_scale(3)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_NODE_NAME_SIZE_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::NODE_NAME)==get_default_font_scale(4)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_NODE_NAME_SIZE_4, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_node_name_size_variable()?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_NODE_NAME_SIZE_VARIABLE, FALSE, &mii);
+      }
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::EDGE_NAME)==get_default_font_scale(0)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_EDGE_NAME_SIZE_0, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::EDGE_NAME)==get_default_font_scale(1)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_EDGE_NAME_SIZE_1, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::EDGE_NAME)==get_default_font_scale(2)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_EDGE_NAME_SIZE_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::EDGE_NAME)==get_default_font_scale(3)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_EDGE_NAME_SIZE_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::EDGE_NAME)==get_default_font_scale(4)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_EDGE_NAME_SIZE_4, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_edge_name_size_variable()?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_EDGE_NAME_SIZE_VARIABLE, FALSE, &mii);
+      }
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_NAME)==get_default_font_scale(0)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_NAME_SIZE_0, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_NAME)==get_default_font_scale(1)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_NAME_SIZE_1, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_NAME)==get_default_font_scale(2)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_NAME_SIZE_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_NAME)==get_default_font_scale(3)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_NAME_SIZE_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_NAME)==get_default_font_scale(4)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_NAME_SIZE_4, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_name_size_variable()?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_NAME_SIZE_VARIABLE, FALSE, &mii);
+      }
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_EDGE_NAME)==get_default_font_scale(0)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_0, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_EDGE_NAME)==get_default_font_scale(1)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_1, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_EDGE_NAME)==get_default_font_scale(2)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_EDGE_NAME)==get_default_font_scale(3)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_scale(FontCategory::COMMUNITY_EDGE_NAME)==get_default_font_scale(4)
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_4, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_edge_name_size_variable()?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_VARIABLE, FALSE, &mii);
+      }
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_type()==FontType::POLYGON_FONT?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_FONT_TYPE_POLYGON, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_font_type()==FontType::TEXTURE_FONT?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_STRING_FONT_TYPE_TEXTURE, FALSE, &mii);
+      }
     }
 
-    { // Label size of edges
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_edge_font_scale()==get_font_scale(0)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_EDGE_0, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_edge_font_scale()==get_font_scale(1)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_EDGE_1, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_edge_font_scale()==get_font_scale(2)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_EDGE_2, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_edge_font_scale()==get_font_scale(3)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_EDGE_3, FALSE, &mii);
-    }
-
-    { // Label size of communities
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_font_scale()==get_font_scale(0)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_0, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_font_scale()==get_font_scale(1)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_1, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_font_scale()==get_font_scale(2)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_2, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_font_scale()==get_font_scale(3)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_3, FALSE, &mii);
-    }
-
-    { // Label size of community edges
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_edge_font_scale()==get_font_scale(0)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_EDGE_0, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_edge_font_scale()==get_font_scale(1)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_EDGE_1, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_edge_font_scale()==get_font_scale(2)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_EDGE_2, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_edge_font_scale()==get_font_scale(3)?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_FONT_SIZE_COMMUNITY_EDGE_3, FALSE, &mii);
-    }
-
-    // ----------------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
     // LAYOUT
 
-    { // Kamada-Kawai Method
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_graph_layout_algorithm()==LayoutAlgorithm::KAMADA_KAWAI_METHOD?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_KAMADA_KAWAI_METHOD, FALSE, &mii);
-    }{ // High Dimensional Embedding
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_graph_layout_algorithm()==LayoutAlgorithm::HDE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING, FALSE, &mii);
-    }{ // Ring (initial state)
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_graph_layout_algorithm()==LayoutAlgorithm::CIRCLE?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_CIRCLE, FALSE, &mii);
-    }{ // Ring (descending order of node size)
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_graph_layout_algorithm()==LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER, FALSE, &mii);
-    }{ // Array
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_graph_layout_algorithm()==LayoutAlgorithm::ARRAY?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_ARRAY, FALSE, &mii);
-    }{ // Random
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_graph_layout_algorithm()==LayoutAlgorithm::RANDOM?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_RANDOM, FALSE, &mii);
-    }{ // Force Direction
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = force_direction_==1?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION, FALSE, &mii);
-    }{ // Auto Layout
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = sociarium_project_layout::get_auto_layout()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_LAYOUT_AUTO, FALSE, &mii);
+    {
+      using namespace sociarium_project_thread_manager;
+
+      if (get(LAYOUT)->get()) {
+        EnableMenuItem(GetMenu(hwnd), IDM_LAYOUT_UPDATE, MF_BYCOMMAND|MF_GRAYED);
+        EnableMenuItem(GetMenu(hwnd), IDM_LAYOUT_CANCEL, MF_BYCOMMAND|MF_ENABLED);
+      } else {
+        EnableMenuItem(GetMenu(hwnd), IDM_LAYOUT_UPDATE, MF_BYCOMMAND|MF_ENABLED);
+        EnableMenuItem(GetMenu(hwnd), IDM_LAYOUT_CANCEL, MF_BYCOMMAND|MF_GRAYED);
+      }
     }
 
-    // ----------------------------------------------------------------------------------------------------
+    {
+      using namespace LayoutAlgorithm;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==KAMADA_KAWAI_METHOD
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_KAMADA_KAWAI_METHOD, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==HIGH_DIMENSIONAL_EMBEDDING_1_2
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==HIGH_DIMENSIONAL_EMBEDDING_1_3
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==HIGH_DIMENSIONAL_EMBEDDING_2_3
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_2_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==CIRCLE
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_CIRCLE, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==CIRCLE_IN_SIZE_ORDER
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==LATTICE
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_LATTICE, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==RANDOM
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_RANDOM, FALSE, &mii);
+      }
+    }
+
+    {
+      using namespace RealTimeForceDirectionAlgorithm;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = sociarium_project_force_direction::thread_is_running()
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_RUN, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_force_direction_algorithm()==KAMADA_KAWAI_METHOD
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_force_direction_algorithm()==KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_force_direction_algorithm()==COMMUNITY_ORIENTED
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_COMMUNITY_ORIENTED, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_force_direction_algorithm()==SPRING_AND_REPULSIVE_FORCE
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_SPRING_AND_REPULSIVE_FORCE, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_force_direction_algorithm()==LATTICE_GAS_METHOD
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_LATTICE_GAS_METHOD, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_force_direction_algorithm()==DESIGNTIDE
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_DESIGNTIDE, FALSE, &mii);
+      }
+    }
+
+    // --------------------------------------------------------------------------------
     // COMMUNITY_DETECTION
 
-    { // Connected Connected
+    {
+      using namespace sociarium_project_thread_manager;
+
+      if (get(COMMUNITY_DETECTION)->get()) {
+        EnableMenuItem(GetMenu(hwnd), IDM_COMMUNITY_DETECTION_UPDATE, MF_BYCOMMAND|MF_GRAYED);
+        EnableMenuItem(GetMenu(hwnd), IDM_COMMUNITY_DETECTION_CANCEL, MF_BYCOMMAND|MF_ENABLED);
+      } else {
+        EnableMenuItem(GetMenu(hwnd), IDM_COMMUNITY_DETECTION_UPDATE, MF_BYCOMMAND|MF_ENABLED);
+        EnableMenuItem(GetMenu(hwnd), IDM_COMMUNITY_DETECTION_CANCEL, MF_BYCOMMAND|MF_GRAYED);
+      }
+    }
+
+    {
       MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::CONNECTED_COMPONENTS?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_CONNECTED_COMPONENTS, FALSE, &mii);
-    }{ // Strongly Connected Connected
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::STRONGLY_CONNECTED_COMPONENTS?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_STRONGLY_CONNECTED_COMPONENTS, FALSE, &mii);
-    }{ // 3-Clique Percolation
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_CLIQUE_PERCOLATION_3, FALSE, &mii);
-    }{ // 4-Clique Percolation
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_4?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_CLIQUE_PERCOLATION_4, FALSE, &mii);
-    }{ // 5-Clique Percolation
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_5?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_CLIQUE_PERCOLATION_5, FALSE, &mii);
-    }{ // Modularity Maximization [Greedy Method]
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD, FALSE, &mii);
-    }{ // Modularity Maximization [t-EO Method]
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_TEO_METHOD?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_MODULARITY_MAXIMIZATION_USING_TEO_METHOD, FALSE, &mii);
-    }{ // Betweenness Centrality Clustering
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = get_community_detection_algorithm()==CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_BETWEENNESS_CENTRALITY_CLUSTERING, FALSE, &mii);
-    }{
-      MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-      mii.fState = use_weighted_modularity()?MFS_CHECKED:MFS_UNCHECKED;
-      SetMenuItemInfo(hmenu, IDM_USE_WEIGHTED_MODULARITY, FALSE, &mii);
+      mii.fState = sociarium_project_view::get_show_diagram()?MFS_CHECKED:MFS_UNCHECKED;
+      SetMenuItemInfo(hmenu, IDM_COMMUNITY_TRANSITION_DIAGRAM, FALSE, &mii);
+    }
+
+    {
+      using namespace CommunityDetectionAlgorithm;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==CONNECTED_COMPONENTS
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==STRONGLY_CONNECTED_COMPONENTS
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_STRONGLY_CONNECTED_COMPONENTS, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==CLIQUE_PERCOLATION_3
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==CLIQUE_PERCOLATION_4
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_4, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==CLIQUE_PERCOLATION_5
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_5, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==MODULARITY_MAXIMIZATION_USING_TEO_METHOD
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_TEO_METHOD, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = use_weighted_modularity()
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==BETWEENNESS_CENTRALITY_CLUSTERING
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_community_detection_algorithm()==INFORMATION_FLOW_MAPPING
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING, FALSE, &mii);
+      }
+    }
+
+    // --------------------------------------------------------------------------------
+    // TIMELINE
+
+    {
+      using namespace sociarium_project_timeline;
+
+      {
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::STOP?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_STOP, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::FORWARD_1?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_FORWARD_1, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::FORWARD_2?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_FORWARD_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::FORWARD_3?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_FORWARD_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::FORWARD_4?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_FORWARD_4, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::BACKWARD_1?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_BACKWARD_1, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::BACKWARD_2?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_BACKWARD_2, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::BACKWARD_3?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_BACKWARD_3, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_auto_run_id()==AutoRun::BACKWARD_4?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_TIMELINE_BACKWARD_4, FALSE, &mii);
+      }
     }
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmKeyUp(HWND hwnd, WPARAM wp, LPARAM lp) {
     switch (wp) {
     case VK_NEXT:
-    case VK_PRIOR: {
+    case VK_PRIOR:
       timer_->stop(ID_TIMER_ZOOM);
       break;
-    }
 
-    default: {
+    default:
       break;
-    }
     }
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmLButtonDown(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     SetFocus(hwnd);
     SetCapture(hwnd);
-    //timer_->stop(ID_TIMER_SELECT);
     world_->do_mouse_action(MouseAction::LBUTTON_DOWN, window2viewport(lp), wp);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmRButtonDown(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     SetFocus(hwnd);
     SetCapture(hwnd);
-    //timer_->stop(ID_TIMER_SELECT);
     world_->do_mouse_action(MouseAction::RBUTTON_DOWN, window2viewport(lp), wp);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmMButtonDown(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     SetFocus(hwnd);
     SetCapture(hwnd);
-    //timer_->stop(ID_TIMER_SELECT);
     world_->do_mouse_action(MouseAction::MBUTTON_DOWN, window2viewport(lp), wp);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmLButtonUp(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     if (GetCapture()==hwnd) {
       ReleaseCapture();
       world_->do_mouse_action(MouseAction::LBUTTON_UP, window2viewport(lp), wp);
-      //timer_->start(ID_TIMER_SELECT);
     }
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmRButtonUp(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     if (GetCapture()==hwnd) {
       ReleaseCapture();
       world_->do_mouse_action(MouseAction::RBUTTON_UP, window2viewport(lp), wp);
@@ -1193,34 +1709,34 @@ namespace hashimoto_ut {
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmMButtonUp(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     if (GetCapture()==hwnd) {
       ReleaseCapture();
       world_->do_mouse_action(MouseAction::MBUTTON_UP, window2viewport(lp), wp);
-      //timer_->start(ID_TIMER_SELECT);
     }
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmLButtonDBL(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     timer_->stop(ID_TIMER_DRAW);
-    //timer_->stop(ID_TIMER_SELECT);
     world_->do_mouse_action(MouseAction::LBUTTON_DBL, window2viewport(lp), wp);
     timer_->start(ID_TIMER_DRAW);
-    //timer_->start(ID_TIMER_SELECT);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmRButtonDBL(HWND hwnd, WPARAM wp, LPARAM lp) {
     wmRButtonDown(hwnd, wp, lp);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     if (GetCapture()==hwnd && wp&(MK_LBUTTON|MK_RBUTTON))
       world_->do_mouse_action(MouseAction::MOVE, window2viewport(lp), wp);
     else
@@ -1228,49 +1744,64 @@ namespace hashimoto_ut {
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmMouseWheel(HWND hwnd, WPARAM wp, LPARAM lp) {
+    using namespace sociarium_project_selection;
     world_->do_mouse_action(MouseAction::WHEEL, window2viewport(lp), wp);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmDropFiles(HWND hwnd, WPARAM wp, LPARAM lp) {
     static wchar_t filename[_MAX_PATH];
     HDROP hdrop = (HDROP)wp;
     DragQueryFile(hdrop, 0, filename, _MAX_PATH);
+
     string const& filename_s = wcs2mbcs(filename, wcslen(filename));
-    if (is_text(filename_s.c_str())) world_->read_file(filename);
+    if (is_text(filename_s.c_str()))
+      world_->create_graph(filename);
+    else message_box(
+      hwnd, MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+      APPLICATION_TITLE,
+      L"%s: %s",
+      get_message(Message::IS_NOT_TEXTFILE),
+      filename);
   }
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmClose(HWND hwnd) {
-    if (MessageBox(hwnd, sociarium_project_message::DO_YOU_QUIT,
-                   sociarium_project_common::APPLICATION_TITLE,
-                   MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1)==IDOK)
+    if (message_box(hwnd,
+                    MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+                    APPLICATION_TITLE,
+                    get_message(Message::QUIT))==IDOK)
       DestroyWindow(hwnd);
   }
-}
+
+} // The end of the namespace "hashimoto_ut"
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Entrypoint of the application
+////////////////////////////////////////////////////////////////////////////////
+// Entrypoint of the application.
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int nCmdShow) {
 
   // --------------------------------------------------------------------------------
-  // Set locale (日本語の混じったパスへの対応)
+  // Set locale.
   std::locale::global(std::locale("japanese", std::locale::ctype));
+  /* I don't know how to get the system locale.
+   */
 
   // --------------------------------------------------------------------------------
-  // Register window class
+  // Register window class.
   hashimoto_ut::RegisterWindowClass
     wcmain(L"WCMAIN", CS_DBLCLKS, 0, 0, GetModuleHandle(0),
            LoadIcon(NULL, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
            HBRUSH(GetStockObject(HOLLOW_BRUSH)), L"MENU", NULL);
 
+  hashimoto_ut::sociarium_project_common::set_instance_handle(hInstance);
+
   // --------------------------------------------------------------------------------
-  // Create window
+  // Create a GL window.
   const DWORD style = WS_OVERLAPPEDWINDOW | CS_DBLCLKS;
   const DWORD exstyle = WS_EX_CLIENTEDGE;
   hashimoto_ut::MainWindow wnd;
@@ -1278,7 +1809,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int nC
              style, exstyle, CW_USEDEFAULT, CW_USEDEFAULT, 809, 500, 0, 0);
 
   // --------------------------------------------------------------------------------
-  // Some initializations
+  // Other initializations.
   InitCommonControls();
   HACCEL hAccelTbl(LoadAccelerators(hInstance, L"ACCEL"));
   DragAcceptFiles(wnd.handle(), TRUE);
@@ -1286,6 +1817,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int nC
   ShowWindow(wnd.handle(), nCmdShow);
   UpdateWindow(wnd.handle());
 
+  // --------------------------------------------------------------------------------
+  // Start a message loop.
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0)) {
     if (!TranslateAccelerator(msg.hwnd, hAccelTbl, &msg)) {

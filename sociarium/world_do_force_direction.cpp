@@ -1,6 +1,5 @@
 ﻿// s.o.c.i.a.r.i.u.m
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
-// update: 2009/05/11
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *

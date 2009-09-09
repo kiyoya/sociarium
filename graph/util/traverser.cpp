@@ -1,33 +1,32 @@
-﻿// C++ GRAPH LIBRARY
+﻿// C++ GRAPH LIBRARY: graph/traverser.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
-// update: 2009/03/25
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- *   - Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   - Neither the name of the University of Tokyo nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
- *   - Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *
- *   - Neither the name of the University of Tokyo nor the names of its contributors
- *     may be used to endorse or promote products derived from this software without
- *     specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include <cassert>
@@ -60,27 +59,41 @@ namespace hashimoto_ut {
 
   namespace {
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     class DirectionalSearchImpl {
     public:
-      DirectionalSearchImpl(downward_tag) : advance_(&DirectionalSearchImpl::advance_downward) {}
-      DirectionalSearchImpl(upward_tag) : advance_(&DirectionalSearchImpl::advance_upward) {}
-      DirectionalSearchImpl(bidirectional_tag) : advance_(&DirectionalSearchImpl::advance_bidirectional) {}
+      DirectionalSearchImpl(downward_tag)
+           : advance_(&DirectionalSearchImpl::advance_downward) {}
+      DirectionalSearchImpl(upward_tag)
+           : advance_(&DirectionalSearchImpl::advance_upward) {}
+      DirectionalSearchImpl(bidirectional_tag)
+           : advance_(&DirectionalSearchImpl::advance_bidirectional) {}
 
-      void advance(Node const* n) { (this->*advance_)(n); }
+      void advance(Node const* n) {
+        (this->*advance_)(n);
+      }
 
     private:
       void advance_downward(Node const* n) {
-        for_each(n->obegin(), n->oend(), bind(&DirectionalSearchImpl::search_neighbor, this, _1, bind(&Edge::target, _1)));
+        for_each(n->obegin(), n->oend(),
+                 bind(&DirectionalSearchImpl::search_neighbor, this, _1,
+                      bind(&Edge::target, _1)));
       }
 
       void advance_upward(Node const* n) {
-        for_each(n->ibegin(), n->iend(), bind(&DirectionalSearchImpl::search_neighbor, this, _1, bind(&Edge::source, _1)));
+        for_each(n->ibegin(), n->iend(),
+                 bind(&DirectionalSearchImpl::search_neighbor, this, _1,
+                      bind(&Edge::source, _1)));
       }
 
       void advance_bidirectional(Node const* n) {
-        for_each(n->obegin(), n->oend(), bind(&DirectionalSearchImpl::search_neighbor, this, _1, bind(&Edge::target, _1)));
-        for_each(n->ibegin(), n->iend(), bind(&DirectionalSearchImpl::search_neighbor, this, _1, bind(&Edge::source, _1)));
+        for_each(n->obegin(), n->oend(),
+                 bind(&DirectionalSearchImpl::search_neighbor, this, _1,
+                      bind(&Edge::target, _1)));
+
+        for_each(n->ibegin(), n->iend(),
+                 bind(&DirectionalSearchImpl::search_neighbor, this, _1,
+                      bind(&Edge::source, _1)));
       }
 
       virtual void search_neighbor(Edge const* e, Node const* n) = 0;
@@ -89,8 +102,11 @@ namespace hashimoto_ut {
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    class BFSTraverserImpl : public virtual BFSTraverser, private DirectionalSearchImpl {
+    ////////////////////////////////////////////////////////////////////////////////
+    class BFSTraverserImpl :
+      public virtual BFSTraverser,
+      private DirectionalSearchImpl {
+
     public:
       enum { UNVISITED=-1 };
 
@@ -98,20 +114,23 @@ namespace hashimoto_ut {
       BFSTraverserImpl(upward_tag) : DirectionalSearchImpl(upward_tag()) {}
       BFSTraverserImpl(bidirectional_tag) : DirectionalSearchImpl(bidirectional_tag()) {}
 
-      BFSTraverserImpl(downward_tag, shared_ptr<Graph const> const& g) : DirectionalSearchImpl(downward_tag()) { set_graph(g); }
-      BFSTraverserImpl(upward_tag, shared_ptr<Graph const> const& g) : DirectionalSearchImpl(upward_tag()) { set_graph(g); }
-      BFSTraverserImpl(bidirectional_tag, shared_ptr<Graph const> const& g) : DirectionalSearchImpl(bidirectional_tag()) { set_graph(g); }
+      BFSTraverserImpl(downward_tag, shared_ptr<Graph const> g)
+           : DirectionalSearchImpl(downward_tag()) { set_graph(g); }
+      BFSTraverserImpl(upward_tag, shared_ptr<Graph const> g)
+           : DirectionalSearchImpl(upward_tag()) { set_graph(g); }
+      BFSTraverserImpl(bidirectional_tag, shared_ptr<Graph const> g)
+           : DirectionalSearchImpl(bidirectional_tag()) { set_graph(g); }
 
       ~BFSTraverserImpl() {}
 
-      void set_graph(shared_ptr<Graph const> const& g) {
+      void set_graph(shared_ptr<Graph const> g) {
         graph_ = g;
         deque<Node const*>().swap(que_);
         vector<double>(graph_->nsize(), UNVISITED).swap(distance_);
         conditional_pass_.reset(new ConditionalPass);
       }
 
-      void set_condition(shared_ptr<ConditionalPass> const& conditional_pass) {
+      void set_condition(shared_ptr<ConditionalPass> conditional_pass) {
         conditional_pass_ = conditional_pass;
       }
 
@@ -179,8 +198,11 @@ namespace hashimoto_ut {
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    class BFSRecordingTraverserImpl : public BFSRecordingTraverser, private BFSTraverserImpl {
+    ////////////////////////////////////////////////////////////////////////////////
+    class BFSRecordingTraverserImpl :
+      public BFSRecordingTraverser,
+      private BFSTraverserImpl {
+
     public:
       typedef BFSTraverserImpl Base;
 
@@ -192,17 +214,23 @@ namespace hashimoto_ut {
       using Base::node;
       using Base::distance;
 
-      BFSRecordingTraverserImpl(downward_tag) : BFSTraverserImpl(downward_tag()) {}
-      BFSRecordingTraverserImpl(upward_tag) : BFSTraverserImpl(upward_tag()) {}
-      BFSRecordingTraverserImpl(bidirectional_tag) : BFSTraverserImpl(bidirectional_tag()) {}
+      BFSRecordingTraverserImpl(downward_tag)
+           : BFSTraverserImpl(downward_tag()) {}
+      BFSRecordingTraverserImpl(upward_tag)
+           : BFSTraverserImpl(upward_tag()) {}
+      BFSRecordingTraverserImpl(bidirectional_tag)
+           : BFSTraverserImpl(bidirectional_tag()) {}
 
-      BFSRecordingTraverserImpl(downward_tag, shared_ptr<Graph const> const& g) : BFSTraverserImpl(downward_tag()) { set_graph(g); }
-      BFSRecordingTraverserImpl(upward_tag, shared_ptr<Graph const> const& g) : BFSTraverserImpl(upward_tag()) { set_graph(g); }
-      BFSRecordingTraverserImpl(bidirectional_tag, shared_ptr<Graph const> const& g) : BFSTraverserImpl(bidirectional_tag()) { set_graph(g); }
+      BFSRecordingTraverserImpl(downward_tag, shared_ptr<Graph const> g)
+           : BFSTraverserImpl(downward_tag()) { set_graph(g); }
+      BFSRecordingTraverserImpl(upward_tag, shared_ptr<Graph const> g)
+           : BFSTraverserImpl(upward_tag()) { set_graph(g); }
+      BFSRecordingTraverserImpl(bidirectional_tag, shared_ptr<Graph const> g)
+           : BFSTraverserImpl(bidirectional_tag()) { set_graph(g); }
 
       ~BFSRecordingTraverserImpl() {}
 
-      void set_graph(shared_ptr<Graph const> const& g) {
+      void set_graph(shared_ptr<Graph const> g) {
         Base::set_graph(g);
         vector<vector<pair<Edge*, Node*> > >(graph_->nsize()).swap(predecessors_);
       }
@@ -251,26 +279,40 @@ namespace hashimoto_ut {
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    class DijkstraTraverserImpl : public virtual DijkstraTraverser, private DirectionalSearchImpl {
+    ////////////////////////////////////////////////////////////////////////////////
+    class DijkstraTraverserImpl :
+      public virtual DijkstraTraverser,
+      private DirectionalSearchImpl {
+
     public:
       enum { UNVISITED=-1 };
       typedef multimap<double, Node const*> PriorityQueue;
 
-      DijkstraTraverserImpl(downward_tag) : DirectionalSearchImpl(downward_tag()) {}
-      DijkstraTraverserImpl(upward_tag) : DirectionalSearchImpl(upward_tag()) {}
-      DijkstraTraverserImpl(bidirectional_tag) : DirectionalSearchImpl(bidirectional_tag()) {}
+      DijkstraTraverserImpl(downward_tag)
+           : DirectionalSearchImpl(downward_tag()) {}
+      DijkstraTraverserImpl(upward_tag)
+           : DirectionalSearchImpl(upward_tag()) {}
+      DijkstraTraverserImpl(bidirectional_tag)
+           : DirectionalSearchImpl(bidirectional_tag()) {}
 
-      DijkstraTraverserImpl(downward_tag, shared_ptr<Graph const> const& g, vector<double> const& edge_weight)
+      DijkstraTraverserImpl(
+        downward_tag, shared_ptr<Graph const> g,
+        vector<double> const& edge_weight)
            : DirectionalSearchImpl(downward_tag()) { set_graph(g, edge_weight); }
-      DijkstraTraverserImpl(upward_tag, shared_ptr<Graph const> const& g, vector<double> const& edge_weight)
+
+      DijkstraTraverserImpl(
+        upward_tag, shared_ptr<Graph const> g,
+        vector<double> const& edge_weight)
            : DirectionalSearchImpl(upward_tag()) { set_graph(g, edge_weight); }
-      DijkstraTraverserImpl(bidirectional_tag, shared_ptr<Graph const> const& g, vector<double> const& edge_weight)
+
+      DijkstraTraverserImpl(
+        bidirectional_tag, shared_ptr<Graph const> g,
+        vector<double> const& edge_weight)
            : DirectionalSearchImpl(bidirectional_tag()) { set_graph(g, edge_weight); }
 
       ~DijkstraTraverserImpl() {}
 
-      void set_graph(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
+      void set_graph(shared_ptr<Graph const> g, vector<double> const& edge_weight) {
         assert(g!=0);
         assert(g->esize()==edge_weight.size());
         graph_ = g;
@@ -280,7 +322,7 @@ namespace hashimoto_ut {
         conditional_pass_.reset(new ConditionalPass);
       }
 
-      void set_condition(shared_ptr<ConditionalPass> const& conditional_pass) {
+      void set_condition(shared_ptr<ConditionalPass> conditional_pass) {
         conditional_pass_ = conditional_pass;
       }
 
@@ -355,12 +397,15 @@ namespace hashimoto_ut {
       shared_ptr<ConditionalPass> conditional_pass_;
 
     private:
-      void set_graph(shared_ptr<Graph const> const& g) {}
+      void set_graph(shared_ptr<Graph const> g) {}
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    class DijkstraRecordingTraverserImpl : public DijkstraRecordingTraverser, public DijkstraTraverserImpl {
+    ////////////////////////////////////////////////////////////////////////////////
+    class DijkstraRecordingTraverserImpl :
+      public DijkstraRecordingTraverser,
+      public DijkstraTraverserImpl {
+
     public:
       typedef DijkstraTraverserImpl Base;
 
@@ -374,20 +419,31 @@ namespace hashimoto_ut {
       using Base::node;
       using Base::distance;
 
-      DijkstraRecordingTraverserImpl(downward_tag) : DijkstraTraverserImpl(downward_tag()) {}
-      DijkstraRecordingTraverserImpl(upward_tag) : DijkstraTraverserImpl(upward_tag()) {}
-      DijkstraRecordingTraverserImpl(bidirectional_tag) : DijkstraTraverserImpl(bidirectional_tag()) {}
+      DijkstraRecordingTraverserImpl(downward_tag)
+           : DijkstraTraverserImpl(downward_tag()) {}
+      DijkstraRecordingTraverserImpl(upward_tag)
+           : DijkstraTraverserImpl(upward_tag()) {}
+      DijkstraRecordingTraverserImpl(bidirectional_tag)
+           : DijkstraTraverserImpl(bidirectional_tag()) {}
 
-      DijkstraRecordingTraverserImpl(downward_tag, shared_ptr<Graph const> const& g, vector<double> const& edge_weight)
+      DijkstraRecordingTraverserImpl(
+        downward_tag, shared_ptr<Graph const> g,
+        vector<double> const& edge_weight)
            : DijkstraTraverserImpl(downward_tag()) { set_graph(g, edge_weight); }
-      DijkstraRecordingTraverserImpl(upward_tag, shared_ptr<Graph const> const& g, vector<double> const& edge_weight)
+
+      DijkstraRecordingTraverserImpl(
+        upward_tag, shared_ptr<Graph const> g,
+        vector<double> const& edge_weight)
            : DijkstraTraverserImpl(upward_tag()) { set_graph(g, edge_weight); }
-      DijkstraRecordingTraverserImpl(bidirectional_tag, shared_ptr<Graph const> const& g, vector<double> const& edge_weight)
+
+      DijkstraRecordingTraverserImpl(
+        bidirectional_tag, shared_ptr<Graph const> g,
+        vector<double> const& edge_weight)
            : DijkstraTraverserImpl(bidirectional_tag()) { set_graph(g, edge_weight); }
 
       ~DijkstraRecordingTraverserImpl() {}
 
-      void set_graph(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
+      void set_graph(shared_ptr<Graph const> g, vector<double> const& edge_weight) {
         Base::set_graph(g, edge_weight);
         vector<vector<pair<Edge*, Node*> > >(graph_->nsize()).swap(predecessors_);
       }
@@ -442,8 +498,10 @@ namespace hashimoto_ut {
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    class DFSTraverserImpl : public virtual DFSTraverser {
+    ////////////////////////////////////////////////////////////////////////////////
+    class DFSTraverserImpl :
+      public virtual DFSTraverser {
+
     public:
       enum { UNVISITED=-1 };
 
@@ -460,20 +518,28 @@ namespace hashimoto_ut {
              adjacency_list_begin_(&DFSTraverserImpl::adjacency_list_begin_bidirectional),
              adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_bidirectional) {}
 
-      DFSTraverserImpl(downward_tag, shared_ptr<Graph const> const& g)
+      DFSTraverserImpl(downward_tag, shared_ptr<Graph const> g)
            : neighbor_(&DFSTraverserImpl::neighbor_downward),
              adjacency_list_begin_(&DFSTraverserImpl::adjacency_list_begin_downward),
-             adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_downward) { set_graph(g); }
-      DFSTraverserImpl(upward_tag, shared_ptr<Graph const> const& g)
+             adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_downward) {
+               set_graph(g);
+             }
+
+      DFSTraverserImpl(upward_tag, shared_ptr<Graph const> g)
            : neighbor_(&DFSTraverserImpl::neighbor_upward),
              adjacency_list_begin_(&DFSTraverserImpl::adjacency_list_begin_upward),
-             adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_upward) { set_graph(g); }
-      DFSTraverserImpl(bidirectional_tag, shared_ptr<Graph const> const& g)
+             adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_upward) {
+               set_graph(g);
+             }
+
+      DFSTraverserImpl(bidirectional_tag, shared_ptr<Graph const> g)
            : neighbor_(&DFSTraverserImpl::neighbor_bidirectional),
              adjacency_list_begin_(&DFSTraverserImpl::adjacency_list_begin_bidirectional),
-             adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_bidirectional) { set_graph(g); }
+             adjacency_list_end_(&DFSTraverserImpl::adjacency_list_end_bidirectional) {
+               set_graph(g);
+             }
 
-      void set_graph(shared_ptr<Graph const> const& g) {
+      void set_graph(shared_ptr<Graph const> g) {
         graph_ = g;
         vector<Node const*>().swap(stack_);
         vector<int>(graph_->nsize(), UNVISITED).swap(order_);
@@ -483,7 +549,7 @@ namespace hashimoto_ut {
         conditional_pass_.reset(new ConditionalPass);
       }
 
-      void set_condition(shared_ptr<ConditionalPass> const& conditional_pass) {
+      void set_condition(shared_ptr<ConditionalPass> conditional_pass) {
         conditional_pass_ = conditional_pass;
       }
 
@@ -517,9 +583,11 @@ namespace hashimoto_ut {
 
       void advance(void) {
         Node const* n = node();
-        for (adjacency_list_iterator i=astack_.back(); i!=(this->*adjacency_list_end_)(n); ++i) {
+        for (adjacency_list_iterator i=astack_.back(),
+             iend=(this->*adjacency_list_end_)(n); i!=iend; ++i) {
           Node const* next = (this->*neighbor_)(i);
-          if (order_[next->index()]==UNVISITED && (*conditional_pass_)(*i, next)!=ConditionalPass::CLOSED) {
+          if (order_[next->index()]==UNVISITED
+              && (*conditional_pass_)(*i, next)==ConditionalPass::PASS) {
             stack_.push_back(next);
             astack_.back() = ++i;
             astack_.push_back((this->*adjacency_list_begin_)(next));
@@ -527,6 +595,7 @@ namespace hashimoto_ut {
             break;
           }
         }
+
         if (n==stack_.back()) backtrack();
       }
 
@@ -567,15 +636,47 @@ namespace hashimoto_ut {
         advance();
       }
 
-      Node const* neighbor_downward(adjacency_list_iterator i) const { return (*i)->target(); }
-      Node const* neighbor_upward(adjacency_list_iterator i) const { return (*i)->source(); }
-      Node const* neighbor_bidirectional(adjacency_list_iterator i) const { return i<node()->iend()?(*i)->source():(*i)->target(); }
-      adjacency_list_iterator adjacency_list_begin_downward(Node const* n) const { return n->obegin(); }
-      adjacency_list_iterator adjacency_list_begin_upward(Node const* n) const { return n->ibegin(); }
-      adjacency_list_iterator adjacency_list_begin_bidirectional(Node const* n) const { return n->begin(); }
-      adjacency_list_iterator adjacency_list_end_downward(Node const* n) const { return n->oend(); }
-      adjacency_list_iterator adjacency_list_end_upward(Node const* n) const { return n->iend(); }
-      adjacency_list_iterator adjacency_list_end_bidirectional(Node const* n) const { return n->end(); }
+      Node const* neighbor_downward(adjacency_list_iterator i) const {
+        return (*i)->target();
+      }
+
+      Node const* neighbor_upward(adjacency_list_iterator i) const {
+        return (*i)->source();
+      }
+
+      Node const* neighbor_bidirectional(adjacency_list_iterator i) const {
+        return i<node()->iend()?(*i)->source():(*i)->target();
+      }
+
+      adjacency_list_iterator
+        adjacency_list_begin_downward(Node const* n) const {
+          return n->obegin();
+        }
+
+      adjacency_list_iterator
+        adjacency_list_end_downward(Node const* n) const {
+          return n->oend();
+        }
+
+      adjacency_list_iterator
+        adjacency_list_begin_upward(Node const* n) const {
+          return n->ibegin();
+        }
+
+      adjacency_list_iterator
+        adjacency_list_end_upward(Node const* n) const {
+          return n->iend();
+        }
+
+      adjacency_list_iterator
+        adjacency_list_begin_bidirectional(Node const* n) const {
+          return n->begin();
+        }
+
+      adjacency_list_iterator
+        adjacency_list_end_bidirectional(Node const* n) const {
+          return n->end();
+        }
 
     protected:
       shared_ptr<Graph const> graph_;
@@ -592,8 +693,11 @@ namespace hashimoto_ut {
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    class DFSRecordingTraverserImpl : public DFSRecordingTraverser, public DFSTraverserImpl {
+    ////////////////////////////////////////////////////////////////////////////////
+    class DFSRecordingTraverserImpl :
+      public DFSRecordingTraverser,
+      public DFSTraverserImpl {
+
     public:
       typedef DFSTraverserImpl Base;
 
@@ -609,17 +713,23 @@ namespace hashimoto_ut {
       using Base::adjacency_list_begin_;
       using Base::adjacency_list_end_;
 
-      DFSRecordingTraverserImpl(downward_tag) : DFSTraverserImpl(downward_tag()) {}
-      DFSRecordingTraverserImpl(upward_tag) : DFSTraverserImpl(upward_tag()) {}
-      DFSRecordingTraverserImpl(bidirectional_tag) : DFSTraverserImpl(bidirectional_tag()) {}
+      DFSRecordingTraverserImpl(downward_tag)
+           : DFSTraverserImpl(downward_tag()) {}
+      DFSRecordingTraverserImpl(upward_tag)
+           : DFSTraverserImpl(upward_tag()) {}
+      DFSRecordingTraverserImpl(bidirectional_tag)
+           : DFSTraverserImpl(bidirectional_tag()) {}
 
-      DFSRecordingTraverserImpl(downward_tag, shared_ptr<Graph const> const& g) : DFSTraverserImpl(downward_tag()) { set_graph(g); }
-      DFSRecordingTraverserImpl(upward_tag, shared_ptr<Graph const> const& g) : DFSTraverserImpl(upward_tag()) { set_graph(g); }
-      DFSRecordingTraverserImpl(bidirectional_tag, shared_ptr<Graph const> const& g) : DFSTraverserImpl(bidirectional_tag()) { set_graph(g); }
+      DFSRecordingTraverserImpl(downward_tag, shared_ptr<Graph const> g)
+           : DFSTraverserImpl(downward_tag()) { set_graph(g); }
+      DFSRecordingTraverserImpl(upward_tag, shared_ptr<Graph const> g)
+           : DFSTraverserImpl(upward_tag()) { set_graph(g); }
+      DFSRecordingTraverserImpl(bidirectional_tag, shared_ptr<Graph const> g)
+           : DFSTraverserImpl(bidirectional_tag()) { set_graph(g); }
 
       ~DFSRecordingTraverserImpl() {}
 
-      void set_graph(shared_ptr<Graph const> const& g) {
+      void set_graph(shared_ptr<Graph const> g) {
         Base::set_graph(g);
         vector<pair<Edge*, Node*> >(graph_->nsize()).swap(predecessor_);
       }
@@ -631,11 +741,14 @@ namespace hashimoto_ut {
 
       void advance(void) {
         Node const* n = node();
-        for (adjacency_list_iterator i=astack_.back(); i!=(this->*adjacency_list_end_)(n); ++i) {
+        for (adjacency_list_iterator i=astack_.back(),
+             iend=(this->*adjacency_list_end_)(n); i!=iend; ++i) {
           Node const* next = (this->*neighbor_)(i);
-          if (order_[next->index()]==UNVISITED && (*conditional_pass_)(*i, next)!=ConditionalPass::CLOSED) {
+          if (order_[next->index()]==UNVISITED
+              && (*conditional_pass_)(*i, next)==ConditionalPass::PASS) {
             stack_.push_back(next);
-            predecessor_[next->index()] = make_pair(const_cast<Edge*>(*i), const_cast<Node*>(n));
+            predecessor_[next->index()]
+              = make_pair(const_cast<Edge*>(*i), const_cast<Node*>(n));
             astack_.back() = ++i;
             astack_.push_back((this->*adjacency_list_begin_)(next));
             order_[next->index()] = order_counter_++;
@@ -663,186 +776,249 @@ namespace hashimoto_ut {
   } // The end of the anonymous namespace
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   template <>
-  shared_ptr<BFSTraverser> BFSTraverser::create<downward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<BFSTraverser>(new BFSTraverserImpl(downward_tag(), g));
-  }
+  shared_ptr<BFSTraverser>
+    BFSTraverser::create<downward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<BFSTraverser>(new BFSTraverserImpl(downward_tag(), g));
+    }
 
   template <>
-  shared_ptr<BFSTraverser> BFSTraverser::create<upward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<BFSTraverser>(new BFSTraverserImpl(upward_tag(), g));
-  }
+  shared_ptr<BFSTraverser>
+    BFSTraverser::create<upward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<BFSTraverser>(new BFSTraverserImpl(upward_tag(), g));
+    }
 
   template <>
-  shared_ptr<BFSTraverser> BFSTraverser::create<bidirectional_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<BFSTraverser>(new BFSTraverserImpl(bidirectional_tag(), g));
-  }
+  shared_ptr<BFSTraverser>
+    BFSTraverser::create<bidirectional_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<BFSTraverser>(new BFSTraverserImpl(bidirectional_tag(), g));
+    }
 
   template <>
-  shared_ptr<BFSRecordingTraverser> BFSRecordingTraverser::create<downward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<BFSRecordingTraverser>(new BFSRecordingTraverserImpl(downward_tag(), g));
-  }
+  shared_ptr<BFSRecordingTraverser>
+    BFSRecordingTraverser::create<downward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<BFSRecordingTraverser>(
+        new BFSRecordingTraverserImpl(downward_tag(), g));
+    }
 
   template <>
-  shared_ptr<BFSRecordingTraverser> BFSRecordingTraverser::create<upward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<BFSRecordingTraverser>(new BFSRecordingTraverserImpl(upward_tag(), g));
-  }
+  shared_ptr<BFSRecordingTraverser>
+    BFSRecordingTraverser::create<upward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<BFSRecordingTraverser>(
+        new BFSRecordingTraverserImpl(upward_tag(), g));
+    }
 
   template <>
-  shared_ptr<BFSRecordingTraverser> BFSRecordingTraverser::create<bidirectional_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<BFSRecordingTraverser>(new BFSRecordingTraverserImpl(bidirectional_tag(), g));
-  }
+  shared_ptr<BFSRecordingTraverser>
+    BFSRecordingTraverser::create<bidirectional_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<BFSRecordingTraverser>(
+        new BFSRecordingTraverserImpl(bidirectional_tag(), g));
+    }
 
   template <>
-  shared_ptr<DijkstraTraverser> DijkstraTraverser::create<downward_tag>(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
-    return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(downward_tag(), g, edge_weight));
-  }
+  shared_ptr<DijkstraTraverser>
+    DijkstraTraverser::create<downward_tag>(
+      shared_ptr<Graph const> g, vector<double> const& edge_weight) {
+      return shared_ptr<DijkstraTraverser>(
+        new DijkstraTraverserImpl(downward_tag(), g, edge_weight));
+    }
 
   template <>
-  shared_ptr<DijkstraTraverser> DijkstraTraverser::create<upward_tag>(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
-    return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(upward_tag(), g, edge_weight));
-  }
+  shared_ptr<DijkstraTraverser>
+    DijkstraTraverser::create<upward_tag>(
+      shared_ptr<Graph const> g, vector<double> const& edge_weight) {
+      return shared_ptr<DijkstraTraverser>(
+        new DijkstraTraverserImpl(upward_tag(), g, edge_weight));
+    }
 
   template <>
-  shared_ptr<DijkstraTraverser> DijkstraTraverser::create<bidirectional_tag>(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
-    return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(bidirectional_tag(), g, edge_weight));
-  }
+  shared_ptr<DijkstraTraverser>
+    DijkstraTraverser::create<bidirectional_tag>(
+      shared_ptr<Graph const> g, vector<double> const& edge_weight) {
+      return shared_ptr<DijkstraTraverser>(
+        new DijkstraTraverserImpl(bidirectional_tag(), g, edge_weight));
+    }
 
   template <>
-  shared_ptr<DijkstraRecordingTraverser> DijkstraRecordingTraverser::create<downward_tag>(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
-    return shared_ptr<DijkstraRecordingTraverser>(new DijkstraRecordingTraverserImpl(downward_tag(), g, edge_weight));
-  }
+  shared_ptr<DijkstraRecordingTraverser>
+    DijkstraRecordingTraverser::create<downward_tag>(
+      shared_ptr<Graph const> g, vector<double> const& edge_weight) {
+      return shared_ptr<DijkstraRecordingTraverser>(
+        new DijkstraRecordingTraverserImpl(downward_tag(), g, edge_weight));
+    }
 
   template <>
-  shared_ptr<DijkstraRecordingTraverser> DijkstraRecordingTraverser::create<upward_tag>(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
-    return shared_ptr<DijkstraRecordingTraverser>(new DijkstraRecordingTraverserImpl(upward_tag(), g, edge_weight));
-  }
+  shared_ptr<DijkstraRecordingTraverser>
+    DijkstraRecordingTraverser::create<upward_tag>(
+      shared_ptr<Graph const> g, vector<double> const& edge_weight) {
+      return shared_ptr<DijkstraRecordingTraverser>(
+        new DijkstraRecordingTraverserImpl(upward_tag(), g, edge_weight));
+    }
 
   template <>
-  shared_ptr<DijkstraRecordingTraverser> DijkstraRecordingTraverser::create<bidirectional_tag>(shared_ptr<Graph const> const& g, vector<double> const& edge_weight) {
-    return shared_ptr<DijkstraRecordingTraverser>(new DijkstraRecordingTraverserImpl(bidirectional_tag(), g, edge_weight));
-  }
+  shared_ptr<DijkstraRecordingTraverser>
+    DijkstraRecordingTraverser::create<bidirectional_tag>(
+      shared_ptr<Graph const> g, vector<double> const& edge_weight) {
+      return shared_ptr<DijkstraRecordingTraverser>(
+        new DijkstraRecordingTraverserImpl(bidirectional_tag(), g, edge_weight));
+    }
 
   template <>
-  shared_ptr<DFSTraverser> DFSTraverser::create<downward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<DFSTraverser>(new DFSTraverserImpl(downward_tag(), g));
-  }
+  shared_ptr<DFSTraverser>
+    DFSTraverser::create<downward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<DFSTraverser>(new DFSTraverserImpl(downward_tag(), g));
+    }
 
   template <>
-  shared_ptr<DFSTraverser> DFSTraverser::create<upward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<DFSTraverser>(new DFSTraverserImpl(upward_tag(), g));
-  }
+  shared_ptr<DFSTraverser>
+    DFSTraverser::create<upward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<DFSTraverser>(new DFSTraverserImpl(upward_tag(), g));
+    }
 
   template <>
-  shared_ptr<DFSTraverser> DFSTraverser::create<bidirectional_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<DFSTraverser>(new DFSTraverserImpl(bidirectional_tag(), g));
-  }
+  shared_ptr<DFSTraverser>
+    DFSTraverser::create<bidirectional_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<DFSTraverser>(new DFSTraverserImpl(bidirectional_tag(), g));
+    }
 
   template <>
-  shared_ptr<DFSRecordingTraverser> DFSRecordingTraverser::create<downward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<DFSRecordingTraverser>(new DFSRecordingTraverserImpl(downward_tag(), g));
-  }
+  shared_ptr<DFSRecordingTraverser>
+    DFSRecordingTraverser::create<downward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<DFSRecordingTraverser>(
+        new DFSRecordingTraverserImpl(downward_tag(), g));
+    }
 
   template <>
-  shared_ptr<DFSRecordingTraverser> DFSRecordingTraverser::create<upward_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<DFSRecordingTraverser>(new DFSRecordingTraverserImpl(upward_tag(), g));
-  }
+  shared_ptr<DFSRecordingTraverser>
+    DFSRecordingTraverser::create<upward_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<DFSRecordingTraverser>(
+        new DFSRecordingTraverserImpl(upward_tag(), g));
+    }
 
   template <>
-  shared_ptr<DFSRecordingTraverser> DFSRecordingTraverser::create<bidirectional_tag>(shared_ptr<Graph const> const& g) {
-    return shared_ptr<DFSRecordingTraverser>(new DFSRecordingTraverserImpl(bidirectional_tag(), g));
-  }
+  shared_ptr<DFSRecordingTraverser>
+    DFSRecordingTraverser::create<bidirectional_tag>(shared_ptr<Graph const> g) {
+      return shared_ptr<DFSRecordingTraverser>(
+        new DFSRecordingTraverserImpl(bidirectional_tag(), g));
+    }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   template <>
-  shared_ptr<BFSTraverser> BFSTraverser::create<downward_tag>(void) {
-    return shared_ptr<BFSTraverser>(new BFSTraverserImpl(downward_tag()));
-  }
-
-  template <>
-  shared_ptr<BFSTraverser> BFSTraverser::create<upward_tag>(void) {
-    return shared_ptr<BFSTraverser>(new BFSTraverserImpl(upward_tag()));
-  }
+  shared_ptr<BFSTraverser>
+    BFSTraverser::create<downward_tag>(void) {
+      return shared_ptr<BFSTraverser>(new BFSTraverserImpl(downward_tag()));
+    }
 
   template <>
-  shared_ptr<BFSTraverser> BFSTraverser::create<bidirectional_tag>(void) {
-    return shared_ptr<BFSTraverser>(new BFSTraverserImpl(bidirectional_tag()));
-  }
+  shared_ptr<BFSTraverser>
+    BFSTraverser::create<upward_tag>(void) {
+      return shared_ptr<BFSTraverser>(new BFSTraverserImpl(upward_tag()));
+    }
 
   template <>
-  shared_ptr<BFSRecordingTraverser> BFSRecordingTraverser::create<downward_tag>(void) {
-    return shared_ptr<BFSRecordingTraverser>(new BFSRecordingTraverserImpl(downward_tag()));
-  }
+  shared_ptr<BFSTraverser>
+    BFSTraverser::create<bidirectional_tag>(void) {
+      return shared_ptr<BFSTraverser>(new BFSTraverserImpl(bidirectional_tag()));
+    }
 
   template <>
-  shared_ptr<BFSRecordingTraverser> BFSRecordingTraverser::create<upward_tag>(void) {
-    return shared_ptr<BFSRecordingTraverser>(new BFSRecordingTraverserImpl(upward_tag()));
-  }
+  shared_ptr<BFSRecordingTraverser>
+    BFSRecordingTraverser::create<downward_tag>(void) {
+      return shared_ptr<BFSRecordingTraverser>(
+        new BFSRecordingTraverserImpl(downward_tag()));
+    }
 
   template <>
-  shared_ptr<BFSRecordingTraverser> BFSRecordingTraverser::create<bidirectional_tag>(void) {
-    return shared_ptr<BFSRecordingTraverser>(new BFSRecordingTraverserImpl(bidirectional_tag()));
-  }
+  shared_ptr<BFSRecordingTraverser>
+    BFSRecordingTraverser::create<upward_tag>(void) {
+      return shared_ptr<BFSRecordingTraverser>(
+        new BFSRecordingTraverserImpl(upward_tag()));
+    }
 
   template <>
-  shared_ptr<DijkstraTraverser> DijkstraTraverser::create<downward_tag>(void) {
-    return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(downward_tag()));
-  }
+  shared_ptr<BFSRecordingTraverser>
+    BFSRecordingTraverser::create<bidirectional_tag>(void) {
+      return shared_ptr<BFSRecordingTraverser>(
+        new BFSRecordingTraverserImpl(bidirectional_tag()));
+    }
 
   template <>
-  shared_ptr<DijkstraTraverser> DijkstraTraverser::create<upward_tag>(void) {
-    return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(upward_tag()));
-  }
+  shared_ptr<DijkstraTraverser>
+    DijkstraTraverser::create<downward_tag>(void) {
+      return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(downward_tag()));
+    }
 
   template <>
-  shared_ptr<DijkstraTraverser> DijkstraTraverser::create<bidirectional_tag>(void) {
-    return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(bidirectional_tag()));
-  }
+  shared_ptr<DijkstraTraverser>
+    DijkstraTraverser::create<upward_tag>(void) {
+      return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(upward_tag()));
+    }
 
   template <>
-  shared_ptr<DijkstraRecordingTraverser> DijkstraRecordingTraverser::create<downward_tag>(void) {
-    return shared_ptr<DijkstraRecordingTraverser>(new DijkstraRecordingTraverserImpl(downward_tag()));
-  }
+  shared_ptr<DijkstraTraverser>
+    DijkstraTraverser::create<bidirectional_tag>(void) {
+      return shared_ptr<DijkstraTraverser>(new DijkstraTraverserImpl(bidirectional_tag()));
+    }
 
   template <>
-  shared_ptr<DijkstraRecordingTraverser> DijkstraRecordingTraverser::create<upward_tag>(void) {
-    return shared_ptr<DijkstraRecordingTraverser>(new DijkstraRecordingTraverserImpl(upward_tag()));
-  }
+  shared_ptr<DijkstraRecordingTraverser>
+    DijkstraRecordingTraverser::create<downward_tag>(void) {
+      return shared_ptr<DijkstraRecordingTraverser>(
+        new DijkstraRecordingTraverserImpl(downward_tag()));
+    }
 
   template <>
-  shared_ptr<DijkstraRecordingTraverser> DijkstraRecordingTraverser::create<bidirectional_tag>(void) {
-    return shared_ptr<DijkstraRecordingTraverser>(new DijkstraRecordingTraverserImpl(bidirectional_tag()));
-  }
+  shared_ptr<DijkstraRecordingTraverser>
+    DijkstraRecordingTraverser::create<upward_tag>(void) {
+      return shared_ptr<DijkstraRecordingTraverser>(
+        new DijkstraRecordingTraverserImpl(upward_tag()));
+    }
 
   template <>
-  shared_ptr<DFSTraverser> DFSTraverser::create<downward_tag>(void) {
-    return shared_ptr<DFSTraverser>(new DFSTraverserImpl(downward_tag()));
-  }
+  shared_ptr<DijkstraRecordingTraverser>
+    DijkstraRecordingTraverser::create<bidirectional_tag>(void) {
+      return shared_ptr<DijkstraRecordingTraverser>(
+        new DijkstraRecordingTraverserImpl(bidirectional_tag()));
+    }
 
   template <>
-  shared_ptr<DFSTraverser> DFSTraverser::create<upward_tag>(void) {
-    return shared_ptr<DFSTraverser>(new DFSTraverserImpl(upward_tag()));
-  }
+  shared_ptr<DFSTraverser>
+    DFSTraverser::create<downward_tag>(void) {
+      return shared_ptr<DFSTraverser>(new DFSTraverserImpl(downward_tag()));
+    }
 
   template <>
-  shared_ptr<DFSTraverser> DFSTraverser::create<bidirectional_tag>(void) {
-    return shared_ptr<DFSTraverser>(new DFSTraverserImpl(bidirectional_tag()));
-  }
+  shared_ptr<DFSTraverser>
+    DFSTraverser::create<upward_tag>(void) {
+      return shared_ptr<DFSTraverser>(new DFSTraverserImpl(upward_tag()));
+    }
 
   template <>
-  shared_ptr<DFSRecordingTraverser> DFSRecordingTraverser::create<downward_tag>(void) {
-    return shared_ptr<DFSRecordingTraverser>(new DFSRecordingTraverserImpl(downward_tag()));
-  }
+  shared_ptr<DFSTraverser>
+    DFSTraverser::create<bidirectional_tag>(void) {
+      return shared_ptr<DFSTraverser>(new DFSTraverserImpl(bidirectional_tag()));
+    }
 
   template <>
-  shared_ptr<DFSRecordingTraverser> DFSRecordingTraverser::create<upward_tag>(void) {
-    return shared_ptr<DFSRecordingTraverser>(new DFSRecordingTraverserImpl(upward_tag()));
-  }
+  shared_ptr<DFSRecordingTraverser>
+    DFSRecordingTraverser::create<downward_tag>(void) {
+      return shared_ptr<DFSRecordingTraverser>(
+        new DFSRecordingTraverserImpl(downward_tag()));
+    }
 
   template <>
-  shared_ptr<DFSRecordingTraverser> DFSRecordingTraverser::create<bidirectional_tag>(void) {
-    return shared_ptr<DFSRecordingTraverser>(new DFSRecordingTraverserImpl(bidirectional_tag()));
-  }
+  shared_ptr<DFSRecordingTraverser>
+    DFSRecordingTraverser::create<upward_tag>(void) {
+      return shared_ptr<DFSRecordingTraverser>(
+        new DFSRecordingTraverserImpl(upward_tag()));
+    }
+
+  template <>
+  shared_ptr<DFSRecordingTraverser>
+    DFSRecordingTraverser::create<bidirectional_tag>(void) {
+      return shared_ptr<DFSRecordingTraverser>(
+        new DFSRecordingTraverserImpl(bidirectional_tag()));
+    }
 
 } // The end of the namespace "hashimoto_ut"
