@@ -1,0 +1,666 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		6C4A818010563C4700830512 /* libboost_thread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4A817F10563C4700830512 /* libboost_thread.dylib */; };
+		6C5EA8571053842C003BC47D /* SociariumView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8561053842C003BC47D /* SociariumView.mm */; };
+		6C5EA8D21053871B003BC47D /* community_detection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8851053871A003BC47D /* community_detection.cpp */; };
+		6C5EA8D91053871B003BC47D /* community_detection_detail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8901053871A003BC47D /* community_detection_detail.cpp */; };
+		6C5EA8E01053871B003BC47D /* creation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA89B1053871A003BC47D /* creation.cpp */; };
+		6C5EA8E11053871B003BC47D /* creation_detail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA89D1053871A003BC47D /* creation_detail.cpp */; };
+		6C5EA8F01053871B003BC47D /* layout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8B41053871A003BC47D /* layout.cpp */; };
+		6C5EA8FE1053871B003BC47D /* community_detection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8CA1053871B003BC47D /* community_detection.cpp */; };
+		6C5EA9001053871B003BC47D /* layout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8CE1053871B003BC47D /* layout.cpp */; };
+		6C5EA9011053871B003BC47D /* node_size.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8D01053871B003BC47D /* node_size.cpp */; };
+		6C5EAA3F10538E00003BC47D /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAA3E10538E00003BC47D /* ApplicationServices.framework */; };
+		6C5EAC4C1053A9FA003BC47D /* win32api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EAC4B1053A9FA003BC47D /* win32api.cpp */; };
+		6C5EADEF1053D2C4003BC47D /* creation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EADEE1053D2C4003BC47D /* creation.mm */; };
+		6C5EAE431053DC07003BC47D /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE421053DC07003BC47D /* OpenGL.framework */; };
+		6C5EAE501053DD8E003BC47D /* libftgl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */; };
+		6C5EAE571053DDC8003BC47D /* libfreetype.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE561053DDC8003BC47D /* libfreetype.dylib */; };
+		6CAC10C1104EDC8F0022B602 /* algorithm_selector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */; };
+		6CAC10C2104EDC8F0022B602 /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1097104EDC8F0022B602 /* common.cpp */; };
+		6CAC10C3104EDC8F0022B602 /* draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1099104EDC8F0022B602 /* draw.cpp */; };
+		6CAC10C4104EDC8F0022B602 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC109C104EDC8F0022B602 /* font.cpp */; };
+		6CAC10C5104EDC8F0022B602 /* force_direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC109E104EDC8F0022B602 /* force_direction.cpp */; };
+		6CAC10C6104EDC8F0022B602 /* fps_counter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10A0104EDC8F0022B602 /* fps_counter.cpp */; };
+		6CAC10C7104EDC8F0022B602 /* graph_extractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10A2104EDC8F0022B602 /* graph_extractor.cpp */; };
+		6CAC10C8104EDC8F0022B602 /* graph_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10A4104EDC8F0022B602 /* graph_utility.cpp */; };
+		6CAC10C9104EDC8F0022B602 /* layout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10A6104EDC8F0022B602 /* layout.cpp */; };
+		6CAC10CB104EDC8F0022B602 /* message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10A9104EDC8F0022B602 /* message.cpp */; };
+		6CAC10CC104EDC8F0022B602 /* mouse_and_selection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10AB104EDC8F0022B602 /* mouse_and_selection.cpp */; };
+		6CAC10CD104EDC8F0022B602 /* sociarium_graph_time_series.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10AE104EDC8F0022B602 /* sociarium_graph_time_series.cpp */; };
+		6CAC10CE104EDC8F0022B602 /* sociarium_graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10B0104EDC8F0022B602 /* sociarium_graph.cpp */; };
+		6CAC10CF104EDC8F0022B602 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10B2104EDC8F0022B602 /* texture.cpp */; };
+		6CAC10D0104EDC8F0022B602 /* thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10B4104EDC8F0022B602 /* thread.cpp */; };
+		6CAC10D1104EDC8F0022B602 /* view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10B6104EDC8F0022B602 /* view.cpp */; };
+		6CAC10D2104EDC8F0022B602 /* world_do_force_direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10B8104EDC8F0022B602 /* world_do_force_direction.cpp */; };
+		6CAC10D3104EDC8F0022B602 /* world_do_mouse_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10B9104EDC8F0022B602 /* world_do_mouse_action.cpp */; };
+		6CAC10D4104EDC8F0022B602 /* world_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10BA104EDC8F0022B602 /* world_draw.cpp */; };
+		6CAC10D5104EDC8F0022B602 /* world_edit_graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10BB104EDC8F0022B602 /* world_edit_graph.cpp */; };
+		6CAC10D6104EDC8F0022B602 /* world_initialize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10BC104EDC8F0022B602 /* world_initialize.cpp */; };
+		6CAC10D7104EDC8F0022B602 /* world_run_thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10BD104EDC8F0022B602 /* world_run_thread.cpp */; };
+		6CAC10D8104EDC8F0022B602 /* world_select.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10BE104EDC8F0022B602 /* world_select.cpp */; };
+		6CAC10D9104EDC8F0022B602 /* world.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC10BF104EDC8F0022B602 /* world.cpp */; };
+		6CAC110F104EDF910022B602 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1100104EDF910022B602 /* graph.cpp */; };
+		6CAC1114104EDF910022B602 /* clustering.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1109104EDF910022B602 /* clustering.cpp */; };
+		6CAC1115104EDF910022B602 /* statistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC110B104EDF910022B602 /* statistics.cpp */; };
+		6CAC1116104EDF910022B602 /* traverser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC110D104EDF910022B602 /* traverser.cpp */; };
+		6CAC112C104EDF9E0022B602 /* general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1117104EDF9E0022B602 /* general.cpp */; };
+		6CAC112E104EDF9E0022B602 /* gltexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC111C104EDF9E0022B602 /* gltexture.cpp */; };
+		6CAC112F104EDF9E0022B602 /* glview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC111E104EDF9E0022B602 /* glview.cpp */; };
+		6CAC1130104EDF9E0022B602 /* msgbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1121104EDF9E0022B602 /* msgbox.cpp */; };
+		6CAC1136104EDFE10022B602 /* SociariumDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6CAC1134104EDFE10022B602 /* SociariumDocument.xib */; };
+		6CAC1139104EDFEB0022B602 /* SociariumDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1138104EDFEB0022B602 /* SociariumDocument.mm */; };
+		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
+		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
+		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
+		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		089C1660FE840EACC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		13E42FBA07B3F13500E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		1DDD582B0DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		2564AD2C0F5327BB00F57823 /* sociarium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sociarium_Prefix.pch; sourceTree = "<group>"; };
+		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
+		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		6C4A817F10563C4700830512 /* libboost_thread.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_thread.dylib; path = /usr/local/lib/libboost_thread.dylib; sourceTree = "<absolute>"; };
+		6C5EA8551053842C003BC47D /* SociariumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SociariumView.h; sourceTree = "<group>"; };
+		6C5EA8561053842C003BC47D /* SociariumView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SociariumView.mm; sourceTree = "<group>"; };
+		6C5EA8851053871A003BC47D /* community_detection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = community_detection.cpp; sourceTree = "<group>"; };
+		6C5EA8861053871A003BC47D /* community_detection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = community_detection.h; sourceTree = "<group>"; };
+		6C5EA8901053871A003BC47D /* community_detection_detail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = community_detection_detail.cpp; sourceTree = "<group>"; };
+		6C5EA8911053871A003BC47D /* community_detection_detail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = community_detection_detail.h; sourceTree = "<group>"; };
+		6C5EA89B1053871A003BC47D /* creation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = creation.cpp; sourceTree = "<group>"; };
+		6C5EA89C1053871A003BC47D /* creation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = creation.h; sourceTree = "<group>"; };
+		6C5EA89D1053871A003BC47D /* creation_detail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = creation_detail.cpp; sourceTree = "<group>"; };
+		6C5EA89E1053871A003BC47D /* creation_detail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = creation_detail.h; sourceTree = "<group>"; };
+		6C5EA8B41053871A003BC47D /* layout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout.cpp; sourceTree = "<group>"; };
+		6C5EA8B51053871A003BC47D /* layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout.h; sourceTree = "<group>"; };
+		6C5EA8CA1053871B003BC47D /* community_detection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = community_detection.cpp; sourceTree = "<group>"; };
+		6C5EA8CB1053871B003BC47D /* community_detection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = community_detection.h; sourceTree = "<group>"; };
+		6C5EA8CD1053871B003BC47D /* creation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = creation.h; sourceTree = "<group>"; };
+		6C5EA8CE1053871B003BC47D /* layout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout.cpp; sourceTree = "<group>"; };
+		6C5EA8CF1053871B003BC47D /* layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout.h; sourceTree = "<group>"; };
+		6C5EA8D01053871B003BC47D /* node_size.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node_size.cpp; sourceTree = "<group>"; };
+		6C5EA8D11053871B003BC47D /* node_size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_size.h; sourceTree = "<group>"; };
+		6C5EAA3E10538E00003BC47D /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		6C5EAC4B1053A9FA003BC47D /* win32api.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = win32api.cpp; sourceTree = "<group>"; };
+		6C5EADEE1053D2C4003BC47D /* creation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = creation.mm; sourceTree = "<group>"; };
+		6C5EAE421053DC07003BC47D /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libftgl.dylib; path = /usr/local/lib/libftgl.dylib; sourceTree = "<absolute>"; };
+		6C5EAE561053DDC8003BC47D /* libfreetype.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.dylib; path = /usr/local/lib/libfreetype.dylib; sourceTree = "<absolute>"; };
+		6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algorithm_selector.cpp; sourceTree = "<group>"; };
+		6CAC1095104EDC8F0022B602 /* algorithm_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = algorithm_selector.h; sourceTree = "<group>"; };
+		6CAC1096104EDC8F0022B602 /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
+		6CAC1097104EDC8F0022B602 /* common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common.cpp; sourceTree = "<group>"; };
+		6CAC1098104EDC8F0022B602 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		6CAC1099104EDC8F0022B602 /* draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = draw.cpp; sourceTree = "<group>"; };
+		6CAC109A104EDC8F0022B602 /* draw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = draw.h; sourceTree = "<group>"; };
+		6CAC109B104EDC8F0022B602 /* flag_operation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flag_operation.h; sourceTree = "<group>"; };
+		6CAC109C104EDC8F0022B602 /* font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = font.cpp; sourceTree = "<group>"; };
+		6CAC109D104EDC8F0022B602 /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font.h; sourceTree = "<group>"; };
+		6CAC109E104EDC8F0022B602 /* force_direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = force_direction.cpp; sourceTree = "<group>"; };
+		6CAC109F104EDC8F0022B602 /* force_direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = force_direction.h; sourceTree = "<group>"; };
+		6CAC10A0104EDC8F0022B602 /* fps_counter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fps_counter.cpp; sourceTree = "<group>"; };
+		6CAC10A1104EDC8F0022B602 /* fps_counter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fps_counter.h; sourceTree = "<group>"; };
+		6CAC10A2104EDC8F0022B602 /* graph_extractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graph_extractor.cpp; sourceTree = "<group>"; };
+		6CAC10A3104EDC8F0022B602 /* graph_extractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = graph_extractor.h; sourceTree = "<group>"; };
+		6CAC10A4104EDC8F0022B602 /* graph_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graph_utility.cpp; sourceTree = "<group>"; };
+		6CAC10A5104EDC8F0022B602 /* graph_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = graph_utility.h; sourceTree = "<group>"; };
+		6CAC10A6104EDC8F0022B602 /* layout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout.cpp; sourceTree = "<group>"; };
+		6CAC10A7104EDC8F0022B602 /* layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout.h; sourceTree = "<group>"; };
+		6CAC10A9104EDC8F0022B602 /* message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message.cpp; sourceTree = "<group>"; };
+		6CAC10AA104EDC8F0022B602 /* message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message.h; sourceTree = "<group>"; };
+		6CAC10AB104EDC8F0022B602 /* mouse_and_selection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mouse_and_selection.cpp; sourceTree = "<group>"; };
+		6CAC10AC104EDC8F0022B602 /* mouse_and_selection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mouse_and_selection.h; sourceTree = "<group>"; };
+		6CAC10AD104EDC8F0022B602 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
+		6CAC10AE104EDC8F0022B602 /* sociarium_graph_time_series.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sociarium_graph_time_series.cpp; sourceTree = "<group>"; };
+		6CAC10AF104EDC8F0022B602 /* sociarium_graph_time_series.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sociarium_graph_time_series.h; sourceTree = "<group>"; };
+		6CAC10B0104EDC8F0022B602 /* sociarium_graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sociarium_graph.cpp; sourceTree = "<group>"; };
+		6CAC10B1104EDC8F0022B602 /* sociarium_graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sociarium_graph.h; sourceTree = "<group>"; };
+		6CAC10B2104EDC8F0022B602 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = texture.cpp; sourceTree = "<group>"; };
+		6CAC10B3104EDC8F0022B602 /* texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
+		6CAC10B4104EDC8F0022B602 /* thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread.cpp; sourceTree = "<group>"; };
+		6CAC10B5104EDC8F0022B602 /* thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread.h; sourceTree = "<group>"; };
+		6CAC10B6104EDC8F0022B602 /* view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = view.cpp; sourceTree = "<group>"; };
+		6CAC10B7104EDC8F0022B602 /* view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = view.h; sourceTree = "<group>"; };
+		6CAC10B8104EDC8F0022B602 /* world_do_force_direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_do_force_direction.cpp; sourceTree = "<group>"; };
+		6CAC10B9104EDC8F0022B602 /* world_do_mouse_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_do_mouse_action.cpp; sourceTree = "<group>"; };
+		6CAC10BA104EDC8F0022B602 /* world_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_draw.cpp; sourceTree = "<group>"; };
+		6CAC10BB104EDC8F0022B602 /* world_edit_graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_edit_graph.cpp; sourceTree = "<group>"; };
+		6CAC10BC104EDC8F0022B602 /* world_initialize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_initialize.cpp; sourceTree = "<group>"; };
+		6CAC10BD104EDC8F0022B602 /* world_run_thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_run_thread.cpp; sourceTree = "<group>"; };
+		6CAC10BE104EDC8F0022B602 /* world_select.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_select.cpp; sourceTree = "<group>"; };
+		6CAC10BF104EDC8F0022B602 /* world.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world.cpp; sourceTree = "<group>"; };
+		6CAC10C0104EDC8F0022B602 /* world.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = world.h; sourceTree = "<group>"; };
+		6CAC1100104EDF910022B602 /* graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graph.cpp; sourceTree = "<group>"; };
+		6CAC1101104EDF910022B602 /* graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = graph.h; sourceTree = "<group>"; };
+		6CAC1102104EDF910022B602 /* graphex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = graphex.h; sourceTree = "<group>"; };
+		6CAC1103104EDF910022B602 /* property_graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = property_graph.h; sourceTree = "<group>"; };
+		6CAC1109104EDF910022B602 /* clustering.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clustering.cpp; sourceTree = "<group>"; };
+		6CAC110A104EDF910022B602 /* clustering.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clustering.h; sourceTree = "<group>"; };
+		6CAC110B104EDF910022B602 /* statistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = statistics.cpp; sourceTree = "<group>"; };
+		6CAC110C104EDF910022B602 /* statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = statistics.h; sourceTree = "<group>"; };
+		6CAC110D104EDF910022B602 /* traverser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traverser.cpp; sourceTree = "<group>"; };
+		6CAC110E104EDF910022B602 /* traverser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = traverser.h; sourceTree = "<group>"; };
+		6CAC1117104EDF9E0022B602 /* general.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = general.cpp; sourceTree = "<group>"; };
+		6CAC1118104EDF9E0022B602 /* general.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = general.h; sourceTree = "<group>"; };
+		6CAC111C104EDF9E0022B602 /* gltexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gltexture.cpp; sourceTree = "<group>"; };
+		6CAC111D104EDF9E0022B602 /* gltexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gltexture.h; sourceTree = "<group>"; };
+		6CAC111E104EDF9E0022B602 /* glview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glview.cpp; sourceTree = "<group>"; };
+		6CAC111F104EDF9E0022B602 /* glview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glview.h; sourceTree = "<group>"; };
+		6CAC1120104EDF9E0022B602 /* math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = math.h; sourceTree = "<group>"; };
+		6CAC1121104EDF9E0022B602 /* msgbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = msgbox.cpp; sourceTree = "<group>"; };
+		6CAC1122104EDF9E0022B602 /* msgbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = msgbox.h; sourceTree = "<group>"; };
+		6CAC1123104EDF9E0022B602 /* mtrand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mtrand.h; sourceTree = "<group>"; };
+		6CAC1124104EDF9E0022B602 /* predefined_color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = predefined_color.h; sourceTree = "<group>"; };
+		6CAC1125104EDF9E0022B602 /* thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread.h; sourceTree = "<group>"; };
+		6CAC1126104EDF9E0022B602 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timer.h; sourceTree = "<group>"; };
+		6CAC1127104EDF9E0022B602 /* vector2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector2.h; sourceTree = "<group>"; };
+		6CAC1128104EDF9E0022B602 /* vector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector3.h; sourceTree = "<group>"; };
+		6CAC112A104EDF9E0022B602 /* win32api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = win32api.h; sourceTree = "<group>"; };
+		6CAC112B104EDF9E0022B602 /* wndbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wndbase.h; sourceTree = "<group>"; };
+		6CAC1135104EDFE10022B602 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SociariumDocument.xib; sourceTree = "<group>"; };
+		6CAC1137104EDFEB0022B602 /* SociariumDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SociariumDocument.h; sourceTree = "<group>"; };
+		6CAC1138104EDFEB0022B602 /* SociariumDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SociariumDocument.mm; sourceTree = "<group>"; };
+		8D15AC360486D014006FF6A4 /* sociarium-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "sociarium-Info.plist"; sourceTree = "<group>"; };
+		8D15AC370486D014006FF6A4 /* sociarium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sociarium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D15AC330486D014006FF6A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
+				6C5EAA3F10538E00003BC47D /* ApplicationServices.framework in Frameworks */,
+				6C5EAE431053DC07003BC47D /* OpenGL.framework in Frameworks */,
+				6C5EAE501053DD8E003BC47D /* libftgl.dylib in Frameworks */,
+				6C5EAE571053DDC8003BC47D /* libfreetype.dylib in Frameworks */,
+				6C4A818010563C4700830512 /* libboost_thread.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6C4A817F10563C4700830512 /* libboost_thread.dylib */,
+				6C5EAE561053DDC8003BC47D /* libfreetype.dylib */,
+				6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */,
+				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
+				6C5EAE421053DC07003BC47D /* OpenGL.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7A8FEA54F5311CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */,
+				6C5EAA3E10538E00003BC47D /* ApplicationServices.framework */,
+				13E42FBA07B3F13500E4EEF1 /* CoreData.framework */,
+				2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FB0FE9D524F11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D15AC370486D014006FF6A4 /* sociarium.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2A37F4AAFDCFA73011CA2CEA /* sociarium */ = {
+			isa = PBXGroup;
+			children = (
+				2A37F4ABFDCFA73011CA2CEA /* Classes */,
+				6CAC0FEE104ED9C70022B602 /* Sources */,
+				6CAC1093104EDC500022B602 /* Sources (graph) */,
+				6CAC1092104EDC330022B602 /* Sources (shared) */,
+				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
+				2A37F4B8FDCFA73011CA2CEA /* Resources */,
+				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
+				19C28FB0FE9D524F11CA2CBB /* Products */,
+			);
+			name = sociarium;
+			sourceTree = "<group>";
+		};
+		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				6CAC1137104EDFEB0022B602 /* SociariumDocument.h */,
+				6CAC1138104EDFEB0022B602 /* SociariumDocument.mm */,
+				6C5EA8551053842C003BC47D /* SociariumView.h */,
+				6C5EA8561053842C003BC47D /* SociariumView.mm */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		2A37F4AFFDCFA73011CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				2564AD2C0F5327BB00F57823 /* sociarium_Prefix.pch */,
+				2A37F4B0FDCFA73011CA2CEA /* main.m */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
+				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
+				6CAC1134104EDFE10022B602 /* SociariumDocument.xib */,
+				8D15AC360486D014006FF6A4 /* sociarium-Info.plist */,
+				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
+				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6C5EA8841053871A003BC47D /* module */ = {
+			isa = PBXGroup;
+			children = (
+				6C5EA8851053871A003BC47D /* community_detection.cpp */,
+				6C5EA8861053871A003BC47D /* community_detection.h */,
+				6C5EA8901053871A003BC47D /* community_detection_detail.cpp */,
+				6C5EA8911053871A003BC47D /* community_detection_detail.h */,
+				6C5EA89B1053871A003BC47D /* creation.cpp */,
+				6C5EA89C1053871A003BC47D /* creation.h */,
+				6C5EA89D1053871A003BC47D /* creation_detail.cpp */,
+				6C5EA89E1053871A003BC47D /* creation_detail.h */,
+				6C5EA8B41053871A003BC47D /* layout.cpp */,
+				6C5EA8B51053871A003BC47D /* layout.h */,
+			);
+			path = module;
+			sourceTree = "<group>";
+		};
+		6C5EA8C91053871B003BC47D /* thread */ = {
+			isa = PBXGroup;
+			children = (
+				6C5EA8CA1053871B003BC47D /* community_detection.cpp */,
+				6C5EA8CB1053871B003BC47D /* community_detection.h */,
+				6C5EADEE1053D2C4003BC47D /* creation.mm */,
+				6C5EA8CD1053871B003BC47D /* creation.h */,
+				6C5EA8CE1053871B003BC47D /* layout.cpp */,
+				6C5EA8CF1053871B003BC47D /* layout.h */,
+				6C5EA8D01053871B003BC47D /* node_size.cpp */,
+				6C5EA8D11053871B003BC47D /* node_size.h */,
+			);
+			path = thread;
+			sourceTree = "<group>";
+		};
+		6CAC0FEE104ED9C70022B602 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				6C5EA8841053871A003BC47D /* module */,
+				6C5EA8C91053871B003BC47D /* thread */,
+				6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */,
+				6CAC1095104EDC8F0022B602 /* algorithm_selector.h */,
+				6CAC1096104EDC8F0022B602 /* color.h */,
+				6CAC1097104EDC8F0022B602 /* common.cpp */,
+				6CAC1098104EDC8F0022B602 /* common.h */,
+				6CAC1099104EDC8F0022B602 /* draw.cpp */,
+				6CAC109A104EDC8F0022B602 /* draw.h */,
+				6CAC109B104EDC8F0022B602 /* flag_operation.h */,
+				6CAC109C104EDC8F0022B602 /* font.cpp */,
+				6CAC109D104EDC8F0022B602 /* font.h */,
+				6CAC109E104EDC8F0022B602 /* force_direction.cpp */,
+				6CAC109F104EDC8F0022B602 /* force_direction.h */,
+				6CAC10A0104EDC8F0022B602 /* fps_counter.cpp */,
+				6CAC10A1104EDC8F0022B602 /* fps_counter.h */,
+				6CAC10A2104EDC8F0022B602 /* graph_extractor.cpp */,
+				6CAC10A3104EDC8F0022B602 /* graph_extractor.h */,
+				6CAC10A4104EDC8F0022B602 /* graph_utility.cpp */,
+				6CAC10A5104EDC8F0022B602 /* graph_utility.h */,
+				6CAC10A6104EDC8F0022B602 /* layout.cpp */,
+				6CAC10A7104EDC8F0022B602 /* layout.h */,
+				6CAC10A9104EDC8F0022B602 /* message.cpp */,
+				6CAC10AA104EDC8F0022B602 /* message.h */,
+				6CAC10AB104EDC8F0022B602 /* mouse_and_selection.cpp */,
+				6CAC10AC104EDC8F0022B602 /* mouse_and_selection.h */,
+				6CAC10AD104EDC8F0022B602 /* resource.h */,
+				6CAC10AE104EDC8F0022B602 /* sociarium_graph_time_series.cpp */,
+				6CAC10AF104EDC8F0022B602 /* sociarium_graph_time_series.h */,
+				6CAC10B0104EDC8F0022B602 /* sociarium_graph.cpp */,
+				6CAC10B1104EDC8F0022B602 /* sociarium_graph.h */,
+				6CAC10B2104EDC8F0022B602 /* texture.cpp */,
+				6CAC10B3104EDC8F0022B602 /* texture.h */,
+				6CAC10B4104EDC8F0022B602 /* thread.cpp */,
+				6CAC10B5104EDC8F0022B602 /* thread.h */,
+				6CAC10B6104EDC8F0022B602 /* view.cpp */,
+				6CAC10B7104EDC8F0022B602 /* view.h */,
+				6CAC10B8104EDC8F0022B602 /* world_do_force_direction.cpp */,
+				6CAC10B9104EDC8F0022B602 /* world_do_mouse_action.cpp */,
+				6CAC10BA104EDC8F0022B602 /* world_draw.cpp */,
+				6CAC10BB104EDC8F0022B602 /* world_edit_graph.cpp */,
+				6CAC10BC104EDC8F0022B602 /* world_initialize.cpp */,
+				6CAC10BD104EDC8F0022B602 /* world_run_thread.cpp */,
+				6CAC10BE104EDC8F0022B602 /* world_select.cpp */,
+				6CAC10BF104EDC8F0022B602 /* world.cpp */,
+				6CAC10C0104EDC8F0022B602 /* world.h */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		6CAC1092104EDC330022B602 /* Sources (shared) */ = {
+			isa = PBXGroup;
+			children = (
+				6CAC1117104EDF9E0022B602 /* general.cpp */,
+				6CAC1118104EDF9E0022B602 /* general.h */,
+				6CAC1119104EDF9E0022B602 /* GL */,
+				6CAC1120104EDF9E0022B602 /* math.h */,
+				6CAC1121104EDF9E0022B602 /* msgbox.cpp */,
+				6CAC1122104EDF9E0022B602 /* msgbox.h */,
+				6CAC1123104EDF9E0022B602 /* mtrand.h */,
+				6CAC1124104EDF9E0022B602 /* predefined_color.h */,
+				6CAC1125104EDF9E0022B602 /* thread.h */,
+				6CAC1126104EDF9E0022B602 /* timer.h */,
+				6CAC1127104EDF9E0022B602 /* vector2.h */,
+				6CAC1128104EDF9E0022B602 /* vector3.h */,
+				6C5EAC4B1053A9FA003BC47D /* win32api.cpp */,
+				6CAC112A104EDF9E0022B602 /* win32api.h */,
+				6CAC112B104EDF9E0022B602 /* wndbase.h */,
+			);
+			name = "Sources (shared)";
+			path = ../shared;
+			sourceTree = "<group>";
+		};
+		6CAC1093104EDC500022B602 /* Sources (graph) */ = {
+			isa = PBXGroup;
+			children = (
+				6CAC1100104EDF910022B602 /* graph.cpp */,
+				6CAC1101104EDF910022B602 /* graph.h */,
+				6CAC1102104EDF910022B602 /* graphex.h */,
+				6CAC1103104EDF910022B602 /* property_graph.h */,
+				6CAC1108104EDF910022B602 /* util */,
+			);
+			name = "Sources (graph)";
+			path = ../graph;
+			sourceTree = "<group>";
+		};
+		6CAC1108104EDF910022B602 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				6CAC1109104EDF910022B602 /* clustering.cpp */,
+				6CAC110A104EDF910022B602 /* clustering.h */,
+				6CAC110B104EDF910022B602 /* statistics.cpp */,
+				6CAC110C104EDF910022B602 /* statistics.h */,
+				6CAC110D104EDF910022B602 /* traverser.cpp */,
+				6CAC110E104EDF910022B602 /* traverser.h */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
+		6CAC1119104EDF9E0022B602 /* GL */ = {
+			isa = PBXGroup;
+			children = (
+				6CAC111C104EDF9E0022B602 /* gltexture.cpp */,
+				6CAC111D104EDF9E0022B602 /* gltexture.h */,
+				6CAC111E104EDF9E0022B602 /* glview.cpp */,
+				6CAC111F104EDF9E0022B602 /* glview.h */,
+			);
+			path = GL;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D15AC270486D014006FF6A4 /* sociarium */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "sociarium" */;
+			buildPhases = (
+				8D15AC2B0486D014006FF6A4 /* Resources */,
+				8D15AC300486D014006FF6A4 /* Sources */,
+				8D15AC330486D014006FF6A4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sociarium;
+			productInstallPath = "$(HOME)/Applications";
+			productName = sociarium;
+			productReference = 8D15AC370486D014006FF6A4 /* sociarium.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "sociarium" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* sociarium */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8D15AC270486D014006FF6A4 /* sociarium */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D15AC2B0486D014006FF6A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */,
+				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
+				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
+				6CAC1136104EDFE10022B602 /* SociariumDocument.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D15AC300486D014006FF6A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D15AC320486D014006FF6A4 /* main.m in Sources */,
+				6CAC10C1104EDC8F0022B602 /* algorithm_selector.cpp in Sources */,
+				6CAC10C2104EDC8F0022B602 /* common.cpp in Sources */,
+				6CAC10C3104EDC8F0022B602 /* draw.cpp in Sources */,
+				6CAC10C4104EDC8F0022B602 /* font.cpp in Sources */,
+				6CAC10C5104EDC8F0022B602 /* force_direction.cpp in Sources */,
+				6CAC10C6104EDC8F0022B602 /* fps_counter.cpp in Sources */,
+				6CAC10C7104EDC8F0022B602 /* graph_extractor.cpp in Sources */,
+				6CAC10C8104EDC8F0022B602 /* graph_utility.cpp in Sources */,
+				6CAC10C9104EDC8F0022B602 /* layout.cpp in Sources */,
+				6CAC10CB104EDC8F0022B602 /* message.cpp in Sources */,
+				6CAC10CC104EDC8F0022B602 /* mouse_and_selection.cpp in Sources */,
+				6CAC10CD104EDC8F0022B602 /* sociarium_graph_time_series.cpp in Sources */,
+				6CAC10CE104EDC8F0022B602 /* sociarium_graph.cpp in Sources */,
+				6CAC10CF104EDC8F0022B602 /* texture.cpp in Sources */,
+				6CAC10D0104EDC8F0022B602 /* thread.cpp in Sources */,
+				6CAC10D1104EDC8F0022B602 /* view.cpp in Sources */,
+				6CAC10D2104EDC8F0022B602 /* world_do_force_direction.cpp in Sources */,
+				6CAC10D3104EDC8F0022B602 /* world_do_mouse_action.cpp in Sources */,
+				6CAC10D4104EDC8F0022B602 /* world_draw.cpp in Sources */,
+				6CAC10D5104EDC8F0022B602 /* world_edit_graph.cpp in Sources */,
+				6CAC10D6104EDC8F0022B602 /* world_initialize.cpp in Sources */,
+				6CAC10D7104EDC8F0022B602 /* world_run_thread.cpp in Sources */,
+				6CAC10D8104EDC8F0022B602 /* world_select.cpp in Sources */,
+				6CAC10D9104EDC8F0022B602 /* world.cpp in Sources */,
+				6CAC110F104EDF910022B602 /* graph.cpp in Sources */,
+				6CAC1114104EDF910022B602 /* clustering.cpp in Sources */,
+				6CAC1115104EDF910022B602 /* statistics.cpp in Sources */,
+				6CAC1116104EDF910022B602 /* traverser.cpp in Sources */,
+				6CAC112C104EDF9E0022B602 /* general.cpp in Sources */,
+				6CAC112E104EDF9E0022B602 /* gltexture.cpp in Sources */,
+				6CAC112F104EDF9E0022B602 /* glview.cpp in Sources */,
+				6CAC1130104EDF9E0022B602 /* msgbox.cpp in Sources */,
+				6CAC1139104EDFEB0022B602 /* SociariumDocument.mm in Sources */,
+				6C5EA8571053842C003BC47D /* SociariumView.mm in Sources */,
+				6C5EA8D21053871B003BC47D /* community_detection.cpp in Sources */,
+				6C5EA8D91053871B003BC47D /* community_detection_detail.cpp in Sources */,
+				6C5EA8E01053871B003BC47D /* creation.cpp in Sources */,
+				6C5EA8E11053871B003BC47D /* creation_detail.cpp in Sources */,
+				6C5EA8F01053871B003BC47D /* layout.cpp in Sources */,
+				6C5EA8FE1053871B003BC47D /* community_detection.cpp in Sources */,
+				6C5EA9001053871B003BC47D /* layout.cpp in Sources */,
+				6C5EA9011053871B003BC47D /* node_size.cpp in Sources */,
+				6C5EAC4C1053A9FA003BC47D /* win32api.cpp in Sources */,
+				6C5EADEF1053D2C4003BC47D /* creation.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C165FFE840EACC02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C1660FE840EACC02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		1DDD582A0DA1D0D100B32029 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1DDD582B0DA1D0D100B32029 /* English */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A37F4BAFDCFA73011CA2CEA /* English */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		6CAC1134104EDFE10022B602 /* SociariumDocument.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6CAC1135104EDFE10022B602 /* English */,
+			);
+			name = SociariumDocument.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C05733C808A9546B00998B17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = sociarium_Prefix.pch;
+				INFOPLIST_FILE = "sociarium-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Gentoo/usr/lib,
+				);
+				PRODUCT_NAME = sociarium;
+			};
+			name = Debug;
+		};
+		C05733C908A9546B00998B17 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = sociarium_Prefix.pch;
+				INFOPLIST_FILE = "sociarium-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Gentoo/usr/lib,
+				);
+				PRODUCT_NAME = sociarium;
+			};
+			name = Release;
+		};
+		C05733CC08A9546B00998B17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/freetype2,
+					/usr/local/include,
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		C05733CD08A9546B00998B17 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "sociarium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C05733C808A9546B00998B17 /* Debug */,
+				C05733C908A9546B00998B17 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "sociarium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C05733CC08A9546B00998B17 /* Debug */,
+				C05733CD08A9546B00998B17 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2A37F4A9FDCFA73011CA2CEA /* Project object */;
+}
