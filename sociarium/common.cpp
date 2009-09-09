@@ -43,7 +43,9 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////////////////////////
       // ローカル変数
       wstring module_path;
+#ifdef _MSC_VER
       HWND window_handle = NULL;
+#endif
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,7 @@ namespace hashimoto_ut {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     HWND get_window_handle(void) {
       return window_handle;
     }
@@ -63,9 +66,15 @@ namespace hashimoto_ut {
     void set_window_handle(HWND hwnd) {
       window_handle = hwnd;
     }
-
+#else
+    void * get_window_handle(void) { return NULL; }
+    void set_window_handle(void *) { };
+#endif
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     void show_last_error(wchar_t const* text) {
+#ifdef __APPLE__
+#elif _MSC_VER
       LPVOID buf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                     FORMAT_MESSAGE_FROM_SYSTEM |
@@ -75,6 +84,7 @@ namespace hashimoto_ut {
                     (LPTSTR)&buf, 0, NULL);
       MsgBox(get_window_handle(), APPLICATION_TITLE, L"%s%s", (wchar_t*)buf, text);
       LocalFree(buf);
+#endif
     }
   } // The end of the namespace "sociarium_project_common"
 

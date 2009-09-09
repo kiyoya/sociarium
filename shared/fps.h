@@ -32,25 +32,41 @@
 #ifndef INCLUDE_GUARD_SHARED_FPS_H
 #define INCLUDE_GUARD_SHARED_FPS_H
 
+#ifdef __APPLE__
+#include <CoreFoundation/CFDate.h>
+#elif _MSC_VER
 #include <mmsystem.h>
+#endif
 #include "thread.h"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "winmm.lib")
+#endif
 
 namespace hashimoto_ut {
 
   class FPS : public Thread {
   public:
+#ifdef __APPLE__
+    FPS(void) : fps_(0.0), count_(0), last_(CFAbsoluteTimeGetCurrent()) {}
+#elif _MSC_VER
     FPS(void) : fps_(0.0), count_(0), last_(timeGetTime()) {}
+#endif
     ~FPS() {}
     double get(void) const { return fps_; }
     void count(void) { ++count_; } // 描画部に挿入
 
     void operator()(void) {
       while (1) {
+#ifdef __APPLE__
+        sleep(1); // 1sec間隔でFPS値を更新
+        fps_ = 1000.0*count_/(CFAbsoluteTimeGetCurrent()-last_);
+        last_ = CFAbsoluteTimeGetCurrent();
+#elif _MSC_VER
         Sleep(1000); // 1000msec間隔でFPS値を更新
         fps_ = 1000.0*count_/(timeGetTime()-last_);
         last_ = timeGetTime();
+#endif
         count_ = 0;
         if (cancel_check()) break;
       }
@@ -59,7 +75,11 @@ namespace hashimoto_ut {
   private:
     double fps_;
     int count_;
+#ifdef __APPLE__
+    CFAbsoluteTime last_;
+#elif _MSC_VER
     DWORD last_;
+#endif
   };
 
 } // The end of the namespace "hashimoto_ut"

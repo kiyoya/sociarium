@@ -33,7 +33,9 @@
 #include <cassert>
 #include <vector>
 #include <map>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "layout.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"

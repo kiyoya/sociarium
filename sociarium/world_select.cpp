@@ -30,8 +30,14 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 #include "world.h"
 #include "common.h"
 #include "mouse_and_selection.h"
@@ -42,6 +48,7 @@ namespace hashimoto_ut {
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   void World::select(Vector2<int> const& mpos) const {
 
+#ifdef _MSC_VER
     HWND hwnd = sociarium_project_common::get_window_handle();
     if (hwnd==0)
       sociarium_project_common::show_last_error(L"World::select/get_window_handle");
@@ -58,6 +65,7 @@ namespace hashimoto_ut {
     }
 
     assert(dc!=0);
+#endif
 
     // セレクションバッファの作成（これは必ずglRenderMode(GL_SELECT)の前に実行）
     static int const SELECTION_BUFFER = 1000;
@@ -100,12 +108,14 @@ namespace hashimoto_ut {
       sociarium_project_mouse_and_selection::initialize_selection();
     }
 
+#ifdef _MSC_VER
     if (must_release_dc) {
       if (wglMakeCurrent(0, 0)==FALSE)
         sociarium_project_common::show_last_error(L"World::select/wglMakeCurrent(0)");
       if (ReleaseDC(hwnd, dc)==0)
         sociarium_project_common::show_last_error(L"World::select/ReleaseDC");
     }
+#endif
   }
 
 } // The end of the namespace "hashimoto_ut"

@@ -30,7 +30,9 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include <boost/bind.hpp>
 #include "world.h"
 #include "common.h"
@@ -97,10 +99,11 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // マウス操作
-  void World::do_mouse_action(int action, Vector2<int> const& mpos, WPARAM wp) {
+  void World::do_mouse_action(int action, Vector2<int> const& mpos, int modifier) {
 
     time_series_->read_lock();
 
+#ifdef _MSC_VER
     HWND hwnd = sociarium_project_common::get_window_handle();
     if (hwnd==NULL)
       sociarium_project_common::show_last_error(L"world_do_mouse_action/get_window_handle");
@@ -109,6 +112,7 @@ namespace hashimoto_ut {
       sociarium_project_common::show_last_error(L"world_do_mouse_action/GetDC");
     if (wglMakeCurrent(dc, rc_)==FALSE)
       sociarium_project_common::show_last_error(L"world_do_mouse_action/wglMakeCurrent(dc)");
+#endif
 
     view_->scr2world_z0(mpos_world, mpos);
 
@@ -175,7 +179,7 @@ namespace hashimoto_ut {
         for_each(dnp1->lower_nbegin(), dnp1->lower_nend(), boost::bind<void>(ActivateFlag(), _1, ElementFlag::CAPTURED));
         sociarium_project_mouse_and_selection::set_captured_object((void*)dep.get());
       }
-      else if (!(wp&MK_CONTROL)) {
+      else if (modifier == MouseModifier::NONE) {
         // ----------------------------------------------------------------------------------------------------
         // レイアウトフレームの移動
         if (sociarium_project_mouse_and_selection::layout_frame_is_selected()) {
@@ -209,7 +213,7 @@ namespace hashimoto_ut {
       if (mpos==mpos_LBUTTONDOWN) {
         // ----------------------------------------------------------------------------------------------------
         // すべてのハイライトをクリア
-        if (!(wp&MK_CONTROL)&&!sociarium_project_mouse_and_selection::time_slider_is_selected()) {
+        if (modifier==MouseModifier::NONE&&!sociarium_project_mouse_and_selection::time_slider_is_selected()) {
           for_each(g0->node_property_begin(), g0->node_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
           for_each(g0->edge_property_begin(), g0->edge_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
         }
@@ -217,7 +221,7 @@ namespace hashimoto_ut {
 #ifdef CLICK_WITHOUT_CTRL_KEY_RESET_MARK
         // ----------------------------------------------------------------------------------------------------
         // すべてのマークをクリア
-        if (!(wp&MK_CONTROL)&&!sociarium_project_mouse_and_selection::time_slider_is_selected()) {
+        if (modifier==MouseModifier::NONE&&!sociarium_project_mouse_and_selection::time_slider_is_selected()) {
           for_each(g0->node_property_begin(), g0->node_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
           for_each(g0->edge_property_begin(), g0->edge_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
           for_each(g1->node_property_begin(), g1->node_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
@@ -272,7 +276,7 @@ namespace hashimoto_ut {
 #ifndef CLICK_WITHOUT_CTRL_KEY_RESET_MARK
         // ----------------------------------------------------------------------------------------------------
         // すべてのマークをクリア
-        else if (!(wp&MK_CONTROL)) {
+        else if (modifier==MouseModifier::NONE) {
           for_each(g0->node_property_begin(), g0->node_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
           for_each(g0->edge_property_begin(), g0->edge_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
           for_each(g1->node_property_begin(), g1->node_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
@@ -306,11 +310,11 @@ namespace hashimoto_ut {
     // 右リリース
     else if (action==MouseAction::RBUTTON_UP) {
       shared_ptr<SociariumGraph const> const& g0 = time_series_->get_graph(0, time_series_->index_of_current_layer());
-      shared_ptr<SociariumGraph const> const& g1 = time_series_->get_graph(1, time_series_->index_of_current_layer());
+      //shared_ptr<SociariumGraph const> const& g1 = time_series_->get_graph(1, time_series_->index_of_current_layer());
       if (mpos==mpos_RBUTTONDOWN) {
         // ----------------------------------------------------------------------------------------------------
         // すべてのハイライトをクリア
-        if (!(wp&MK_CONTROL)) {
+        if (modifier==MouseModifier::NONE) {
           for_each(g0->node_property_begin(), g0->node_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
           for_each(g0->edge_property_begin(), g0->edge_property_end(), boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
         }
@@ -339,125 +343,124 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // 移動
-    else if (action==MouseAction::MOVE) {
+    else if (action==MouseAction::LBUTTON_DRAG) {
       shared_ptr<SociariumGraph const> const& g0 = time_series_->get_graph(0, time_series_->index_of_current_layer());
       shared_ptr<SociariumGraph const> const& g1 = time_series_->get_graph(1, time_series_->index_of_current_layer());
-      if (wp&MK_LBUTTON) {
-        // ----------------------------------------------------------------------------------------------------
-        // 時系列スライダーの移動
-        if (sociarium_project_mouse_and_selection::time_slider_is_selected()) {
-          double my = double(mpos.y);
-          double const soff_y = sociarium_project_draw::get_slider_offset().y;
-          if (my<soff_y) my = soff_y;
-          else if (my>view_->viewport_size().y-soff_y)
-            my = view_->viewport_size().y-soff_y;
-          double const y = (my-soff_y)/(view_->viewport_size().y-2*soff_y);
-          time_series_->move_layer(int(y*(time_series_->number_of_layers()-1.0)+0.5));
-        }
-        // ----------------------------------------------------------------------------------------------------
-        // ノードの移動
-        else if (sociarium_project_mouse_and_selection::get_captured_object()) {
-          Vector2<float> const diff = mpos_world-mpos_world_prev;
-          for_each(g0->node_property_begin(), g0->node_property_end(),
-                   boost::bind<void>(MoveNode(), _1, ElementFlag::CAPTURED+ElementFlag::MARKED+ElementFlag::HIGHLIGHT, diff));
-          for (SociariumGraph::node_property_iterator i=g1->node_property_begin(); i!=g1->node_property_end(); ++i)
-            i->second->move_to_center_of_lower_nodes_position();
-        }
-        // --------------------------------------------------------------------------------
-        // オブジェクト選択エリアの変更
-        else if (wp&MK_CONTROL) {
-          sociarium_project_mouse_and_selection::set_drag_status(true);
-          {
-            Vector2<double> const p0(double(mpos.x)/view_->viewport_size().x,
-                                     double(mpos.y)/view_->viewport_size().y);
-            Vector2<double> const p1(double(mpos_LBUTTONDOWN.x)/view_->viewport_size().x,
-                                     double(mpos_LBUTTONDOWN.y)/view_->viewport_size().y);
-            sociarium_project_mouse_and_selection::set_drag_region(0, p0);
-            sociarium_project_mouse_and_selection::set_drag_region(1, Vector2<double>(p0.x, p1.y));
-            sociarium_project_mouse_and_selection::set_drag_region(2, Vector2<double>(p1.x, p0.y));
-            sociarium_project_mouse_and_selection::set_drag_region(3, p1);
-          }
 
-          Vector2<int> const p0(mpos_LBUTTONDOWN.x, mpos.y);
-          Vector2<int> const p1(mpos.x, mpos_LBUTTONDOWN.y);
-          Vector2<double> wp0;
-          Vector2<double> wp1;
-          view_->scr2world_z0(wp0, p0);
-          view_->scr2world_z0(wp1, p1);
-          Vector2<double> drag_region[4] = { mpos_world, wp0, wp1, mpos_world_LBUTTONDOWN };
-          // 矩形内のノードを一時マーキング
-          if (sociarium_project_view::get_show_node()) {
-            for (SociariumGraph::node_property_iterator i=g0->node_property_begin(); i!=g0->node_property_end(); ++i) {
-              shared_ptr<DynamicNodeProperty> const& dnp = i->second;
-              if (point_is_in_trapezoid<double>(dnp->get_static_property()->get_position()+center_, drag_region)) {
-                if (is_marked(dnp)) dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-                else dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_MARKED);
-              } else dnp->set_flag(dnp->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
-            }
-          }
-          // 矩形内のエッジを一時マーキング
-          if (sociarium_project_view::get_show_edge()) {
-            for (SociariumGraph::edge_property_iterator i=g0->edge_property_begin(); i!=g0->edge_property_end(); ++i) {
-              shared_ptr<DynamicEdgeProperty> const& dep = i->second;
-              shared_ptr<DynamicNodeProperty> const& dnp0 = g0->property(i->first->source());
-              shared_ptr<DynamicNodeProperty> const& dnp1 = g0->property(i->first->target());
-              if (dnp0->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED) &&
-                  dnp1->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED)) {
-                if (is_marked(dep)) dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-                else dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_MARKED);
-              } else dep->set_flag(dep->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
-            }
-          }
-          // 矩形内のコミュニティを一時マーキング
-          if (sociarium_project_view::get_show_community()) {
-            for (SociariumGraph::node_property_iterator i=g1->node_property_begin(); i!=g1->node_property_end(); ++i) {
-              shared_ptr<DynamicNodeProperty> const& dnp = i->second;
-              if (point_is_in_trapezoid<double>(dnp->get_static_property()->get_position()+center_, drag_region)) {
-                if (is_marked(dnp)) dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-                else dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_MARKED);
-              } else dnp->set_flag(dnp->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
-            }
-          }
-          // 矩形内のコミュニティエッジを一時マーキング
-          if (sociarium_project_view::get_show_community_edge()) {
-            for (SociariumGraph::edge_property_iterator i=g1->edge_property_begin(); i!=g1->edge_property_end(); ++i) {
-              shared_ptr<DynamicEdgeProperty> const& dep = i->second;
-              shared_ptr<DynamicNodeProperty> const& dnp0 = g1->property(i->first->source());
-              shared_ptr<DynamicNodeProperty> const& dnp1 = g1->property(i->first->target());
-              if (dnp0->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED) &&
-                  dnp1->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED)) {
-                if (is_marked(dep)) dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-                else dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_MARKED);
-              } else dep->set_flag(dep->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
-            }
+      // ----------------------------------------------------------------------------------------------------
+      // 時系列スライダーの移動
+      if (sociarium_project_mouse_and_selection::time_slider_is_selected()) {
+        double my = double(mpos.y);
+        double const soff_y = sociarium_project_draw::get_slider_offset().y;
+        if (my<soff_y) my = soff_y;
+        else if (my>view_->viewport_size().y-soff_y)
+          my = view_->viewport_size().y-soff_y;
+        double const y = (my-soff_y)/(view_->viewport_size().y-2*soff_y);
+        time_series_->move_layer(int(y*(time_series_->number_of_layers()-1.0)+0.5));
+      }
+      // ----------------------------------------------------------------------------------------------------
+      // ノードの移動
+      else if (sociarium_project_mouse_and_selection::get_captured_object()) {
+        Vector2<float> const diff = mpos_world-mpos_world_prev;
+        for_each(g0->node_property_begin(), g0->node_property_end(),
+                 boost::bind<void>(MoveNode(), _1, ElementFlag::CAPTURED+ElementFlag::MARKED+ElementFlag::HIGHLIGHT, diff));
+        for (SociariumGraph::node_property_iterator i=g1->node_property_begin(); i!=g1->node_property_end(); ++i)
+          i->second->move_to_center_of_lower_nodes_position();
+      }
+      // --------------------------------------------------------------------------------
+      // オブジェクト選択エリアの変更
+      else if (modifier==MouseModifier::CONTROL) {
+        sociarium_project_mouse_and_selection::set_drag_status(true);
+        {
+          Vector2<double> const p0(double(mpos.x)/view_->viewport_size().x,
+                                   double(mpos.y)/view_->viewport_size().y);
+          Vector2<double> const p1(double(mpos_LBUTTONDOWN.x)/view_->viewport_size().x,
+                                   double(mpos_LBUTTONDOWN.y)/view_->viewport_size().y);
+          sociarium_project_mouse_and_selection::set_drag_region(0, p0);
+          sociarium_project_mouse_and_selection::set_drag_region(1, Vector2<double>(p0.x, p1.y));
+          sociarium_project_mouse_and_selection::set_drag_region(2, Vector2<double>(p1.x, p0.y));
+          sociarium_project_mouse_and_selection::set_drag_region(3, p1);
+        }
+
+        Vector2<int> const p0(mpos_LBUTTONDOWN.x, mpos.y);
+        Vector2<int> const p1(mpos.x, mpos_LBUTTONDOWN.y);
+        Vector2<double> wp0;
+        Vector2<double> wp1;
+        view_->scr2world_z0(wp0, p0);
+        view_->scr2world_z0(wp1, p1);
+        Vector2<double> drag_region[4] = { mpos_world, wp0, wp1, mpos_world_LBUTTONDOWN };
+        // 矩形内のノードを一時マーキング
+        if (sociarium_project_view::get_show_node()) {
+          for (SociariumGraph::node_property_iterator i=g0->node_property_begin(); i!=g0->node_property_end(); ++i) {
+            shared_ptr<DynamicNodeProperty> const& dnp = i->second;
+            if (point_is_in_trapezoid<double>(dnp->get_static_property()->get_position()+center_, drag_region)) {
+              if (is_marked(dnp)) dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+              else dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_MARKED);
+            } else dnp->set_flag(dnp->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
           }
         }
-        // ----------------------------------------------------------------------------------------------------
-        // レイアウトフレームの移動
-        else if (sociarium_project_mouse_and_selection::layout_frame_is_selected()) {
-          Vector2<int> diff(mpos_world-mpos_world_LBUTTONDOWN);
-          sociarium_project_draw::set_layout_frame_position(sociarium_project_draw::get_layout_frame_previous_position()+diff);
+        // 矩形内のエッジを一時マーキング
+        if (sociarium_project_view::get_show_edge()) {
+          for (SociariumGraph::edge_property_iterator i=g0->edge_property_begin(); i!=g0->edge_property_end(); ++i) {
+            shared_ptr<DynamicEdgeProperty> const& dep = i->second;
+            shared_ptr<DynamicNodeProperty> const& dnp0 = g0->property(i->first->source());
+            shared_ptr<DynamicNodeProperty> const& dnp1 = g0->property(i->first->target());
+            if (dnp0->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED) &&
+                dnp1->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED)) {
+              if (is_marked(dep)) dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+              else dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_MARKED);
+            } else dep->set_flag(dep->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
+          }
         }
-        // ----------------------------------------------------------------------------------------------------
-        // レイアウトフレームの拡大縮小
-        else if (sociarium_project_mouse_and_selection::layout_frame_border_is_selected()) {
-          int const dx = int(abs(mpos_world.x-center_.x-double(sociarium_project_draw::get_layout_frame_position().x)));
-          int const dy = int(abs(mpos_world.y-center_.y-double(sociarium_project_draw::get_layout_frame_position().y)));
-          sociarium_project_draw::set_layout_frame_size(dx>dy?dx:dy);
+        // 矩形内のコミュニティを一時マーキング
+        if (sociarium_project_view::get_show_community()) {
+          for (SociariumGraph::node_property_iterator i=g1->node_property_begin(); i!=g1->node_property_end(); ++i) {
+            shared_ptr<DynamicNodeProperty> const& dnp = i->second;
+            if (point_is_in_trapezoid<double>(dnp->get_static_property()->get_position()+center_, drag_region)) {
+              if (is_marked(dnp)) dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+              else dnp->set_flag(dnp->get_flag()|ElementFlag::TEMPORARY_MARKED);
+            } else dnp->set_flag(dnp->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
+          }
         }
-        // ----------------------------------------------------------------------------------------------------
-        // 描画レイヤーの平行移動
-        else {
-          center_ += mpos_world-mpos_world_prev;
+        // 矩形内のコミュニティエッジを一時マーキング
+        if (sociarium_project_view::get_show_community_edge()) {
+          for (SociariumGraph::edge_property_iterator i=g1->edge_property_begin(); i!=g1->edge_property_end(); ++i) {
+            shared_ptr<DynamicEdgeProperty> const& dep = i->second;
+            shared_ptr<DynamicNodeProperty> const& dnp0 = g1->property(i->first->source());
+            shared_ptr<DynamicNodeProperty> const& dnp1 = g1->property(i->first->target());
+            if (dnp0->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED) &&
+                dnp1->get_flag()&(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED)) {
+              if (is_marked(dep)) dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+              else dep->set_flag(dep->get_flag()|ElementFlag::TEMPORARY_MARKED);
+            } else dep->set_flag(dep->get_flag()&~(ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED));
+          }
         }
       }
       // ----------------------------------------------------------------------------------------------------
-      // 描画レイヤーの回転
-      else if (wp&MK_RBUTTON) {
-        int const dx = 5*(mpos.x-mpos_RBUTTONDOWN.x);
-        int const dy = 5*(mpos.y-mpos_RBUTTONDOWN.y);
-        view_->set_angle(angleH_prev+dx, angleV_prev-dy);
+      // レイアウトフレームの移動
+      else if (sociarium_project_mouse_and_selection::layout_frame_is_selected()) {
+        Vector2<int> diff(mpos_world-mpos_world_LBUTTONDOWN);
+        sociarium_project_draw::set_layout_frame_position(sociarium_project_draw::get_layout_frame_previous_position()+diff);
       }
+      // ----------------------------------------------------------------------------------------------------
+      // レイアウトフレームの拡大縮小
+      else if (sociarium_project_mouse_and_selection::layout_frame_border_is_selected()) {
+        int const dx = int(abs(mpos_world.x-center_.x-double(sociarium_project_draw::get_layout_frame_position().x)));
+        int const dy = int(abs(mpos_world.y-center_.y-double(sociarium_project_draw::get_layout_frame_position().y)));
+        sociarium_project_draw::set_layout_frame_size(dx>dy?dx:dy);
+      }
+      // ----------------------------------------------------------------------------------------------------
+      // 描画レイヤーの平行移動
+      else {
+        center_ += mpos_world-mpos_world_prev;
+      }
+    }
+    // ----------------------------------------------------------------------------------------------------
+    // 描画レイヤーの回転
+    else if (action==MouseAction::LBUTTON_DRAG) {
+      int const dx = 5*(mpos.x-mpos_RBUTTONDOWN.x);
+      int const dy = 5*(mpos.y-mpos_RBUTTONDOWN.y);
+      view_->set_angle(angleH_prev+dx, angleV_prev-dy);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -488,9 +491,11 @@ namespace hashimoto_ut {
         static int const step = 20;
         sociarium_project_mouse_and_selection::initialize_selection();
         Vector2<double> to;
+#ifdef _MSC_VER
         HWND hwnd = sociarium_project_common::get_window_handle();
         if (hwnd==0)
           sociarium_project_common::show_last_error(L"World::do_mouse_action/get_window_handle");
+#endif
         if (view_->scr2world_z0(to, mpos)) {
           for (int i=0; i<step; ++i) {
             center_ -= to/double(step);
@@ -525,14 +530,14 @@ namespace hashimoto_ut {
       // 視点の初期化
       initialize_view();
       // レイアウトフレームサイズの初期化
-      if (wp&MK_CONTROL) sociarium_project_draw::set_layout_frame_size(sociarium_project_draw::get_layout_frame_default_size());
+      if (modifier==MouseModifier::CONTROL) sociarium_project_draw::set_layout_frame_size(sociarium_project_draw::get_layout_frame_default_size());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // ホイール回転
     else if (action==MouseAction::WHEEL) {
       // ズーム
-      int const delta = short(HIWORD(wp))/120; // ±120 per 1ノッチ
+      int const delta = modifier;
       double const mag = 1.0+(delta>0.0?delta:-delta)/16.0;
       if (delta>0) zoom(mag);
       else zoom(1.0/mag);
@@ -541,10 +546,12 @@ namespace hashimoto_ut {
     mpos_prev = mpos;
     mpos_world_prev = mpos_world;
 
+#ifdef _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
       sociarium_project_common::show_last_error(L"World::do_mouse_action/wglMakeCurrent(0)");
     if (ReleaseDC(hwnd, dc)==0)
       sociarium_project_common::show_last_error(L"World::do_mouse_action/ReleaseDC");
+#endif
 
     time_series_->read_unlock();
   }

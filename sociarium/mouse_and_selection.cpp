@@ -52,11 +52,11 @@ namespace hashimoto_ut {
   void Selection::set_id(unsigned int id) { id_ = id; }
 
   void Selection::initialize(void) {
-    level_     = unsigned int(-1);
+    level_     = (unsigned int)(-1);
     depth_min_ = 0.0;
     depth_max_ = 0.0;
-    category_  = unsigned int(-1);
-    id_        = unsigned int(-1);
+    category_  = (unsigned int)(-1);
+    id_        = (unsigned int)(-1);
   }
 
   namespace sociarium_project_mouse_and_selection {

@@ -32,11 +32,19 @@
 #ifndef INCLUDE_GUARD_SHARED_GL_GLBASE_H
 #define INCLUDE_GUARD_SHARED_GL_GLBASE_H
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
+#ifdef _MSC_VER
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
+#endif
 
 namespace hashimoto_ut {
 

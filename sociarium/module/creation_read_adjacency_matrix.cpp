@@ -33,7 +33,9 @@
 #include <cassert>
 #include <fstream>
 #include <boost/format.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "creation.h"
 #include "creation_detail.h"
 #include "../common.h"

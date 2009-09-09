@@ -33,7 +33,11 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_H
 
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 
 namespace hashimoto_ut {
 

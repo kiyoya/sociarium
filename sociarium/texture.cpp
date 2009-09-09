@@ -32,8 +32,12 @@
 
 #include <cassert>
 #include <memory>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "common.h"
 #include "message.h"
 #include "texture.h"

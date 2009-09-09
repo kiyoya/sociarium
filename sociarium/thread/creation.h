@@ -34,9 +34,17 @@
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_CREATION_H
 
 #include <string>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <gl/gl.h>
+#endif
 #include "../../shared/thread.h"
 
 namespace hashimoto_ut {
@@ -49,7 +57,11 @@ namespace hashimoto_ut {
       boost::mutex& m,
       boost::condition& c,
       bool& state,
+#ifdef _MSC_VER
       HGLRC rc,
+#else
+      void * rc,
+#endif
       std::tr1::shared_ptr<SociariumGraphTimeSeries> const& time_series,
       wchar_t const* filename);
 
@@ -57,6 +69,12 @@ namespace hashimoto_ut {
     void terminate(void) const;
     void operator()(void);
 
+  protected:
+#ifdef __APPLE__
+    void create_context() const;
+    void terminate_context() const;
+#endif
+    
   private:
     mutable boost::mutex& mutex_;
     mutable boost::condition& condition_;

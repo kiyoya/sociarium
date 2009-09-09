@@ -34,7 +34,9 @@
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_COMMON_H
 
 #include <string>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 
 namespace hashimoto_ut {
 
@@ -49,9 +51,14 @@ namespace hashimoto_ut {
     void set_module_path(std::wstring const& path);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     HWND get_window_handle(void);
     void set_window_handle(HWND hwnd);
-
+#else
+    void * get_window_handle(void);
+    void set_window_handle(void *);
+#endif
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     void show_last_error(wchar_t const* text=L"");
 

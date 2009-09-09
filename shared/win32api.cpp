@@ -31,6 +31,9 @@
 
 #include <boost/shared_array.hpp>
 #include "win32api.h"
+#ifndef _MSC_VER
+#include <stdlib.h>
+#endif
 
 namespace hashimoto_ut {
 
@@ -42,6 +45,8 @@ namespace hashimoto_ut {
   namespace {
     enum { MAX_PATHLENGTH=65535 };
   };
+
+#ifdef _MSC_VER
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   wstring GetFileName::for_read(HWND hwnd, wchar_t const* filename, wchar_t const* title, wchar_t const* filter, wchar_t const* path) {
@@ -165,18 +170,28 @@ namespace hashimoto_ut {
     return retval;
   }
 
+#endif
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   wstring mbcs2wcs(char const* cs, size_t length) {
-    size_t c;
     shared_array<wchar_t> wcs(new wchar_t [length+1]);
+#ifdef _MSC_VER
+    size_t c;
     errno_t err = mbstowcs_s(&c, wcs.get(), length+1, cs, _TRUNCATE);
+#else
+    mbstowcs(wcs.get(), cs, length + 1);
+#endif
     return wstring(wcs.get());
   }
 
   string wcs2mbcs(wchar_t const* cs, size_t length) {
-    size_t c;
     shared_array<char> mbcs(new char [2*length+1]);
+#ifdef _MSC_VER
+    size_t c;
     errno_t err = wcstombs_s(&c, mbcs.get(), 2*length+1, cs, _TRUNCATE);
+#else
+    wcstombs(mbcs.get(), cs, 2*length+1);
+#endif
     return string(mbcs.get());
   }
 

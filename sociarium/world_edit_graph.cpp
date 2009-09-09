@@ -33,7 +33,9 @@
 #include <vector>
 #include <algorithm>
 #include <boost/bind.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "resource.h"
 #include "world.h"
 #include "common.h"
@@ -621,8 +623,12 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   void World::remove_marked_elements(int menu) const {
     if (another_thread_is_running()
+#ifdef __APPLE__
+#elif _MSC_VER
         || MessageBox(NULL, sociarium_project_message::DO_YOU_REALLY_REMOVE_ELEMENTS,
-                      sociarium_project_common::APPLICATION_TITLE, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1)==IDCANCEL)
+                      sociarium_project_common::APPLICATION_TITLE, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1)==IDCANCEL
+#endif
+      )
       return;
 
     // --------------------------------------------------------------------------------

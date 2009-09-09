@@ -32,14 +32,23 @@
 #ifndef INCLUDE_GUARD_SHARED_GL_GLVIEW_H
 #define INCLUDE_GUARD_SHARED_GL_GLVIEW_H
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 #include "../vector2.h"
 #include "../vector3.h"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
+#endif
 
 namespace hashimoto_ut {
 

@@ -32,7 +32,9 @@
 
 #include <cassert>
 #include <string>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include <FTGL/ftgl.h>
 #include "common.h"
 #include "message.h"
@@ -50,12 +52,19 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // ローカル変数
 
+#ifdef __APPLE__
+    size_t const NUMBER_OF_FONT_OPTION = 1;
+	char const FONT_LIST[NUMBER_OF_FONT_OPTION][256] = {
+      "/Library/Fonts/Osaka.ttf"
+    };
+#elif _MSC_VER
     size_t const NUMBER_OF_FONT_OPTION = 2;
     char const FONT_LIST[NUMBER_OF_FONT_OPTION][_MAX_PATH] = {
       // 使用するフォントの優先順位
       "C:\\Windows\\Fonts\\meiryob.ttc",
       "C:\\Windows\\Fonts\\msgothic.ttc"
       };
+#endif
 
     int const default_font_size = 24;
     float const font_scale[4] = { 0.02f, 0.04f, 0.08f, 0.24f };

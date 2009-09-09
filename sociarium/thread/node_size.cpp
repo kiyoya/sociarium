@@ -31,7 +31,11 @@
  */
 
 #include <string>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include <boost/format.hpp>
 #include "node_size.h"
 #include "../graph_extractor.h"

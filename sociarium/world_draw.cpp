@@ -32,8 +32,14 @@
 
 #include <cassert>
 #include <boost/format.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 #include <FTGL/ftgl.h>
 #include "world.h"
 #include "common.h"
@@ -122,6 +128,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   void World::draw(void) const {
 
+#ifdef _MSC_VER
     bool must_release_dc = false;
     HWND hwnd = sociarium_project_common::get_window_handle();
     if (hwnd==NULL)
@@ -137,6 +144,7 @@ namespace hashimoto_ut {
     }
 
     assert(dc!=0);
+#endif
 
     sociarium_project_fps_counter::count();
 
@@ -160,6 +168,7 @@ namespace hashimoto_ut {
     draw_orthogonal_part();
     view_->pop_matrix();
 
+#ifdef _MSC_VER
     SwapBuffers(dc);
 
     if (must_release_dc) {
@@ -168,6 +177,7 @@ namespace hashimoto_ut {
       if (ReleaseDC(hwnd, dc)==0)
         sociarium_project_common::show_last_error(L"World::draw/ReleaseDC");
     }
+#endif
   }
 
 
@@ -732,7 +742,7 @@ namespace hashimoto_ut {
       time_series_->read_lock();
       size_t const index_of_current_layer = time_series_->index_of_current_layer();
       shared_ptr<SociariumGraph> const& g0 = time_series_->get_graph(0, index_of_current_layer);
-      shared_ptr<SociariumGraph> const& g1 = time_series_->get_graph(1, index_of_current_layer);
+      //shared_ptr<SociariumGraph> const& g1 = time_series_->get_graph(1, index_of_current_layer);
 
       if (sociarium_project_view::get_show_time_label()) {
         // レイヤーのラベルの描画

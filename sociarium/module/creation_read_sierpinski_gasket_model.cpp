@@ -35,7 +35,9 @@
 #include <boost/random.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "creation.h"
 #include "../common.h"
 #include "../message.h"

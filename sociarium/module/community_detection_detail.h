@@ -34,7 +34,11 @@
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_MODULE_COMMUNITY_DETECTION_DETAIL_H
 
 #include <vector>
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 
 namespace hashimoto_ut {
 

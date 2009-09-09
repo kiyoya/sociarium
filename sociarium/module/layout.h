@@ -36,8 +36,12 @@
 #include <vector>
 #include <string>
 #include <utility>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
 #include "../../shared/vector2.h"
 
 namespace hashimoto_ut {
@@ -45,8 +49,12 @@ namespace hashimoto_ut {
   class Thread;
   class Graph;
   
+#ifdef _MSC_VER
   typedef __declspec(dllimport)
     void (__cdecl* FuncLayoutGraph)(
+#else
+  typedef void (*FuncLayoutGraph)(
+#endif
       Thread* parent,
       std::tr1::shared_ptr<std::pair<std::wstring, std::wstring> > const& message,
       std::tr1::shared_ptr<Graph const> const& graph,

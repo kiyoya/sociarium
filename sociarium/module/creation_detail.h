@@ -36,7 +36,11 @@
 #include <ctime>
 #include <string>
 #include <vector>
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 #include "creation.h"
 
 namespace hashimoto_ut {

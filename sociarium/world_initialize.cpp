@@ -30,8 +30,14 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include <FTGL/ftgl.h>
 #include "world.h"
 #include "common.h"
@@ -52,10 +58,17 @@
 namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+  World::World(void * context) {
+#else
   World::World(void) {
+#endif
     sociarium_project_message::create();
 
     // レンダリングコンテキストの生成
+#ifdef __APPLE__
+    rc_ = context;
+#elif _MSC_VER
     HWND hwnd = sociarium_project_common::get_window_handle();
     if (hwnd==NULL)
       sociarium_project_common::show_last_error(L"World::initialize/get_window_handle");
@@ -78,7 +91,10 @@ namespace hashimoto_ut {
       sociarium_project_common::show_last_error(L"World::initialize/wglCreateContext");
     if (wglMakeCurrent(dc, rc_)==FALSE)
       sociarium_project_common::show_last_error(L"World::initialize/wglMakeCurrent(dc)");
-
+#else
+    rc_ = NULL;
+#endif
+    
     // OpenGL環境の初期化
     glDisable(GL_FOG);
     glEnable(GL_LINE_SMOOTH);
@@ -126,10 +142,12 @@ namespace hashimoto_ut {
     // グラフ時系列の初期化
     time_series_ = SociariumGraphTimeSeries::create();
 
+#ifdef _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
       sociarium_project_common::show_last_error(L"World::initialize/wglMakeCurrent(0)");
     if (ReleaseDC(hwnd, dc)==0)
       sociarium_project_common::show_last_error(L"World::initialize/ReleaseDC");
+#endif
 
     // FPSカウンターの初期化と開始
     sociarium_project_fps_counter::start();
@@ -137,8 +155,10 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   World::~World() {
+#ifdef _MSC_VER
     if (wglDeleteContext(rc_)==FALSE)
       sociarium_project_common::show_last_error(L"~World/wglDeleteContext");
+#endif
   }
 
 } // The end of the namespace "hashimoto_ut"

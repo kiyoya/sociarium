@@ -33,7 +33,11 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_FLAG_OPERATION_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_FLAG_OPERATION_H
 
+#ifdef _MSC_VER
 #include <unordered_set>
+#else
+#include <tr1/unordered_set>
+#endif
 #include "sociarium_graph.h"
 
 namespace hashimoto_ut {

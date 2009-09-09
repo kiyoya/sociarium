@@ -31,10 +31,14 @@
  */
 
 #include <cassert>
-#include <unordered_map>
 #include <fstream>
 #include <boost/format.hpp>
+#ifdef _MSC_VER
+#include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "creation.h"
 #include "creation_detail.h"
 #include "../common.h"

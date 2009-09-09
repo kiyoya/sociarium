@@ -32,15 +32,21 @@
 
 #include <map>
 #include <memory>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include <FTGL/ftgl.h>
 #include "draw.h"
 #include "view.h"
 #include "font.h"
 #include "../shared/vector3.h"
 #include "../shared/math.h"
-#include "../shared/gl/gltexture.h"
+#include "../shared/GL/gltexture.h"
 
 namespace hashimoto_ut {
 

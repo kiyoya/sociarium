@@ -30,7 +30,11 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 #include <boost/thread.hpp>
 #include "fps_counter.h"
 #include "../shared/fps.h"

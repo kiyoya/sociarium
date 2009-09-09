@@ -32,10 +32,16 @@
 
 #include <vector>
 #include <fstream>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <unordered_set>
+#else
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
+#endif
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
+#include <boost/thread.hpp>
 #include "creation.h"
 #include "layout.h"
 #include "../module/creation.h"
@@ -63,10 +69,15 @@ namespace hashimoto_ut {
   using std::tr1::unordered_set;
 
   namespace {
+#ifdef _MSC_VER
     HWND hwnd = 0;
     HDC dc = 0;
     HGLRC rc_trg = 0;
     HGLRC rc_src = 0;
+#else
+    void * rc_trg = NULL;
+    void * rc_src = NULL;
+#endif
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +85,11 @@ namespace hashimoto_ut {
     boost::mutex& m,
     boost::condition& c,
     bool& state,
+#ifdef _MSC_VER
     HGLRC rc,
+#else
+    void * rc,
+#endif
     shared_ptr<SociariumGraphTimeSeries> const & time_series,
     wchar_t const* filename)
        : mutex_(m), condition_(c), state_(state), time_series_(time_series), filename_(filename) {
@@ -84,6 +99,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   void CreationThread::terminate(void) const {
 
+#ifdef _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
       sociarium_project_common::show_last_error(L"CreationThread::terminate/wglMakeCurrent(0)");
     if (ReleaseDC(hwnd, dc)==0)
@@ -95,6 +111,13 @@ namespace hashimoto_ut {
     dc = 0;
     rc_src = 0;
     rc_trg = 0;
+#else
+#ifdef __APPLE__
+    terminate_context();
+#endif
+    rc_src = NULL;
+    rc_trg = NULL;
+#endif
 
     sociarium_project_message::get()->first = L"";
     sociarium_project_message::get()->second = L"";
@@ -114,6 +137,9 @@ namespace hashimoto_ut {
 
     time_series_->read_lock();
 
+#ifdef __APPLE__
+    create_context();
+#elif _MSC_VER
     if ((hwnd=sociarium_project_common::get_window_handle())==0)
       sociarium_project_common::show_last_error(L"CreationThread::operator()/get_window_handle");
     if ((dc=GetDC(hwnd))==0)
@@ -124,6 +150,7 @@ namespace hashimoto_ut {
       sociarium_project_common::show_last_error(L"CreationThread::operator()/wglShareLists");
     if (wglMakeCurrent(dc, rc_trg)==FALSE)
       sociarium_project_common::show_last_error(L"CreationThread::operator()/wglMakeCurrent(dc)");
+#endif
 
     {
       boost::mutex::scoped_lock lock(mutex_);

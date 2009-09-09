@@ -48,38 +48,48 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // 視点の制御
   void World::resize_window(Vector2<int> const& size) {
+
+#ifdef _MSC_VER
     HWND hwnd = sociarium_project_common::get_window_handle();
     HDC dc = GetDC(hwnd);
     if (dc==NULL)
       sociarium_project_common::show_last_error(L"World::resize_window/GetDC");
     if (wglMakeCurrent(dc, rc_)==FALSE)
       sociarium_project_common::show_last_error(L"World::resize_window/wglMakeCurrent(dc)");
+#endif
 
     view_->set_viewport(Vector2<int>(0, 0), size);
     view_->initialize_matrix();
 
+#ifdef _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
       sociarium_project_common::show_last_error(L"World::resize_window/wglMakeCurrent(0)");
     if (ReleaseDC(hwnd, dc)==0)
       sociarium_project_common::show_last_error(L"World::resize_window/ReleaseDC");
+#endif
   }
 
   void World::initialize_view(void) {
+
+#ifdef _MSC_VER
     HWND hwnd = sociarium_project_common::get_window_handle();
     HDC dc = GetDC(hwnd);
     if (dc==NULL) sociarium_project_common::show_last_error(L"World::initialize_view/GetDC");
     if (wglMakeCurrent(dc, rc_)==FALSE)
       sociarium_project_common::show_last_error(L"World::initialize_view/wglMakeCurrent(dc)");
+#endif
 
     center_.set(0.0, 0.0);
     view_->set_angle(-DEGREEV_MAX, DEGREEV_MAX);
     view_->set_distance(sociarium_project_view::VIEW_DISTANCE);
     view_->initialize_matrix();
 
+#ifdef _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
       sociarium_project_common::show_last_error(L"World::initialize_view/wglMakeCurrent(0)");
     if (ReleaseDC(hwnd, dc)==0)
       sociarium_project_common::show_last_error(L"World::initialize_view/ReleaseDC");
+#endif
   }
 
 
@@ -87,6 +97,7 @@ namespace hashimoto_ut {
   // 拡大／縮小
   void World::zoom(double mag) {
 
+#ifdef _MSC_VER
     HWND hwnd = 0;
     HDC dc = wglGetCurrentDC();
     if (dc==0) {
@@ -101,6 +112,7 @@ namespace hashimoto_ut {
     }
 
     assert(dc!=0);
+#endif
 
     double distance = view_->distance()*mag;
     distance = distance<sociarium_project_view::VIEW_DISTANCE_MIN?sociarium_project_view::VIEW_DISTANCE_MIN:distance;
@@ -108,12 +120,14 @@ namespace hashimoto_ut {
     view_->set_distance(distance);
     view_->initialize_matrix();
 
+#ifdef _MSC_VER
     if (hwnd!=0) {
       if (wglMakeCurrent(0, 0)==FALSE)
         sociarium_project_common::show_last_error(L"World::zoom/wglMakeCurrent(0)");
       if (ReleaseDC(hwnd, dc)==0)
         sociarium_project_common::show_last_error(L"World::zoom/ReleaseDC");
     }
+#endif
   }
 
 

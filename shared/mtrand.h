@@ -36,7 +36,7 @@
 
 namespace {
   namespace mt {
-    unsigned long seed = 1;
+    boost::mt19937::result_type seed = 1;
     boost::mt19937 generator(seed);
     boost::uniform_real<> distribution(0.0, 1.0);
     boost::variate_generator<boost::mt19937, boost::uniform_real<> > rand(generator, distribution);

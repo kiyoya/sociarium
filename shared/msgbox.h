@@ -35,11 +35,19 @@
 namespace hashimoto_ut {
 
   struct MsgBox {
+#ifdef _MSC_VER
     // ANSI版
     MsgBox(HWND hwnd, char const* title, char const* fmt, ...);
 
     // UNICODE版
     MsgBox(HWND hwnd, wchar_t const* title, wchar_t const* fmt, ...);
+#else
+    // ANSI版
+    MsgBox(void *, char const* title, char const* fmt, ...);
+	  
+    // UNICODE版
+    MsgBox(void *, wchar_t const* title, wchar_t const* fmt, ...);
+#endif
   };
 
 } // The end of the namespace "hashimoto_ut"

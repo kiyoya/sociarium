@@ -31,6 +31,8 @@
  */
 
 #include <fstream>
+#include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
 #include "common.h"
 #include "message.h"
 #include "world.h"

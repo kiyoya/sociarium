@@ -34,10 +34,13 @@
 
 #include <vector>
 #include <string>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 
 namespace hashimoto_ut {
 
+#ifdef _MSC_VER
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // ファイルのパスをドライブ・ディレクトリ，ファイル名，拡張子に分割
   class PathSplitter {
@@ -77,6 +80,8 @@ namespace hashimoto_ut {
   // 指定したフォルダから条件にマッチするすべてのファイル名を取得
   std::vector<std::wstring> get_all_filenames(wchar_t const* dir, int recursive);
 
+#endif // _MSC_VER
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // マルチバイト文字列⇔ワイド文字列
   std::wstring mbcs2wcs(char const* cs, size_t length);

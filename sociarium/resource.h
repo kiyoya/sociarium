@@ -33,7 +33,9 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_RESOURCE_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_RESOURCE_H
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // タイマー

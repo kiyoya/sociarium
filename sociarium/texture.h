@@ -34,7 +34,11 @@
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_TEXTURE_H
 
 #include <string>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 namespace hashimoto_ut {
 

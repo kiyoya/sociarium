@@ -32,6 +32,8 @@
 #ifndef INCLUDE_GUARD_SHARED_TIMER_H
 #define INCLUDE_GUARD_SHARED_TIMER_H
 
+#ifdef _MSC_VER
+
 #include <map>
 #include <windows.h>
 
@@ -77,5 +79,7 @@ namespace hashimoto_ut {
   };
 
 } // The end of the namespace "hashimoto_ut"
+
+#endif // _MSC_VER
 
 #endif // INCLUDE_GUARD_SHARED_TIMER_H

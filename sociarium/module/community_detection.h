@@ -36,8 +36,12 @@
 #include <vector>
 #include <string>
 #include <utility>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
 
 namespace hashimoto_ut {
 
@@ -45,8 +49,12 @@ namespace hashimoto_ut {
   class Graph;
   class Node;
 
+#ifdef _MSC_VER
   typedef __declspec(dllimport)
     void (__cdecl* FuncDetectCommunity)(
+#else
+  typedef void (*FuncDetectCommunity)(
+#endif
       Thread* parent,
       std::wstring* message,
       std::tr1::shared_ptr<Graph const> const& graph,

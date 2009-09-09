@@ -36,9 +36,17 @@
 #include <vector>
 #include <map>
 #include <string>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include "../shared/vector2.h"
 
 namespace hashimoto_ut {
@@ -53,7 +61,11 @@ namespace hashimoto_ut {
   class World {
   public:
     // world_initialize.cpp
+#ifdef __APPLE__
+    World(void * context);
+#else
     World(void);
+#endif
     ~World();
 
     // world_draw.cpp
@@ -65,7 +77,7 @@ namespace hashimoto_ut {
     void select(Vector2<int> const& mpos) const;
 
     // world_do_mouse_action.cpp
-    void do_mouse_action(int action, Vector2<int> const& mpos, WPARAM wp);
+    void do_mouse_action(int action, Vector2<int> const& mpos, int modifier);
 
     // world.cpp
     void resize_window(Vector2<int> const& size);
@@ -93,8 +105,12 @@ namespace hashimoto_ut {
     void remove_marked_elements(int menu) const;
 
   private:
+#ifdef _MSC_VER
     HGLRC rc_;
-
+#else
+    void * rc_;
+#endif
+    
     // 視点
     Vector2<float> center_;
     std::tr1::shared_ptr<GLView> view_;

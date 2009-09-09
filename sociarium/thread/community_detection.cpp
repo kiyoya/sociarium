@@ -32,8 +32,13 @@
 
 #include <vector>
 #include <map>
+#ifdef _MSC_VER
 #include <unordered_set>
 #include <unordered_map>
+#else
+#include <tr1/unordered_set>
+#include <tr1/unordered_map>
+#endif
 #include <boost/format.hpp>
 #include "community_detection.h"
 #include "../module/community_detection.h"

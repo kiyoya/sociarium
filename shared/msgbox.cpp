@@ -31,11 +31,22 @@
 
 #include <cstdio> // vsprintf_s
 #include <boost/shared_array.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "msgbox.h"
 
 namespace hashimoto_ut {
 
+#ifdef __APPLE__
+  // ANSI版
+  MsgBox::MsgBox(void *, char const* title, char const* fmt, ...) {
+  }
+
+  // UNICODE版
+  MsgBox::MsgBox(void *, wchar_t const* title, wchar_t const* fmt, ...) {
+  }
+#elif _MSC_VER
   // ANSI版
   MsgBox::MsgBox(HWND hwnd, char const* title, char const* fmt, ...) {
     va_list ap;
@@ -57,5 +68,6 @@ namespace hashimoto_ut {
     va_end(ap);
     MessageBoxW(hwnd, buf.get(), title, MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL);
   }
+#endif
 
 } // The end of the namespace "hashimoto_ut"

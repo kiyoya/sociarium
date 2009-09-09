@@ -36,8 +36,12 @@
 #include <vector>
 #include <string>
 #include <utility>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
 
 namespace hashimoto_ut {
 
@@ -60,8 +64,12 @@ namespace hashimoto_ut {
 
   } // The end of the namespace "sociarium_project_user_defined_property"
 
+#ifdef _MSC_VER
   typedef __declspec(dllimport)
     void (__cdecl* FuncCreateGraphTimeSeries)(
+#else
+  typedef void (*FuncCreateGraphTimeSeries)(
+#endif
       Thread* parent,
       std::wstring* message,
       std::vector<std::tr1::shared_ptr<Graph> >& graph,

@@ -30,10 +30,19 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #pragma warning(disable:4503)
+#endif
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 #include "community_detection.h"
 #include "../common.h"
 #include "../algorithm_selector.h"
@@ -58,11 +67,43 @@ namespace hashimoto_ut {
         CommunityDetectionModuleManager(void) {}
 
         ~CommunityDetectionModuleManager() {
+#ifdef __APPLE__
+          for (unordered_map<CFURLRef, pair<CFBundleRef, FuncDetectCommunity> >::iterator i=module_.begin(); i!=module_.end(); ++i)
+          {
+            if (i->first) CFRelease(i->first);
+            if (i->second.first) CFRelease(i->second.first);
+          }
+#elif _MSC_VER
           for (unordered_map<wstring, pair<HMODULE, FuncDetectCommunity> >::iterator i=module_.begin(); i!=module_.end(); ++i)
             if (i->second.first) FreeLibrary(i->second.first);
+#endif
         }
 
         FuncDetectCommunity get(int method) {
+#ifdef __APPLE__
+          CFBundleRef handle = NULL;
+          CFBundleRef mainBundle = CFBundleGetMainBundle();
+          CFURLRef pluginURL = CFBundleCopyBuiltInPlugInsURL(mainBundle);
+          CFURLRef path;
+          if (method==CommunityDetectionAlgorithm::CONNECTED_COMPONENTS)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionConnectedComponents.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::STRONGLY_CONNECTED_COMPONENTS)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionStronglyConnectedComponents.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionModularityMaximizationUsingGreedyMethod.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_TEO_METHOD)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionModularityMaximizationUsingT-EoMethod.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionCliquePercolation3.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_4)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionCliquePercolation4.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_5)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionCliquePercolation5.plugin"), FALSE);
+          else if (method==CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionBetweennessCentralityClustering.plugin"), FALSE);
+          else assert(0 && "never");
+          CFRelease(pluginURL);
+#elif _MSC_VER
           HMODULE handle = 0;
           wstring path = L"dll\\";
           if (method==CommunityDetectionAlgorithm::CONNECTED_COMPONENTS)
@@ -82,9 +123,15 @@ namespace hashimoto_ut {
           else if (method==CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING)
             path += L"community_detection_betweenness_centrality_clustering.dll";
           else assert(0 && "never");
-
+#endif
+          
           // モジュールが既にロード済みか判定
           if (module_.find(path)==module_.end()) {
+#ifdef __APPLE__
+            if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL) {
+              // [TODO]
+            }
+#elif _MSC_VER
             if ((handle=LoadLibrary(path.c_str()))==0) {
               // 新規ロードに失敗した場合
               LPVOID buf;
@@ -99,12 +146,18 @@ namespace hashimoto_ut {
               LocalFree(buf);
               return 0;
             }
+#endif
             module_[path].first = handle;
           } else {
             // ロード済みの場合
             return module_[path].second;
           }
 
+#ifdef __APPLE__
+          if ((module_[path].second=(FuncDetectCommunity)CFBundleGetFunctionPointerForName(module_[path].first, CFSTR("detect_community")))==NULL) {
+            // [TODO]
+          }
+#elif _MSC_VER
           if ((module_[path].second=(FuncDetectCommunity)GetProcAddress(module_[path].first, "detect_community"))==0) {
             LPVOID buf;
             FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -118,11 +171,16 @@ namespace hashimoto_ut {
             LocalFree(buf);
             return 0;
           }
+#endif
           return module_[path].second;
         }
 
       private:
+#ifdef __APPLE__
+        unordered_map<CFURLRef, pair<CFBundleRef, FuncDetectCommunity> > module_;
+#elif _MSC_VER
         unordered_map<wstring, pair<HMODULE, FuncDetectCommunity> > module_;
+#endif
       };
 
       shared_ptr<CommunityDetectionModuleManager> community_detection_module_manager;

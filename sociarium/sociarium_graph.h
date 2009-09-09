@@ -36,7 +36,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "../graph/property_graph.h"
 #include "../graph/util/traverser.h"
 #include "../shared/vector2.h"
@@ -214,7 +218,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // フラグ
   struct ElementFlag {
-    enum {
+    enum _ {
       VISIBLE            = 0x01, // 可視
       CAPTURED           = 0x02, // マウスによるキャプチャ
       MARKED             = 0x04, // 選択

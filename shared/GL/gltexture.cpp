@@ -30,14 +30,24 @@
  */
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <atlimage.h>
+#endif
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#include <OpenGL/glu.h>
+#include <OpenGL/glext.h>
+#else
 #include <GL/glu.h>
 #include <GL/glext.h>
+#endif
 #include "gltexture.h"
 #include "../win32api.h"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "opengl32.lib")
+#endif
 
 namespace hashimoto_ut {
 
@@ -56,6 +66,30 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   int GLTexture::create(wchar_t const* filename, GLenum wrap) {
+#ifdef __APPLE__
+    CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, wcs2mbcs(filename, wcslen(filename)).c_str(), kCFStringEncodingUTF8);
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, false);
+    CGImageSourceRef imageRef = CGImageSourceCreateWithURL(url, NULL);
+    CFRelease(url);
+    CFRelease(path);
+    
+    switch (CGImageSourceGetStatus(imageRef))
+    {
+		case kCGImageStatusComplete:
+			break;
+        case kCGImageStatusUnknownType:
+            CFRelease(imageRef);
+            return UNSUPPORTED_FILE_FORMAT;
+		default:
+            CFRelease(imageRef);
+            return FAILED_TO_LOAD_IMAGE;
+    }
+
+    CGImageRef image = CGImageSourceCreateImageAtIndex(imageRef, 0, NULL);
+
+    width_ = CGImageGetWidth(image);
+    height_ = CGImageGetHeight(image);
+#elif _MSC_VER
     DWORD dw = GetFileAttributes(filename);
     if (dw==-1) return FILE_NOT_FOUND;
     CImage image;
@@ -63,6 +97,8 @@ namespace hashimoto_ut {
     if (res!=S_OK) return FAILED_TO_LOAD_IMAGE;
     width_  = image.GetWidth();
     height_ = image.GetHeight();
+#endif
+
     glBindTexture(GL_TEXTURE_2D, id_);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
@@ -70,6 +106,17 @@ namespace hashimoto_ut {
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+#ifdef __APPLE__
+    GLubyte * pixels = (GLubyte *)malloc(width_ * height_ * 4);
+    CGContextRef context = CGBitmapContextCreate(pixels, width_, height_, 8, width_ * 4, CGImageGetColorSpace(image), kCGImageAlphaPremultipliedLast);
+    CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, (CGFloat)width_, (CGFloat)height_), image);
+    CGContextRelease(context);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    free(pixels);
+    CGImageRelease(image);
+    CFRelease(imageRef);
+#elif _MSC_VER
     int const bpp = image.GetBPP();
     int const pitch = image.GetPitch();
     char const* pixels = (char*)image.GetBits()+(pitch<0?pitch*(height_-1):0);
@@ -78,11 +125,37 @@ namespace hashimoto_ut {
     case 32: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels); break;
     default: return UNSUPPORTED_FILE_FORMAT;
     }
+#endif
+
     return SUCCEEDED;
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   int GLTexture::create_mipmap(wchar_t const* filename, GLenum wrap) {
+#ifdef __APPLE__
+    CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, wcs2mbcs(filename, wcslen(filename)).c_str(), kCFStringEncodingUTF8);
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, false);
+    CGImageSourceRef imageRef = CGImageSourceCreateWithURL(url, NULL);
+    CFRelease(url);
+    CFRelease(path);
+    
+    switch (CGImageSourceGetStatus(imageRef))
+    {
+      case kCGImageStatusComplete:
+        break;
+      case kCGImageStatusUnknownType:
+        CFRelease(imageRef);
+        return UNSUPPORTED_FILE_FORMAT;
+      default:
+        CFRelease(imageRef);
+        return FAILED_TO_LOAD_IMAGE;
+    }
+    
+    CGImageRef image = CGImageSourceCreateImageAtIndex(imageRef, 0, NULL);
+    
+    width_ = CGImageGetWidth(image);
+    height_ = CGImageGetHeight(image);
+#elif _MSC_VER
     DWORD dw = GetFileAttributes(filename);
     if (dw==-1) return FILE_NOT_FOUND;
     CImage image;
@@ -90,6 +163,8 @@ namespace hashimoto_ut {
     if (res!=S_OK) return FAILED_TO_LOAD_IMAGE;
     width_  = image.GetWidth();
     height_ = image.GetHeight();
+#endif
+
     glBindTexture(GL_TEXTURE_2D, id_);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
@@ -97,14 +172,27 @@ namespace hashimoto_ut {
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+#ifdef __APPLE__
+    GLubyte * pixels = (GLubyte *)malloc(width_ * height_ * 4);
+    CGContextRef context = CGBitmapContextCreate(pixels, width_, height_, 8, width_ * 4, CGImageGetColorSpace(image), kCGImageAlphaPremultipliedLast);
+    CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, (CGFloat)width_, (CGFloat)height_), image);
+    CGContextRelease(context);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    free(pixels);
+    CGImageRelease(image);
+    CFRelease(imageRef);
+#elif _MSC_VER
     int const bpp = image.GetBPP();
     int const pitch = image.GetPitch();
     char const* pixels = (char*)image.GetBits()+(pitch<0?pitch*(height_-1):0);
     switch (bpp) {
-    case 24: gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width_, height_, GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels); break;
-    case 32: gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width_, height_, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels); break;
+    case 24: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0, GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels); break;
+    case 32: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels); break;
     default: return UNSUPPORTED_FILE_FORMAT;
     }
+#endif
+
     return SUCCEEDED;
   }
 

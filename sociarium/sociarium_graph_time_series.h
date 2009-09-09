@@ -35,9 +35,14 @@
 
 #include <vector>
 #include <string>
+#ifdef _MSC_VER
 #include <memory>
-#include <unordered_set>
 #include <windows.h>
+#include <unordered_set>
+#else
+#include <tr1/memory>
+#include <tr1/unordered_set>
+#endif
 #include "sociarium_graph.h"
 
 namespace hashimoto_ut {

@@ -32,6 +32,8 @@
 #ifndef INCLUDE_GUARD_SHARED_WNDBASE_H
 #define INCLUDE_GUARD_SHARED_WNDBASE_H
 
+#ifdef _MSC_VER
+
 #include <windows.h>
 
 namespace hashimoto_ut {
@@ -148,5 +150,7 @@ namespace hashimoto_ut {
   };
 
 } // The end of the namespace "hashimoto_ut"
+
+#endif // _MSC_VER
 
 #endif // INCLUDE_GUARD_SHARED_WNDBASE_H

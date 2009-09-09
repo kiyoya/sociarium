@@ -31,7 +31,11 @@
  */
 
 #include <string>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include <boost/format.hpp>
 #include "layout.h"
 #include "../module/layout.h"
@@ -173,7 +177,11 @@ namespace hashimoto_ut {
 #else
     // 漸近置換
     for (int iteration=0; iteration<20; ++iteration) {
+#ifdef _MSC_VER
       Sleep(10);
+#else
+      usleep(10);
+#endif
       double const j = double(20-iteration);
       for (size_t i=0; i<nsz; ++i) position_prev[i] = (position[i]+(j-1.0)*position_prev[i])/j;
       time_series_->update_node_position(index, position_prev);

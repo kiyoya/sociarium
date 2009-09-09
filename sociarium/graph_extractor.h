@@ -32,7 +32,11 @@
 
 #include <string>
 #include <memory>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "sociarium_graph.h"
 
 namespace hashimoto_ut {

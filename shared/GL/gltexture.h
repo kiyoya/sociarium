@@ -32,7 +32,11 @@
 #ifndef INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
 #define INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 namespace hashimoto_ut {
 

@@ -33,7 +33,9 @@
 #include <ctime>
 #include <vector>
 #include <boost/random.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "layout.h"
 #include "../../shared/thread.h"
 #include "../../shared/math.h"

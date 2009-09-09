@@ -109,6 +109,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   class Graph {
   public:
+    Graph& operator=(const Graph& rhs){ return *this; }
     virtual bool is_directed(void) const = 0;
     virtual void set_directed(bool directed) = 0;
 

@@ -33,7 +33,11 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_FONT_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_FONT_H
 
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 
 class FTFont;
 

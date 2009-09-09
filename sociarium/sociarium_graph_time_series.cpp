@@ -38,7 +38,11 @@
 #include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#ifdef _MSC_VER
 #include <functional>
+#else
+#include <tr1/functional>
+#endif
 #include "message.h"
 #include "common.h"
 #include "thread.h"
@@ -76,7 +80,7 @@ namespace hashimoto_ut {
     };
 
     struct CreateSociariumGraph {
-      void operator()(shared_ptr<SociariumGraph>& g) const { g.swap(SociariumGraph::create()); }
+      void operator()(shared_ptr<SociariumGraph>& g) const { g = SociariumGraph::create(); } //[TODO]
     };
 
   } // The end of the anonymous namespace
@@ -413,7 +417,7 @@ namespace hashimoto_ut {
 
       vector<shared_ptr<SociariumGraph> >(number_of_layers()).swap(graph_series_[1]);
       for (size_t layer=0; layer<number_of_layers(); ++layer) {
-        graph_series_[1][layer].swap(SociariumGraph::create());
+        graph_series_[1][layer] = SociariumGraph::create(); // [TODO]
         shared_ptr<SociariumGraph> const& g0 = graph_series_[0][layer];
         for (SociariumGraph::node_property_iterator i=g0->node_property_begin(), end=g0->node_property_end(); i!=end; ++i)
           i->second->set_color_id(PredefinedColor::WHITE);

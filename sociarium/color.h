@@ -37,7 +37,7 @@ namespace hashimoto_ut {
 
   namespace sociarium_project_color {
 
-    enum {
+    enum _ {
       BACKGROUND = 0,
       LAYOUT_FRAME_BORDER,
       LAYOUT_FRAME_AREA,
