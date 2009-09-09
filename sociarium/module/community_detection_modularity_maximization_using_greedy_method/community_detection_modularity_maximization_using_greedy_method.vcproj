@@ -173,11 +173,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\community_detection_detail.cpp"
+				RelativePath="..\..\common.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\community_detection.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\community_detection_modularity_maximization_using_greedy_method.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\graph\graph.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\graph_utility.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\language.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\shared\msgbox.cpp"
 				>
 			</File>
 		</Filter>
@@ -187,11 +207,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\common.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\community_detection.h"
 				>
 			</File>
 			<File
-				RelativePath="..\community_detection_detail.h"
+				RelativePath="..\..\graph_utility.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\language.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\shared\msgbox.h"
 				>
 			</File>
 		</Filter>

@@ -1,33 +1,32 @@
-﻿// C++ GRAPH LIBRARY
+﻿// C++ GRAPH LIBRARY: graph.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
-// update: 2009/03/25
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- *   - Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   - Neither the name of the University of Tokyo nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
- *   - Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *
- *   - Neither the name of the University of Tokyo nor the names of its contributors
- *     may be used to endorse or promote products derived from this software without
- *     specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef INCLUDE_GUARD_GRAPH_H
@@ -46,9 +45,10 @@ namespace hashimoto_ut {
 
   class Node;
   class Edge;
-  /* The basic idea for storing graph elements is a combination of "Adjacency List" and "Edge List":
-   * "Adjacency List" is the list of nodes where each node has the list of edges connecting with neighboring nodes,
-   * and "Edge List" is the list of edges where each edge has two end nodes to connect.
+  /* "Adjacency List" and "Edge List" are used to store graph elements:
+   * "Adjacency List" is the list of nodes that have the list of edges
+   * connecting with neighboring nodes, and "Edge List" is the list of edges
+   * that have two end nodes that the edge connects.
    */
 
   typedef std::vector<Node*>::const_iterator node_iterator;
@@ -59,13 +59,14 @@ namespace hashimoto_ut {
 
   typedef std::deque<Edge*>::const_iterator adjacency_list_iterator;
   typedef std::deque<Edge*>::const_reverse_iterator adjacency_list_reverse_iterator;
-  /* Each edge is stored in "std::deque" as in the following order [3][2][1][0](0)(1)(2)
-   * where [*] represent incoming edges and (*) represent outgoing edges,
-   * and the digit denotes the order of establishing that connection (unless the deletion of any edge occurs).
+  /* In "Adjacency List", each edge is stored in "std::deque" as in the following
+   * order [3][2][1][0](0)(1)(2) where [*] represent incoming edges and (*) represent
+   * outgoing edges, and the digit denotes the order of establishing the connection
+   * (unless the deletion of any edge occurs).
    */
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   class Node {
   public:
     virtual size_t index(void) const = 0;
@@ -85,7 +86,9 @@ namespace hashimoto_ut {
     virtual adjacency_list_iterator ibegin(void) const = 0;
     virtual adjacency_list_iterator iend(void) const = 0;
 
-    virtual adjacency_list_iterator find(adjacency_list_iterator first, adjacency_list_iterator last, Node const* n) const = 0;
+    virtual adjacency_list_iterator find(
+      adjacency_list_iterator first,
+      adjacency_list_iterator last, Node const* n) const = 0;
 
   protected:
     Node(void) {}
@@ -93,7 +96,7 @@ namespace hashimoto_ut {
   };
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   class Edge {
   public:
     virtual size_t index(void) const = 0;
@@ -106,7 +109,7 @@ namespace hashimoto_ut {
   };
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   class Graph {
   public:
     Graph& operator=(const Graph& rhs){ return *this; }
@@ -119,18 +122,23 @@ namespace hashimoto_ut {
      */
 
     virtual void remove_node(Node* n) = 0;
-    /* The last node in the container moves to the deleted position and changes its index.
-     * The order (indices) of other nodes never change.
-     * The order of edges might change complicatedly...
+    /* The last node in the container moves to the deleted position and changes
+     * its index. The order (indices) of other nodes never change.
+     * The order of edges might change.
      */
 
     virtual void remove_edge(Edge* e) = 0;
-    /* The last edge in the container moves to the deleted position and changes its index.
-     * The order (indices) of other edges never change.
+    /* The last edge in the container moves to the deleted position and changes
+     * its index. The order (indices) of other edges never change.
      */
 
-    virtual void remove_nodes(std::vector<Node*>::const_iterator first, std::vector<Node*>::const_iterator last) = 0;
-    virtual void remove_edges(std::vector<Edge*>::const_iterator first, std::vector<Edge*>::const_iterator last) = 0;
+    virtual void remove_nodes(
+      std::vector<Node*>::const_iterator first,
+      std::vector<Node*>::const_iterator last) = 0;
+
+    virtual void remove_edges(
+      std::vector<Edge*>::const_iterator first,
+      std::vector<Edge*>::const_iterator last) = 0;
     /* The relative order of remaining elements is the same as their relative order
      * before removing the elements. Consequently, the indices of all elements
      * posterior to the head of removed elements might change.
@@ -159,20 +167,24 @@ namespace hashimoto_ut {
     virtual void change_target(Edge* e, Node* n) = 0;
 
     virtual std::tr1::shared_ptr<Graph>
-      copy_induced_subgraph(std::vector<Node*>::const_iterator first, std::vector<Node*>::const_iterator last) const = 0;
+      copy_induced_subgraph(
+        std::vector<Node*>::const_iterator first,
+        std::vector<Node*>::const_iterator last) const = 0;
     /* The relative order of the elelemtns in the returned value is the same as
      * the relative order of corresponding elements in @this.
      */
 
     virtual std::tr1::shared_ptr<Graph>
-      split_induced_subgraph(std::vector<Node*>::const_iterator first, std::vector<Node*>::const_iterator last) = 0;
-    /* The relative order of nodes in the returned value is the same as the order in [@first:@last)
-     * and the order of edges is the same as their relative order in @this.
-     * The relative order of remaining elements in @this is
-     * the same as their relative order before removing the elements.
+      split_induced_subgraph(
+        std::vector<Node*>::const_iterator first,
+        std::vector<Node*>::const_iterator last) = 0;
+    /* The relative order of nodes in the returned value is the same as the order
+     * in [@first:@last) and the order of edges is the same as their relative order
+     * in @this. The relative order of remaining elements in @this is the same as
+     *  their relative order before removing the elements.
      */
 
-    virtual void merge(std::tr1::shared_ptr<Graph> const& g) = 0;
+    virtual void merge(std::tr1::shared_ptr<Graph> g) = 0;
     /* All elements in @g move to @this.
      */
 
@@ -184,6 +196,8 @@ namespace hashimoto_ut {
     Graph(void) {}
     virtual ~Graph() {}
   };
+
+  Node* get_pair(Node const* n, adjacency_list_iterator c);
 
 } // The end of the namespace "hashimoto_ut"
 
