@@ -34,7 +34,7 @@
 #include "common.h"
 #include "language.h"
 #include "selection.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "sociarium_graph_time_series.h"
 #include "../shared/msgbox.h"
 
@@ -43,7 +43,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_thread_manager;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_language;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +70,7 @@ namespace hashimoto_ut {
     bool another_thread_is_running = false;
 
     for (int i=0; i<NUMBER_OF_THREAD_CATEGORIES; ++i) {
-      if (i!=sociarium_project_thread_manager::FORCE_DIRECTION &&
-          sociarium_project_thread_manager::get(i)->is_running()) {
+      if (i!=FORCE_DIRECTION && joinable(i)) {
         another_thread_is_running = true;
         break;
       }

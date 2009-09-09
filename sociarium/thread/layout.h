@@ -37,15 +37,11 @@
 
 namespace hashimoto_ut {
 
-  class ThreadManager;
-
   ////////////////////////////////////////////////////////////////////////////////
   class LayoutThread : public Thread {
   public:
     virtual ~LayoutThread() {}
-
-    static std::tr1::shared_ptr<LayoutThread>
-      create(std::tr1::shared_ptr<ThreadManager> thread_manager);
+    static std::tr1::shared_ptr<LayoutThread> create(void);
   };
 }
 

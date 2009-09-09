@@ -429,7 +429,7 @@ namespace hashimoto_ut {
         = L"5-clique percolation(&3)";
       menu[IDM_COMMUNITY_DETECTION_OTHERS]
         = L"Others(&4)";
-      menu[IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING]
+      menu[IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION]
         = L"Betweenness Centrality Separation(&1)";
       menu[IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping(&2)";
@@ -612,7 +612,7 @@ namespace hashimoto_ut {
         = L"Modularity Maximization [Greedy Method]";
       message[Message::MODULARITY_MAXIMIZATION_USING_TEO_METHOD]
         = L"Modularity Maximization [tau-EO Method]";
-      message[Message::BETWEENNESS_CENTRALITY_CLUSTERING]
+      message[Message::BETWEENNESS_CENTRALITY_SEPARATION]
         = L"Betweenness Centrality Clustering";
       message[Message::INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping";

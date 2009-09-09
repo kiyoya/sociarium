@@ -83,7 +83,7 @@ namespace hashimoto_ut {
 
 
       ////////////////////////////////////////////////////////////////////////////////
-      int font_type = FontType::POLYGON_FONT; // or FontType::TEXTURE_FONT;
+      int font_type_id = FontType::POLYGON_FONT; // or FontType::TEXTURE_FONT;
 
 
       ////////////////////////////////////////////////////////////////////////////////
@@ -151,52 +151,52 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     void initialize(void) {
-      set_font_type(font_type);
+      set_font_type(font_type_id);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
     int get_font_type(void) {
-      return font_type;
+      return font_type_id;
     }
 
-    void set_font_type(int type) {
-      assert(0<=type && type<FontType::NUMBER_OF_FONT_TYPES);
-      font_type = type;
-      set_font(font[FontCategory::NODE_NAME], font_type);
-      set_font(font[FontCategory::EDGE_NAME], font_type);
-      set_font(font[FontCategory::COMMUNITY_NAME], font_type);
-      set_font(font[FontCategory::COMMUNITY_EDGE_NAME], font_type);
-      set_font(font[FontCategory::MISC], font_type);
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    shared_ptr<FTFont> get_font(int category) {
-      assert(0<=category && category<FontCategory::NUMBER_OF_CATEGORIES);
-      return font[category];
+    void set_font_type(int type_id) {
+      assert(0<=type_id && type_id<FontType::NUMBER_OF_FONT_TYPES);
+      font_type_id = type_id;
+      set_font(font[FontCategory::NODE_NAME], font_type_id);
+      set_font(font[FontCategory::EDGE_NAME], font_type_id);
+      set_font(font[FontCategory::COMMUNITY_NAME], font_type_id);
+      set_font(font[FontCategory::COMMUNITY_EDGE_NAME], font_type_id);
+      set_font(font[FontCategory::MISC], font_type_id);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_font_scale(int category) {
-      assert(0<=category && category<FontCategory::NUMBER_OF_CATEGORIES);
-      int const scale_id = font_scale_id[category];
+    shared_ptr<FTFont> get_font(int category_id) {
+      assert(0<=category_id && category_id<FontCategory::NUMBER_OF_CATEGORIES);
+      return font[category_id];
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    float get_font_scale(int category_id) {
+      assert(0<=category_id && category_id<FontCategory::NUMBER_OF_CATEGORIES);
+      int const scale_id = font_scale_id[category_id];
       assert(0<=scale_id && scale_id<FontScale::NUMBER_OF_FONT_SCALES);
       return default_font_scale[scale_id];
     }
 
-    void set_font_scale(int category, int id) {
-      assert(0<=category && category<FontCategory::NUMBER_OF_CATEGORIES);
-      assert(0<=id && id<=FontScale::NUMBER_OF_FONT_SCALES);
-      font_scale_id[category] = id;
+    void set_font_scale(int category_id, int scale_id) {
+      assert(0<=category_id && category_id<FontCategory::NUMBER_OF_CATEGORIES);
+      assert(0<=scale_id && scale_id<=FontScale::NUMBER_OF_FONT_SCALES);
+      font_scale_id[category_id] = scale_id;
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_default_font_scale(int id) {
-      assert(0<=id && id<=FontScale::NUMBER_OF_FONT_SCALES);
-      return default_font_scale[id];
+    float get_default_font_scale(int scale_id) {
+      assert(0<=scale_id && scale_id<=FontScale::NUMBER_OF_FONT_SCALES);
+      return default_font_scale[scale_id];
     }
 
   } // The end of the namespace "sociarium_project_font"

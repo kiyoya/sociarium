@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m - thread/graph_retouch.h
+﻿// s.o.c.i.a.r.i.u.m: designtide.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,22 +29,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
-
-#include <memory>
-#include "../../shared/thread.h"
+#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_DESIGNTIDE
+#define INCLUDE_GUARD_SOCIARIUM_PROJECT_DESIGNTIDE
 
 namespace hashimoto_ut {
 
-  ////////////////////////////////////////////////////////////////////////////////
-  class GraphRetouchThread : public Thread {
-  public:
-    virtual ~GraphRetouchThread() {}
-    static std::tr1::shared_ptr<GraphRetouchThread>
-      create(wchar_t const* filename);
-  };
+  namespace sociarium_project_designtide {
+
+    void initialize(void);
+    void draw(float angleH, float angleV);
+    void update(void);
+
+    void draw_captured_frame(float angleH, float angleV);
+    void draw_agents(float angleH, float angleV);
+
+  } // The end of the namespace "sociarium_project_draw_detail"
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_DESIGNTIDE

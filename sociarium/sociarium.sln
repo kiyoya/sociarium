@@ -23,8 +23,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_strongl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_connected_components", "module\community_detection_connected_components\community_detection_connected_components.vcproj", "{A602E16B-AAD7-4F40-9198-9869C8B9D7EC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_betweenness_centrality_clustering", "module\community_detection_betweenness_centrality_clustering\community_detection_betweenness_centrality_clustering.vcproj", "{72AB6078-6490-4C9A-B2E7-35943A37BFC6}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "layout_lattice", "module\layout_lattice\layout_lattice.vcproj", "{0BBEABCE-D9BA-4040-99D9-C39A4799A070}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graph_creation_read_adjacency_list", "module\graph_creation_read_adjacency_list\graph_creation_read_adjacency_list.vcproj", "{FA416925-5D6F-4C8B-A54C-BB7142F63EE7}"
@@ -52,6 +50,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_jp", "module\language_jp\language_jp.vcproj", "{21DC7709-3C85-48A5-977A-C905134E7C28}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_en", "module\language_en\language_en.vcproj", "{F3F3B0C9-EEBB-403A-BFFB-55D41EB622F2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_betweenness_centrality_clustering", "module\community_detection_betweenness_centrality_separation\community_detection_betweenness_centrality_separation.vcproj", "{72AB6078-6490-4C9A-B2E7-35943A37BFC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,10 +103,6 @@ Global
 		{A602E16B-AAD7-4F40-9198-9869C8B9D7EC}.Debug|Win32.Build.0 = Debug|Win32
 		{A602E16B-AAD7-4F40-9198-9869C8B9D7EC}.Release|Win32.ActiveCfg = Release|Win32
 		{A602E16B-AAD7-4F40-9198-9869C8B9D7EC}.Release|Win32.Build.0 = Release|Win32
-		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Debug|Win32.ActiveCfg = Debug|Win32
-		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Debug|Win32.Build.0 = Debug|Win32
-		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Release|Win32.ActiveCfg = Release|Win32
-		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Release|Win32.Build.0 = Release|Win32
 		{0BBEABCE-D9BA-4040-99D9-C39A4799A070}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0BBEABCE-D9BA-4040-99D9-C39A4799A070}.Debug|Win32.Build.0 = Debug|Win32
 		{0BBEABCE-D9BA-4040-99D9-C39A4799A070}.Release|Win32.ActiveCfg = Release|Win32
@@ -163,6 +159,10 @@ Global
 		{F3F3B0C9-EEBB-403A-BFFB-55D41EB622F2}.Debug|Win32.Build.0 = Debug|Win32
 		{F3F3B0C9-EEBB-403A-BFFB-55D41EB622F2}.Release|Win32.ActiveCfg = Release|Win32
 		{F3F3B0C9-EEBB-403A-BFFB-55D41EB622F2}.Release|Win32.Build.0 = Release|Win32
+		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Debug|Win32.Build.0 = Debug|Win32
+		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Release|Win32.ActiveCfg = Release|Win32
+		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

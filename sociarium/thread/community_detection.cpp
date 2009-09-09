@@ -37,7 +37,7 @@
 #include "community_detection.h"
 #include "../module/community_detection.h"
 #include "../graph_extractor.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../algorithm_selector.h"
 #include "../texture.h"
 #include "../color.h"
@@ -178,8 +178,7 @@ namespace hashimoto_ut {
     typedef unordered_multimap<StaticNodeProperty*, SNP2SEP> CommunityEdgeIdentifier;
 
     ////////////////////////////////////////////////////////////////////////////////
-    CommunityDetectionThreadImpl(shared_ptr<ThreadManager> thread_manager)
-         : thread_manager_(thread_manager) {}
+    CommunityDetectionThreadImpl(void) {}
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -187,25 +186,23 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void terminate(void) const {
+    void terminate(void) {
 
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
       // Clear the progress message.
       deque<wstring>& status = get_status(COMMUNITY_DETECTION);
       deque<wstring>(status.size()).swap(status);
 
-      // Delete itself via ThreadManager.
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
+      detach(COMMUNITY_DETECTION);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
     void operator()(void) {
 
-      shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
+      shared_ptr<SociariumGraphTimeSeries> ts
+        = sociarium_project_graph_time_series::get();
 
       ts->read_lock();
       /*
@@ -213,8 +210,8 @@ namespace hashimoto_ut {
        */
 
       deque<wstring>& status
-        = sociarium_project_thread_manager::get_status(
-          sociarium_project_thread_manager::COMMUNITY_DETECTION);
+        = sociarium_project_thread::get_status(
+          sociarium_project_thread::COMMUNITY_DETECTION);
 
       // --------------------------------------------------------------------------------
       // Load a community detection module.
@@ -708,7 +705,6 @@ namespace hashimoto_ut {
     }
 
   private:
-    weak_ptr<ThreadManager> thread_manager_;
     StaticNodePropertySet static_community_property_;
     StaticEdgePropertySet static_community_edge_property_;
     CommunityEdgeIdentifier community_edge_identifier_;
@@ -717,10 +713,8 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of CommunityDetectionThread.
-  shared_ptr<CommunityDetectionThread> CommunityDetectionThread::create(
-    shared_ptr<ThreadManager> thread_manager) {
-    return shared_ptr<CommunityDetectionThread>(
-      new CommunityDetectionThreadImpl(thread_manager));
+  shared_ptr<CommunityDetectionThread> CommunityDetectionThread::create(void) {
+    return shared_ptr<CommunityDetectionThread>(new CommunityDetectionThreadImpl);
   }
 
 } // The end of the namespace "hashimoto_ut"

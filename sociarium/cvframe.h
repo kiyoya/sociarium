@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m - thread/graph_retouch.h
+﻿// s.o.c.i.a.r.i.u.m: cvframe.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,22 +29,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
+#define INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
 
-#include <memory>
-#include "../../shared/thread.h"
+#include <windows.h>
+#include <boost/thread.hpp>
+#include <GL/gl.h>
+#include "../shared/thread.h"
+#include "../shared/mutex.h"
 
 namespace hashimoto_ut {
 
+  class GLTexture;
+
   ////////////////////////////////////////////////////////////////////////////////
-  class GraphRetouchThread : public Thread {
+  class CVFrame : public Thread, public Mutex {
   public:
-    virtual ~GraphRetouchThread() {}
-    static std::tr1::shared_ptr<GraphRetouchThread>
-      create(wchar_t const* filename);
+    virtual ~CVFrame() {}
+    virtual void set_camera(void) = 0;
+    virtual void set_movie(char const* movie_filename) = 0;
+    virtual bool set_masking_image(char const* image_filename) = 0;
+    virtual bool set_chroma_key_background_image(char const* image_filename) = 0;
+    virtual GLTexture const* get_texture(void) const = 0;
   };
+
+  ////////////////////////////////////////////////////////////////////////////////
+  namespace sociarium_project_cvframe {
+
+    std::tr1::shared_ptr<CVFrame> create(HDC hdc, HGLRC hrc);
+    std::tr1::shared_ptr<CVFrame> get_current_frame(void);
+    void invoke(std::tr1::shared_ptr<CVFrame> cvframe);
+    void terminate(void);
+    void join(void);
+    bool joinable(void);
+
+  } // The end of the namespace "sociarium_project_cvframe"
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H

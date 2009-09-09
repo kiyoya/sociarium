@@ -37,15 +37,11 @@
 
 namespace hashimoto_ut {
 
-  class ThreadManager;
-
   ////////////////////////////////////////////////////////////////////////////////
   class CommunityDetectionThread : public Thread {
   public:
     virtual ~CommunityDetectionThread() {}
-
-    static std::tr1::shared_ptr<CommunityDetectionThread>
-      create(std::tr1::shared_ptr<ThreadManager> thread_manager);
+    static std::tr1::shared_ptr<CommunityDetectionThread> create(void);
   };
 
 } // The end of the namespace "hashimoto_ut"

@@ -1888,7 +1888,7 @@ namespace hashimoto_ut {
             mii.cbSize = sizeof(mii);
             mii.fMask = MIIM_TYPE|MIIM_ID;
             mii.fType = MFT_STRING;
-            mii.wID = IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING;
+            mii.wID = IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION;
             mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
             InsertMenuItem(hmenu_community_others, ++pos, FALSE, &mii);
 

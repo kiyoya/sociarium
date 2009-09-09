@@ -89,8 +89,8 @@ namespace hashimoto_ut {
             path += L"community_detection_clique_percolation_4.dll";
           else if (method==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_5)
             path += L"community_detection_clique_percolation_5.dll";
-          else if (method==CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING)
-            path += L"community_detection_betweenness_centrality_clustering.dll";
+          else if (method==CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_SEPARATION)
+            path += L"community_detection_betweenness_centrality_separation.dll";
           else if (method==CommunityDetectionAlgorithm::INFORMATION_FLOW_MAPPING)
             path += L"community_detection_information_flow_mapping.dll";
           else assert(0 && "never reach");

@@ -248,7 +248,7 @@ namespace hashimoto_ut {
 
       // --------------------------------------------------------------------------------
       // Draw nodes.
-      if (sociarium_project_view::get_show_node()) {
+      if (get_show_node()) {
         glLoadName(SelectionCategory::NODE);
         node_property_iterator i   = g0->node_property_begin();
         node_property_iterator end = g0->node_property_end();
@@ -275,7 +275,7 @@ namespace hashimoto_ut {
 
       // --------------------------------------------------------------------------------
       // Draw edges.
-      if (sociarium_project_view::get_show_edge()) {
+      if (get_show_edge()) {
         glLoadName(SelectionCategory::EDGE);
         edge_property_iterator i   = g0->edge_property_begin();
         edge_property_iterator end = g0->edge_property_end();
@@ -319,7 +319,7 @@ namespace hashimoto_ut {
 
       // --------------------------------------------------------------------------------
       // Draw communities.
-      if (sociarium_project_view::get_show_community()) {
+      if (get_show_community()) {
         glLoadName(SelectionCategory::COMMUNITY);
         node_property_iterator i   = g1->node_property_begin();
         node_property_iterator end = g1->node_property_end();
@@ -346,7 +346,7 @@ namespace hashimoto_ut {
 
       // --------------------------------------------------------------------------------
       // Draw community edges.
-      if (sociarium_project_view::get_show_community_edge()) {
+      if (get_show_community_edge()) {
         glLoadName(SelectionCategory::COMMUNITY_EDGE);
         edge_property_iterator i   = g1->edge_property_begin();
         edge_property_iterator end = g1->edge_property_end();
@@ -477,11 +477,7 @@ namespace hashimoto_ut {
       sociarium_project_designtide::draw_captured_frame(angleH, angleV);
 #endif
 
-#if 0
-      sociarium_project_designtide::draw_agents(angleH, angleV);
-#endif
-
-#if 0
+#if 1
       sociarium_project_designtide::draw(angleH, angleV);
 #endif
     }

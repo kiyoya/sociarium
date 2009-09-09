@@ -32,7 +32,7 @@
 #include "world_impl.h"
 #include "common.h"
 #include "language.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "sociarium_graph_time_series.h"
 #include "thread/graph_creation.h"
 #include "thread/graph_retouch.h"
@@ -44,17 +44,18 @@
 
 namespace hashimoto_ut {
 
+  using std::pair;
   using std::tr1::shared_ptr;
 
-  using namespace sociarium_project_thread_manager;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_common;
   using namespace sociarium_project_language;
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::create_graph(wchar_t const* filename) const {
 
-    if (get(GRAPH_CREATION)->is_running()
-        || get(GRAPH_RETOUCH)->is_running()) {
+    if (joinable(GRAPH_CREATION)
+        || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
@@ -67,10 +68,10 @@ namespace hashimoto_ut {
       return;
     }
 
-    else if (get(LAYOUT)->is_running()
-             || get(COMMUNITY_DETECTION)->is_running()
-             || get(NODE_SIZE_UPDATE)->is_running()
-             || get(EDGE_WIDTH_UPDATE)->is_running()) {
+    else if (joinable(LAYOUT)
+             || joinable(COMMUNITY_DETECTION)
+             || joinable(NODE_SIZE_UPDATE)
+             || joinable(EDGE_WIDTH_UPDATE)) {
       /* During other threads are running,
        * the graph creation thread can't be invoked.
        */
@@ -83,16 +84,15 @@ namespace hashimoto_ut {
       return;
     }
 
-    shared_ptr<ThreadManager> tm = get(GRAPH_CREATION);
-    tm->set(GraphCreationThread::create(tm, filename));
+    invoke(GRAPH_CREATION, GraphCreationThread::create(filename));
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::retouch_graph(wchar_t const* filename) const {
 
-    if (get(GRAPH_CREATION)->is_running()
-        || get(GRAPH_RETOUCH)->is_running()) {
+    if (joinable(GRAPH_CREATION)
+        || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
@@ -105,10 +105,10 @@ namespace hashimoto_ut {
       return;
     }
 
-    else if (get(LAYOUT)->is_running()
-             || get(COMMUNITY_DETECTION)->is_running()
-             || get(NODE_SIZE_UPDATE)->is_running()
-             || get(EDGE_WIDTH_UPDATE)->is_running()) {
+    else if (joinable(LAYOUT)
+             || joinable(COMMUNITY_DETECTION)
+             || joinable(NODE_SIZE_UPDATE)
+             || joinable(EDGE_WIDTH_UPDATE)) {
       /* During other threads are running,
        * the graph creation thread can't be invoked.
        */
@@ -121,16 +121,15 @@ namespace hashimoto_ut {
       return;
     }
 
-    shared_ptr<ThreadManager> tm = get(GRAPH_RETOUCH);
-    tm->set(GraphRetouchThread::create(tm, filename));
+    invoke(GRAPH_RETOUCH, GraphRetouchThread::create(filename));
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::layout(void) const {
 
-    if (get(GRAPH_CREATION)->is_running()
-        || get(GRAPH_RETOUCH)->is_running()) {
+    if (joinable(GRAPH_CREATION)
+        || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
@@ -141,7 +140,7 @@ namespace hashimoto_ut {
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
       return;
-    } else if (get(LAYOUT)->is_running()) {
+    } else if (joinable(LAYOUT)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
@@ -153,16 +152,15 @@ namespace hashimoto_ut {
       return;
     }
 
-    shared_ptr<ThreadManager> tm = get(LAYOUT);
-    tm->set(LayoutThread::create(tm));
+    invoke(LAYOUT, LayoutThread::create());
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::detect_community(void) const {
 
-    if (get(GRAPH_CREATION)->is_running()
-        || get(GRAPH_RETOUCH)->is_running()) {
+    if (joinable(GRAPH_CREATION)
+        || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
@@ -173,7 +171,7 @@ namespace hashimoto_ut {
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
       return;
-    } else if (get(COMMUNITY_DETECTION)->is_running()) {
+    } else if (joinable(COMMUNITY_DETECTION)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
@@ -185,16 +183,15 @@ namespace hashimoto_ut {
       return;
     }
 
-    shared_ptr<ThreadManager> tm = get(COMMUNITY_DETECTION);
-    tm->set(CommunityDetectionThread::create(tm));
+    invoke(COMMUNITY_DETECTION, CommunityDetectionThread::create());
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::update_node_size(void) const {
 
-    if (get(GRAPH_CREATION)->is_running()
-        || get(GRAPH_RETOUCH)->is_running()) {
+    if (joinable(GRAPH_CREATION)
+        || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
@@ -205,7 +202,7 @@ namespace hashimoto_ut {
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
       return;
-    } else if (get(NODE_SIZE_UPDATE)->is_running()) {
+    } else if (joinable(NODE_SIZE_UPDATE)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
@@ -217,16 +214,15 @@ namespace hashimoto_ut {
       return;
     }
 
-    shared_ptr<ThreadManager> tm = get(NODE_SIZE_UPDATE);
-    tm->set(NodeSizeUpdateThread::create(tm));
+    invoke(NODE_SIZE_UPDATE, NodeSizeUpdateThread::create());
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::update_edge_width(void) const {
 
-    if (get(GRAPH_CREATION)->is_running()
-        || get(GRAPH_RETOUCH)->is_running()) {
+    if (joinable(GRAPH_CREATION)
+        || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
@@ -237,7 +233,7 @@ namespace hashimoto_ut {
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
       return;
-    } else if (get(EDGE_WIDTH_UPDATE)->is_running()) {
+    } else if (joinable(EDGE_WIDTH_UPDATE)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
@@ -249,8 +245,7 @@ namespace hashimoto_ut {
       return;
     }
 
-    shared_ptr<ThreadManager> tm = get(EDGE_WIDTH_UPDATE);
-    tm->set(EdgeWidthUpdateThread::create(tm));
+    invoke(EDGE_WIDTH_UPDATE, EdgeWidthUpdateThread::create());
   }
 
 } // The end of the namespace "hashimoto_ut"

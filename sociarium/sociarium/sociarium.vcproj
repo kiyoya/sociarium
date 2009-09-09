@@ -179,6 +179,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\agent.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\algorithm_selector.cpp"
 				>
 			</File>
@@ -192,6 +196,14 @@
 			</File>
 			<File
 				RelativePath="..\community_transition_diagram.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\cvframe.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\designtide.cpp"
 				>
 			</File>
 			<File
@@ -247,7 +259,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\thread_manager.cpp"
+				RelativePath="..\thread.cpp"
 				>
 			</File>
 			<File
@@ -617,6 +629,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\agent.h"
+				>
+			</File>
+			<File
 				RelativePath="..\algorithm_selector.h"
 				>
 			</File>
@@ -630,6 +646,14 @@
 			</File>
 			<File
 				RelativePath="..\community_transition_diagram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\cvframe.h"
+				>
+			</File>
+			<File
+				RelativePath="..\designtide.h"
 				>
 			</File>
 			<File
@@ -693,7 +717,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\thread_manager.h"
+				RelativePath="..\thread.h"
 				>
 			</File>
 			<File

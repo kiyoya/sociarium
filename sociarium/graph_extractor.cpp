@@ -31,7 +31,7 @@
 
 #include <boost/format.hpp>
 #include "graph_extractor.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "language.h"
 #include "../shared/thread.h"
 

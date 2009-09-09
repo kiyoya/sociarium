@@ -44,7 +44,7 @@
 #include "draw.h"
 #include "layout.h"
 #include "font.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "algorithm_selector.h"
 #include "selection.h"
 #include "timeline.h"
@@ -63,7 +63,7 @@
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "ftgl.lib")
 
-//#include "designtide.h"
+#include "designtide.h"
 
 namespace hashimoto_ut {
 
@@ -77,6 +77,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_common;
   using namespace sociarium_project_language;
+  using namespace sociarium_project_timeline;
 
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmCreate(HWND hwnd) {
@@ -101,7 +102,8 @@ namespace hashimoto_ut {
         ini_data.insert(make_pair(tok2[0], tok2[1]));
     }
 
-    unordered_map<wstring, wstring>::const_iterator m = ini_data.find(L"language");
+    unordered_map<wstring, wstring>::const_iterator m
+      = ini_data.find(L"language");
 
     if (m!=ini_data.end())
       sociarium_project_language::initialize(hwnd, m->second.c_str());
@@ -129,8 +131,13 @@ namespace hashimoto_ut {
     timer_->add(ID_TIMER_DRAW, 1);
     //timer_->add(ID_TIMER_SELECT, 20);
     timer_->add(ID_TIMER_ZOOM, 10);
-    timer_->add(ID_TIMER_AUTO_RUN, 1000);
     timer_->start(ID_TIMER_DRAW);
+
+    timer_->add(ID_TIMER_AUTO_RUN, 1000);
+    if (get_auto_run_id()!=AutoRun::STOP) {
+      timer_->reset(ID_TIMER_AUTO_RUN, get_latency());
+      timer_->start(ID_TIMER_AUTO_RUN);
+    }
   }
 
 
@@ -146,22 +153,24 @@ namespace hashimoto_ut {
     switch (LOWORD(wp)) {
 
     case IDM_KEY_Q:
-      //sociarium_project_designtide::popup();
+      sociarium_project_designtide::update();
       break;
 
-    case IDM_KEY_ESCAPE: {
-      using namespace sociarium_project_thread_manager;
-      shared_ptr<ThreadManager> tm = get(GRAPH_CREATION);
 
-      if (tm->is_running()) {
-        tm->get()->suspend();
+    case IDM_KEY_ESCAPE: {
+      using namespace sociarium_project_thread;
+      shared_ptr<Thread> tf = get_thread_function(GRAPH_CREATION);
+
+      if (joinable(GRAPH_CREATION)) {
+        tf->suspend();
         if (message_box(
           hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
-          tm->get()->cancel();
-        else
-          tm->get()->resume();
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          tf->cancel();
+          join(GRAPH_CREATION);
+        } else
+          tf->resume();
       } else
         SendMessage(hwnd, WM_CLOSE, 0, 0);
 
@@ -173,90 +182,95 @@ namespace hashimoto_ut {
       break;
 
     case IDM_FILE_CANCEL: {
-      using namespace sociarium_project_thread_manager;
-      shared_ptr<ThreadManager> tm = get(GRAPH_CREATION);
+      using namespace sociarium_project_thread;
+      shared_ptr<Thread> tf = get_thread_function(GRAPH_CREATION);
 
-      if (tm->is_running()) {
-        tm->get()->suspend();
+      if (joinable(GRAPH_CREATION)) {
+        tf->suspend();
         if (message_box(
           hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
-          tm->get()->cancel();
-        else
-          tm->get()->resume();
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          tf->cancel();
+          join(GRAPH_CREATION);
+        } else
+          tf->resume();
       }
 
       break;
     }
 
     case IDM_LAYOUT_CANCEL: {
-      using namespace sociarium_project_thread_manager;
-      shared_ptr<ThreadManager> tm = get(LAYOUT);
+      using namespace sociarium_project_thread;
+      shared_ptr<Thread> tf = get_thread_function(LAYOUT);
 
-      if (tm->is_running()) {
-        tm->get()->suspend();
+      if (joinable(LAYOUT)) {
+        tf->suspend();
         if (message_box(
           hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
-          tm->get()->cancel();
-        else
-          tm->get()->resume();
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          tf->cancel();
+          join(LAYOUT);
+        } else
+          tf->resume();
       }
 
       break;
     }
 
     case IDM_COMMUNITY_DETECTION_CANCEL: {
-      using namespace sociarium_project_thread_manager;
-      shared_ptr<ThreadManager> tm = get(COMMUNITY_DETECTION);
+      using namespace sociarium_project_thread;
+      shared_ptr<Thread> tf = get_thread_function(COMMUNITY_DETECTION);
 
-      if (tm->is_running()) {
-        tm->get()->suspend();
+      if (joinable(COMMUNITY_DETECTION)) {
+        tf->suspend();
         if (message_box(
           hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
-          tm->get()->cancel();
-        else
-          tm->get()->resume();
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          tf->cancel();
+          join(COMMUNITY_DETECTION);
+        } else
+          tf->resume();
       }
 
       break;
     }
 
     case IDM_VIEW_NODE_SIZE_CANCEL: {
-      using namespace sociarium_project_thread_manager;
-      shared_ptr<ThreadManager> tm = get(NODE_SIZE_UPDATE);
+      using namespace sociarium_project_thread;
+      shared_ptr<Thread> tf = get_thread_function(NODE_SIZE_UPDATE);
 
-      if (tm->is_running()) {
-        tm->get()->suspend();
+      if (joinable(NODE_SIZE_UPDATE)) {
+        tf->suspend();
         if (message_box(
           hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
-          tm->get()->cancel();
-        else
-          tm->get()->resume();
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          tf->cancel();
+          join(NODE_SIZE_UPDATE);
+        } else
+          tf->resume();
       }
 
       break;
     }
 
     case IDM_VIEW_EDGE_WIDTH_CANCEL: {
-      using namespace sociarium_project_thread_manager;
-      shared_ptr<ThreadManager> tm = get(EDGE_WIDTH_UPDATE);
+      using namespace sociarium_project_thread;
+      shared_ptr<Thread> tf = get_thread_function(EDGE_WIDTH_UPDATE);
 
-      if (tm->is_running()) {
-        tm->get()->suspend();
+      if (joinable(EDGE_WIDTH_UPDATE)) {
+        tf->suspend();
         if (message_box(
           hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK)
-          tm->get()->cancel();
-        else
-          tm->get()->resume();
+          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          tf->cancel();
+          join(EDGE_WIDTH_UPDATE);
+        } else
+          tf->resume();
       }
 
       break;
@@ -861,8 +875,8 @@ namespace hashimoto_ut {
 
       case IDM_KEY_CTRL_SPACE:
       case IDM_LAYOUT_FORCE_DIRECTION_RUN: {
-        using namespace sociarium_project_thread_manager;
-        sociarium_project_force_direction::toggle_execution(get(FORCE_DIRECTION)->get());
+        using namespace sociarium_project_thread;
+        sociarium_project_force_direction::toggle_execution();
         break;
       }
 
@@ -950,9 +964,9 @@ namespace hashimoto_ut {
         world_->detect_community();
         break;
 
-      case IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING:
+      case IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION:
         set_community_detection_algorithm(
-          CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING);
+          CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_SEPARATION);
         world_->detect_community();
         break;
 
@@ -1064,9 +1078,10 @@ namespace hashimoto_ut {
     // FILE
 
     {
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
-      if (get(GRAPH_CREATION)->get() || get(GRAPH_RETOUCH)->get())
+      if (joinable(GRAPH_CREATION)
+          || joinable(GRAPH_RETOUCH))
         EnableMenuItem(GetMenu(hwnd), IDM_FILE_CANCEL, MF_BYCOMMAND|MF_ENABLED);
       else
         EnableMenuItem(GetMenu(hwnd), IDM_FILE_CANCEL, MF_BYCOMMAND|MF_GRAYED);
@@ -1192,9 +1207,9 @@ namespace hashimoto_ut {
     // NODE SIZE
 
     {
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
-      if (get(NODE_SIZE_UPDATE)->get()) {
+      if (joinable(NODE_SIZE_UPDATE)) {
         EnableMenuItem(GetMenu(hwnd), IDM_VIEW_NODE_SIZE_UPDATE, MF_BYCOMMAND|MF_GRAYED);
         EnableMenuItem(GetMenu(hwnd), IDM_VIEW_NODE_SIZE_CANCEL, MF_BYCOMMAND|MF_ENABLED);
       } else {
@@ -1248,9 +1263,9 @@ namespace hashimoto_ut {
     // EDGE WIDTH
 
     {
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
-      if (get(EDGE_WIDTH_UPDATE)->get()) {
+      if (joinable(EDGE_WIDTH_UPDATE)) {
         EnableMenuItem(GetMenu(hwnd), IDM_VIEW_EDGE_WIDTH_UPDATE, MF_BYCOMMAND|MF_GRAYED);
         EnableMenuItem(GetMenu(hwnd), IDM_VIEW_EDGE_WIDTH_CANCEL, MF_BYCOMMAND|MF_ENABLED);
       } else {
@@ -1425,9 +1440,9 @@ namespace hashimoto_ut {
     // LAYOUT
 
     {
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
-      if (get(LAYOUT)->get()) {
+      if (joinable(LAYOUT)) {
         EnableMenuItem(GetMenu(hwnd), IDM_LAYOUT_UPDATE, MF_BYCOMMAND|MF_GRAYED);
         EnableMenuItem(GetMenu(hwnd), IDM_LAYOUT_CANCEL, MF_BYCOMMAND|MF_ENABLED);
       } else {
@@ -1487,7 +1502,7 @@ namespace hashimoto_ut {
 
       {
         MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-        mii.fState = sociarium_project_force_direction::thread_is_running()
+        mii.fState = sociarium_project_force_direction::is_active()
           ?MFS_CHECKED:MFS_UNCHECKED;
         SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_RUN, FALSE, &mii);
       }{
@@ -1527,9 +1542,9 @@ namespace hashimoto_ut {
     // COMMUNITY_DETECTION
 
     {
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
-      if (get(COMMUNITY_DETECTION)->get()) {
+      if (joinable(COMMUNITY_DETECTION)) {
         EnableMenuItem(GetMenu(hwnd), IDM_COMMUNITY_DETECTION_UPDATE, MF_BYCOMMAND|MF_GRAYED);
         EnableMenuItem(GetMenu(hwnd), IDM_COMMUNITY_DETECTION_CANCEL, MF_BYCOMMAND|MF_ENABLED);
       } else {
@@ -1589,9 +1604,9 @@ namespace hashimoto_ut {
         SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY, FALSE, &mii);
       }{
         MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-        mii.fState = get_community_detection_algorithm()==BETWEENNESS_CENTRALITY_CLUSTERING
+        mii.fState = get_community_detection_algorithm()==BETWEENNESS_CENTRALITY_SEPARATION
           ?MFS_CHECKED:MFS_UNCHECKED;
-        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING, FALSE, &mii);
+        SetMenuItemInfo(hmenu, IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION, FALSE, &mii);
       }{
         MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
         mii.fState = get_community_detection_algorithm()==INFORMATION_FLOW_MAPPING

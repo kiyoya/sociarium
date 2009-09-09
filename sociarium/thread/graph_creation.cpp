@@ -45,7 +45,7 @@
 #include "../common.h"
 #include "../language.h"
 #include "../color.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../layout.h"
 #include "../texture.h"
 #include "../algorithm_selector.h"
@@ -71,6 +71,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using std::tr1::unordered_set;
 
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_common;
   using namespace sociarium_project_texture;
@@ -83,11 +84,8 @@ namespace hashimoto_ut {
   class GraphCreationThreadImpl : public GraphCreationThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    GraphCreationThreadImpl(
-      shared_ptr<ThreadManager> thread_manager,
-      wchar_t const* filename)
-         : thread_manager_(thread_manager),
-           filename_(filename),
+    GraphCreationThreadImpl(wchar_t const* filename)
+         : filename_(filename),
            is_completed_(false) {}
 
 
@@ -96,9 +94,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void terminate(void) const {
-
-      using namespace sociarium_project_thread_manager;
+    void terminate(void) {
 
       initialize_texture_folder_path();
 
@@ -111,30 +107,26 @@ namespace hashimoto_ut {
 
       if (is_completed_) {
         // Update node sizes and edge widths.
-        get(NODE_SIZE_UPDATE)->set(NodeSizeUpdateThread::create(get(NODE_SIZE_UPDATE)));
-        get(EDGE_WIDTH_UPDATE)->set(EdgeWidthUpdateThread::create(get(EDGE_WIDTH_UPDATE)));
+        invoke(NODE_SIZE_UPDATE, NodeSizeUpdateThread::create());
+        invoke(EDGE_WIDTH_UPDATE, EdgeWidthUpdateThread::create());
       }
 
-      // Delete itself via ThreadManager.
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
+      detach(GRAPH_CREATION);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
     void operator()(void) {
 
-      shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
+      shared_ptr<SociariumGraphTimeSeries> ts
+        = sociarium_project_graph_time_series::get();
 
       ts->read_lock();
       /*
        * Don't forget to call read_unlock().
        */
 
-      deque<wstring>& status
-        = sociarium_project_thread_manager::get_status(
-          sociarium_project_thread_manager::GRAPH_CREATION);
+      deque<wstring>& status = get_status(GRAPH_CREATION);
 
       // --------------------------------------------------------------------------------
       // Read and parse a given file.
@@ -474,7 +466,6 @@ namespace hashimoto_ut {
     }
 
   private:
-    weak_ptr<ThreadManager> thread_manager_;
     wstring const filename_;
     bool is_completed_;
   };
@@ -482,11 +473,8 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of GraphCreationThread.
-  shared_ptr<GraphCreationThread> GraphCreationThread::create(
-    shared_ptr<ThreadManager> thread_manager,
-    wchar_t const* filename) {
-    return shared_ptr<GraphCreationThread>(
-      new GraphCreationThreadImpl(thread_manager, filename));
+  shared_ptr<GraphCreationThread> GraphCreationThread::create(wchar_t const* filename) {
+    return shared_ptr<GraphCreationThread>(new GraphCreationThreadImpl(filename));
   }
 
 } // The end of the namespace "hashimoto_ut"

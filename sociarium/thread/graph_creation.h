@@ -37,16 +37,13 @@
 
 namespace hashimoto_ut {
 
-  class ThreadManager;
-
   ////////////////////////////////////////////////////////////////////////////////
   class GraphCreationThread : public Thread {
   public:
     virtual ~GraphCreationThread() {}
 
     static std::tr1::shared_ptr<GraphCreationThread>
-      create(std::tr1::shared_ptr<ThreadManager> thread_manager,
-             wchar_t const* filename);
+      create(wchar_t const* filename);
   };
 
 } // The end of the namespace "hashimoto_ut"

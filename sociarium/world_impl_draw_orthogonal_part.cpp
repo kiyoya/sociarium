@@ -42,7 +42,7 @@
 #include "texture.h"
 #include "selection.h"
 #include "fps_manager.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "sociarium_graph_time_series.h"
 #include "community_transition_diagram.h"
 #include "../shared/predefined_color.h"
@@ -437,7 +437,7 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     void draw_thread_message(Vector2<float> const& scale) {
 
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
       Vector2<float> const sub_scale(0.8f*scale);
       shared_ptr<FTFont> f = get_font(FontCategory::MISC);
@@ -445,14 +445,15 @@ namespace hashimoto_ut {
       static float const upper_margin = 4;
       static float const lower_margin = 8;
 
-      struct Target {
+      struct MessageBlock {
         int index_of_status;
-        float w, h;
-        float w_sub, h_sub;
+        float w, h, w_sub, h_sub;
         float frame_height;
+        MessageBlock(void) : index_of_status(0), w(0.0f), h(0.0f),
+        w_sub(0.0f), h_sub(0.0f), frame_height(0.0f) {}
       };
 
-      vector<Target> target;
+      vector<MessageBlock> message_block;
 
       float frame_height_sum = 0.0f;
       float const interval = scale.y*upper_margin;
@@ -467,36 +468,36 @@ namespace hashimoto_ut {
           float llx, lly, llz, urx, ury, urz;
           f->BBox(text.c_str(), llx, lly, llz, urx, ury, urz);
 
-          Target t;
+          MessageBlock mb;
 
-          t.index_of_status = i;
-          t.w = scale.x*(urx-llx);
-          t.h = scale.y*(ury-lly);
+          mb.index_of_status = i;
+          mb.w = scale.x*(urx-llx);
+          mb.h = scale.y*(ury-lly);
 
           if (!text_sub.empty()) {
             f->BBox(text_sub.c_str(), llx, lly, llz, urx, ury, urz);
-            t.w_sub = sub_scale.x*(urx-llx);
-            t.h_sub = sub_scale.y*(ury-lly);
+            mb.w_sub = sub_scale.x*(urx-llx);
+            mb.h_sub = sub_scale.y*(ury-lly);
           }
 
           float const middle_margin = text_sub.empty()?0.0f:lower_margin;
-          t.frame_height = t.h+t.h_sub+scale.y*(upper_margin+middle_margin+lower_margin);
+          mb.frame_height = mb.h+mb.h_sub+scale.y*(upper_margin+middle_margin+lower_margin);
 
-          target.push_back(t);
+          message_block.push_back(mb);
 
-          frame_height_sum += t.frame_height+interval;
+          frame_height_sum += mb.frame_height+interval;
         }
       }
 
       // Centering messages to the middle.
-      frame_height_sum -= target.empty()?0.0f:target.front().frame_height+interval;
+      frame_height_sum -= message_block.empty()?0.0f:message_block.front().frame_height+interval;
       float const base = -0.5f*frame_height_sum;
 
-      for (size_t i=0; i<target.size(); ++i) {
+      for (size_t i=0; i<message_block.size(); ++i) {
 
-        Target const& t = target[i];
-        deque<wstring> const& status = get_status(t.index_of_status);
-        float const frame_height = t.frame_height;
+        MessageBlock const& mb = message_block[i];
+        deque<wstring> const& status = get_status(mb.index_of_status);
+        float const frame_height = mb.frame_height;
 
         float const top    = 0.5f*(1.0f+frame_height)+frame_height_sum+base;
         float const bottom = 0.5f*(1.0f-frame_height)+frame_height_sum+base;
@@ -518,7 +519,7 @@ namespace hashimoto_ut {
         // --------------------------------------------------------------------------------
         // Draw a main message.
         glPushMatrix();
-        glTranslatef(0.5f*(1.0f-t.w), top-t.h-scale.y*upper_margin, 0.0f);
+        glTranslatef(0.5f*(1.0f-mb.w), top-mb.h-scale.y*upper_margin, 0.0f);
         glScalef(scale.x, scale.y, 0.0f);
         f->Render(status[0].c_str());
         glPopMatrix();
@@ -526,7 +527,7 @@ namespace hashimoto_ut {
         if (!status[1].empty()) {
           // Draw a sub message.
           glPushMatrix();
-          glTranslatef(0.5f*(1.0f-t.w_sub), bottom+scale.y*lower_margin, 0.0f);
+          glTranslatef(0.5f*(1.0f-mb.w_sub), bottom+scale.y*lower_margin, 0.0f);
           glScalef(sub_scale.x, sub_scale.y, 0.0f);
           f->Render(status[1].c_str());
           glPopMatrix();

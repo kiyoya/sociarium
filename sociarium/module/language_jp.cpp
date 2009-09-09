@@ -429,7 +429,7 @@ namespace hashimoto_ut {
         = L"5-クリークパーコレーション(&3)";
       menu[IDM_COMMUNITY_DETECTION_OTHERS]
         = L"その他(&4)";
-      menu[IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_CLUSTERING]
+      menu[IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION]
         = L"媒介中心性分割(&1)";
       menu[IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping(&2)";
@@ -612,7 +612,7 @@ namespace hashimoto_ut {
         = L"モジュラリティ最大化 [欲張り法]";
       message[Message::MODULARITY_MAXIMIZATION_USING_TEO_METHOD]
         = L"モジュラリティ最大化 [τ-EO法]";
-      message[Message::BETWEENNESS_CENTRALITY_CLUSTERING]
+      message[Message::BETWEENNESS_CENTRALITY_SEPARATION]
         = L"媒介中心性クラスタリング";
       message[Message::INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping";

@@ -262,10 +262,11 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // Parse data.
 
+      // <time, <identifier, weight> >
       typedef multimap<time_t, pair<string, double> > TimeSeries;
 
-      TimeSeries node_time_series; // <時刻, <名前, 重み> >
-      TimeSeries edge_time_series; // <時刻, <識別子, 重み> >
+      TimeSeries node_time_series;
+      TimeSeries edge_time_series;
 
       unordered_map<string, string> identifier2edge_name;
       unordered_map<string, string> node_name2texture_file_name;
@@ -566,7 +567,7 @@ namespace hashimoto_ut {
         unordered_map<string, Edge const*> identifier2edge;
 
         // --------------------------------------------------------------------------------
-        // Make nodes, edges,  and their properties.
+        // Make nodes, edges, and their properties.
 
         for (ID2Weight::const_iterator i=node_weight.begin(); i!=node_weight.end(); ++i) {
 

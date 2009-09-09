@@ -34,7 +34,7 @@
 #include <gl/wglew.h>
 #include <FTGL/ftgl.h>
 #include "world_impl.h"
-//#include "cvframe.h"
+#include "cvframe.h"
 #include "glew.h"
 #include "common.h"
 #include "language.h"
@@ -44,7 +44,7 @@
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
 #include "community_transition_diagram.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "fps_manager.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
@@ -52,6 +52,8 @@
 #include "../shared/GL/gltexture.h"
 
 #pragma comment(lib, "glew32.lib")
+
+#include "designtide.h"
 
 namespace hashimoto_ut {
 
@@ -270,15 +272,14 @@ namespace hashimoto_ut {
     // --------------------------------------------------------------------------------
     // Initialize the thread executing environment.
     {
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
 
       initialize();
 
-      // ForceDirectionThread is ready to run.
-      shared_ptr<Thread> th = ForceDirectionThread::create(get(FORCE_DIRECTION));
-      if (!sociarium_project_force_direction::thread_is_running())
-        th->suspend();
-      get(FORCE_DIRECTION)->set(th);
+      shared_ptr<Thread> tf = ForceDirectionThread::create();
+      if (!sociarium_project_force_direction::is_active())
+        tf->suspend();
+      invoke(FORCE_DIRECTION, tf);
     }
 
     // --------------------------------------------------------------------------------
@@ -286,63 +287,7 @@ namespace hashimoto_ut {
     sociarium_project_fps_manager::start(60);
 
 
-#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
-    // --------------------------------------------------------------------------------
-    // CVFrame
-    {
-      using namespace sociarium_project_cvframe;
-      HGLRC rc_cvframe = wglCreateContext(dc);
-
-      if (rc_cvframe==0)
-        show_last_error(L"WorldImpl::World/wglCreateContext (cvframe)");
-
-      if (wglShareLists(rc_draw, rc_cvframe)==FALSE)
-        show_last_error(L"WorldImpl::World/wglShareLists (rendering<->cvframe)");
-
-      initialize(dc, rc_cvframe, CaptureMode::FILE, "movie.avi", "balloon.png");//blue.png");
-      //initialize(dc, rc_cvframe, CaptureMode::CAMERA);
-    }
-#endif
-
-    //
-    // #if 0
-    //     {
-    //       vector<shared_ptr<GLTexture> > texture_walking_man(8);
-    //
-    //       for (size_t i=0; i<texture_walking_man.size(); ++i) {
-    //         wstring const filename
-    //           = (boost::wformat(L"texture\\walking\\%02d.png")%i).str();
-    //         texture_walking_man[i].reset(new GLTexture());
-    //         int const err
-    //           = texture_walking_man[i]->create_mipmap(filename.c_str(), GL_CLAMP);
-    //         if (err!=GLTexture::SUCCEEDED)
-    //           message_box(get_window_handle(),
-    //                       MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-    //                       APPLICATION_TITLE,
-    //                       L"Failed to make walking men");
-    //       }
-    //
-    //       sociarium_project_agent::set_walking_man(texture_walking_man);
-    //
-    //       vector<shared_ptr<GLTexture> > texture_dancing_man(10);
-    //
-    //       for (size_t i=0; i<texture_dancing_man.size(); ++i) {
-    //         wstring const filename
-    //           = (boost::wformat(L"texture\\dancing\\%02d.png")%i).str();
-    //         texture_dancing_man[i].reset(new GLTexture());
-    //         int const err
-    //           = texture_dancing_man[i]->create_mipmap(filename.c_str(), GL_CLAMP);
-    //         if (err!=GLTexture::SUCCEEDED)
-    //           message_box(get_window_handle(),
-    //                       MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-    //                       APPLICATION_TITLE,
-    //                       L"Failed to make dancing men");
-    //       }
-    //
-    //       sociarium_project_agent::set_dancing_man(texture_dancing_man);
-    //
-    //     }
-    // #endif
+    sociarium_project_designtide::initialize();
   }
 
 
@@ -350,14 +295,14 @@ namespace hashimoto_ut {
   WorldImpl::~WorldImpl() {
 
     // --------------------------------------------------------------------------------
-    sociarium_project_thread_manager::finalize();
+    sociarium_project_thread::finalize();
 
     // --------------------------------------------------------------------------------
     sociarium_project_graph_time_series::finalize();
 
     // --------------------------------------------------------------------------------
 #ifdef SOCIAIRUM_PROJECT_USES_OPENCV
-    sociarium_project_cvframe::finalize();
+    sociarium_project_cvframe::terminate();
 #endif
 
     // --------------------------------------------------------------------------------

@@ -35,7 +35,7 @@
 #include <boost/format.hpp>
 #include "edge_width_update.h"
 #include "../graph_extractor.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../algorithm_selector.h"
 #include "../graph_utility.h"
 #include "../language.h"
@@ -52,6 +52,8 @@ namespace hashimoto_ut {
   using std::tr1::weak_ptr;
   using std::tr1::unordered_map;
 
+  using namespace sociarium_project_thread;
+  using namespace sociarium_project_algorithm_selector;
   using namespace sociarium_project_language;
 
   typedef SociariumGraph::node_property_iterator node_property_iterator;
@@ -60,8 +62,7 @@ namespace hashimoto_ut {
   class EdgeWidthUpdateThreadImpl : public EdgeWidthUpdateThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    EdgeWidthUpdateThreadImpl(shared_ptr<ThreadManager> thread_manager)
-         : thread_manager_(thread_manager) {}
+    EdgeWidthUpdateThreadImpl(void) {}
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -69,25 +70,17 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void terminate(void) const {
-
-      using namespace sociarium_project_thread_manager;
-
+    void terminate(void) {
       // Clear the progress message.
       deque<wstring>& status = get_status(EDGE_WIDTH_UPDATE);
       deque<wstring>(status.size()).swap(status);
 
-      // Delete itself via ThreadManager.
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
+      detach(EDGE_WIDTH_UPDATE);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
     void operator()(void) {
-
-      using namespace sociarium_project_algorithm_selector;
 
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
@@ -97,9 +90,7 @@ namespace hashimoto_ut {
        * Don't forget to call read_unlock().
        */
 
-      deque<wstring>& status
-        = sociarium_project_thread_manager::get_status(
-          sociarium_project_thread_manager::EDGE_WIDTH_UPDATE);
+      deque<wstring>& status = get_status(EDGE_WIDTH_UPDATE);
 
       size_t const number_of_layers = ts->number_of_layers();
 
@@ -289,17 +280,13 @@ namespace hashimoto_ut {
       terminate();
     }
 
-  private:
-    weak_ptr<ThreadManager> thread_manager_;
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of EdgeWidthUpdateThread.
-  shared_ptr<EdgeWidthUpdateThread> EdgeWidthUpdateThread::create(
-    shared_ptr<ThreadManager> thread_manager) {
-    return shared_ptr<EdgeWidthUpdateThread>(
-      new EdgeWidthUpdateThreadImpl(thread_manager));
+  shared_ptr<EdgeWidthUpdateThread> EdgeWidthUpdateThread::create(void) {
+    return shared_ptr<EdgeWidthUpdateThread>(new EdgeWidthUpdateThreadImpl);
   }
 
 } // The endof the namespace "hashimoto_ut"

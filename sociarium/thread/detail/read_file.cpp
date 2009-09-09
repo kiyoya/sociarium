@@ -37,7 +37,7 @@
 #include "read_file.h"
 #include "../../common.h"
 #include "../../language.h"
-#include "../../thread_manager.h"
+#include "../../thread.h"
 #include "../../module/graph_creation.h"
 #include "../../../shared/general.h"
 #include "../../../shared/thread.h"
@@ -183,7 +183,7 @@ namespace hashimoto_ut {
                    unordered_map<string, pair<string, int> >& params,
                    vector<pair<string, int> >& data) {
 
-      using namespace sociarium_project_thread_manager;
+      using namespace sociarium_project_thread;
       deque<wstring>& status = get_status(GRAPH_CREATION);
 
       int const num = number_of_lines(filename);

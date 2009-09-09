@@ -78,17 +78,17 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     int get_font_type(void);
-    void set_font_type(int type);
+    void set_font_type(int type_id);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::tr1::shared_ptr<FTFont> get_font(int category);
+    std::tr1::shared_ptr<FTFont> get_font(int category_id);
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_font_scale(int category);
-    void set_font_scale(int category, int id);
+    float get_font_scale(int category_id);
+    void set_font_scale(int category_id, int scale_id);
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_default_font_scale(int id);
+    float get_default_font_scale(int scale_id);
 
   } // The end of the namespace "sociarium_project_font"
 

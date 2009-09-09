@@ -35,7 +35,7 @@
 #include "layout.h"
 #include "../module/layout.h"
 #include "../graph_extractor.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../layout.h"
 #include "../language.h"
 #include "../algorithm_selector.h"
@@ -52,7 +52,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::weak_ptr;
 
-  using namespace sociarium_project_thread_manager;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_module_layout;
   using namespace sociarium_project_algorithm_selector;
   using namespace sociarium_project_layout;
@@ -64,8 +64,7 @@ namespace hashimoto_ut {
   class LayoutThreadImpl : public LayoutThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    LayoutThreadImpl(shared_ptr<ThreadManager> thread_manager)
-         : thread_manager_(thread_manager) {}
+    LayoutThreadImpl(void) {}
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -73,16 +72,13 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void terminate(void) const {
+    void terminate(void) {
 
       // Clear the progress message.
       deque<wstring>& status = get_status(LAYOUT);
       deque<wstring>(status.size()).swap(status);
 
-      // Delete itself via ThreadManager.
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
+      detach(LAYOUT);
     }
 
 
@@ -280,17 +276,13 @@ namespace hashimoto_ut {
       terminate();
     }
 
-  private:
-    weak_ptr<ThreadManager> thread_manager_;
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   // Functory function of LayoutThread.
-  shared_ptr<LayoutThread> LayoutThread::create(
-    shared_ptr<ThreadManager> thread_manager) {
-    return shared_ptr<LayoutThread>(
-      new LayoutThreadImpl(thread_manager));
+  shared_ptr<LayoutThread> LayoutThread::create(void) {
+    return shared_ptr<LayoutThread>(new LayoutThreadImpl);
   }
 
 } // The end of the namespace "hashimoto_ut"

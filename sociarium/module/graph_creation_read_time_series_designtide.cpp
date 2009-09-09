@@ -606,10 +606,11 @@ namespace hashimoto_ut {
               }
 
               // weight
-              np.weight = float(i->second);
+              if (j==0) np.weight = 0.3f;
+              else np.weight = float(i->second);
             } else {
               n[j] = id2n->second;
-              np_now[n[j]->index()].weight += float(i->second);
+              if (j!=0) np_now[n[j]->index()].weight += float(i->second);
             }
           }
 

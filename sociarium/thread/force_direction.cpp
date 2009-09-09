@@ -1,4 +1,4 @@
-// s.o.c.i.a.r.i.u.m: thread/force_direction.cpp
+ï»¿// s.o.c.i.a.r.i.u.m: thread/force_direction.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -35,7 +35,7 @@
 #include "../algorithm_selector.h"
 #include "../layout.h"
 #include "../sociarium_graph_time_series.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../../shared/fps.h"
 #include "../../shared/math.h"
 #include "../../shared/mtrand.h"
@@ -59,7 +59,7 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     FPSKeeper fps_keeper(200);
     bool update = true;
-    bool is_running = false;
+    bool thread_is_active = false;
 
     struct Momentum {
       Vector2<float> momentum;
@@ -1013,14 +1013,14 @@ namespace hashimoto_ut {
         initialize(g0, g1);
       }
 
-      // ƒZƒ‹“à—±q”‚ÌƒJƒEƒ“ƒg
+      // ã‚»ãƒ«å†…ç²’å­æ•°ã®ã‚«ã‚¦ãƒ³ãƒˆ
       for (int i=0; i<number_of_cell_x; ++i) {
         for (int j=0; j<number_of_cell_y; ++j) {
           cells[i][j]->update_local_parameters();
         }
       }
 
-      // Õ“ËŠp‚ÌŒvZ‚Æ—±q‘¬“x‚ÌŒˆ’è
+      // è¡çªè§’ã®è¨ˆç®—ã¨ç²’å­é€Ÿåº¦ã®æ±ºå®š
       for (int i=0; i<number_of_cell_x; ++i) {
         for (int j=0; j<number_of_cell_y; ++j) {
           cells[i][j]->update_particle_velocity();
@@ -1033,7 +1033,7 @@ namespace hashimoto_ut {
         }
       }
 
-      // —±q‚ÌˆÚ“®
+      // ç²’å­ã®ç§»å‹•
       for (vector<shared_ptr<Particle> >::iterator i=particles.begin(); i!=particles.end(); ++i) {
         Momentum& p = (*i)->p;
         DynamicNodeProperty const* dnp = (*i)->dnp;
@@ -1096,23 +1096,25 @@ namespace hashimoto_ut {
   namespace sociarium_project_force_direction {
 
     ////////////////////////////////////////////////////////////////////////////////
-    void toggle_execution(shared_ptr<Thread> th) {
-      if (dynamic_pointer_cast<ForceDirectionThread>(th)==0)
-        return;
+    void toggle_execution(void) {
 
-      if (is_running) {
-        th->suspend();
-        is_running = false;
+      using namespace sociarium_project_thread;
+
+      shared_ptr<Thread> tf = get_thread_function(FORCE_DIRECTION);
+
+      if (thread_is_active) {
+        tf->suspend();
+        thread_is_active = false;
       } else {
-        th->resume();
-        is_running = true;
+        tf->resume();
+        thread_is_active = true;
       }
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool thread_is_running(void) {
-      return is_running;
+    bool is_active(void) {
+      return thread_is_active;
     }
 
 
@@ -1154,37 +1156,29 @@ namespace hashimoto_ut {
   } // The end of the namespace "sociarium_project_force_direction"
 
 
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_force_direction;
+  using namespace sociarium_project_algorithm_selector;
+  using namespace RealTimeForceDirectionAlgorithm;
 
 
   ////////////////////////////////////////////////////////////////////////////////
   class ForceDirectionThreadImpl : public ForceDirectionThread {
   public:
-    ForceDirectionThreadImpl(shared_ptr<ThreadManager> thread_manager)
-         : thread_manager_(thread_manager) {}
+    ForceDirectionThreadImpl(void) {}
 
-    ~ForceDirectionThreadImpl() {
-      //       KamadaKawai::element.clear();
-      //      momentum_list.clear();
-    }
-
-    void terminate(void) {
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
-    }
+    ~ForceDirectionThreadImpl() {}
 
     void operator()(void) {
 
-      using namespace sociarium_project_algorithm_selector;
-      using namespace RealTimeForceDirectionAlgorithm;
-
       for (;;) {
 
-        if (cancel_check()) return terminate();
+        if (cancel_check()) break;
 
-        shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
-        if (ts==0) terminate();
+        shared_ptr<SociariumGraphTimeSeries> ts
+          = sociarium_project_graph_time_series::get();
+
+        if (ts==0) break;
 
         ts->read_lock();
         /*
@@ -1224,19 +1218,17 @@ namespace hashimoto_ut {
 
         fps_keeper.wait();
       }
+
+      detach(FORCE_DIRECTION);
     }
 
-  private:
-    weak_ptr<ThreadManager> thread_manager_;
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of ForceDirectionThread.
-  shared_ptr<ForceDirectionThread> ForceDirectionThread::create(
-    shared_ptr<ThreadManager> thread_manager) {
-    return shared_ptr<ForceDirectionThread>(
-      new ForceDirectionThreadImpl(thread_manager));
+  shared_ptr<ForceDirectionThread> ForceDirectionThread::create(void) {
+    return shared_ptr<ForceDirectionThread>(new ForceDirectionThreadImpl);
   }
 
 } // The end of the namespace "hashimoto_ut"

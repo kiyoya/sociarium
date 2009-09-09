@@ -35,7 +35,7 @@
 #include <boost/format.hpp>
 #include "node_size_update.h"
 #include "../graph_extractor.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../algorithm_selector.h"
 #include "../graph_utility.h"
 #include "../language.h"
@@ -52,7 +52,7 @@ namespace hashimoto_ut {
   using std::tr1::weak_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_thread_manager;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_algorithm_selector;
   using namespace sociarium_project_language;
 
@@ -62,8 +62,7 @@ namespace hashimoto_ut {
   class NodeSizeUpdateThreadImpl : public NodeSizeUpdateThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    NodeSizeUpdateThreadImpl(shared_ptr<ThreadManager> thread_manager)
-         : thread_manager_(thread_manager) {}
+    NodeSizeUpdateThreadImpl(void) {}
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -71,16 +70,12 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void terminate(void) const {
-
+    void terminate(void) {
       // Clear the progress message.
       deque<wstring>& status = get_status(NODE_SIZE_UPDATE);
       deque<wstring>(status.size()).swap(status);
 
-      // Delete itself via ThreadManager.
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
+      detach(NODE_SIZE_UPDATE);
     }
 
 
@@ -96,6 +91,7 @@ namespace hashimoto_ut {
        */
 
       deque<wstring>& status = get_status(NODE_SIZE_UPDATE);
+
       size_t const number_of_layers = ts->number_of_layers();
 
       vector<vector<double> > node_size(number_of_layers);
@@ -444,17 +440,13 @@ namespace hashimoto_ut {
       terminate();
     }
 
-  private:
-    weak_ptr<ThreadManager> thread_manager_;
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of NodeSizeUpdateThread.
-  shared_ptr<NodeSizeUpdateThread> NodeSizeUpdateThread::create(
-    shared_ptr<ThreadManager> thread_manager) {
-    return shared_ptr<NodeSizeUpdateThread>(
-      new NodeSizeUpdateThreadImpl(thread_manager));
+  shared_ptr<NodeSizeUpdateThread> NodeSizeUpdateThread::create(void) {
+    return shared_ptr<NodeSizeUpdateThread>(new NodeSizeUpdateThreadImpl);
   }
 
 } // The endof the namespace "hashimoto_ut"

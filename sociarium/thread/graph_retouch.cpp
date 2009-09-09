@@ -45,7 +45,7 @@
 #include "../common.h"
 #include "../language.h"
 #include "../color.h"
-#include "../thread_manager.h"
+#include "../thread.h"
 #include "../layout.h"
 #include "../texture.h"
 #include "../algorithm_selector.h"
@@ -70,7 +70,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using std::tr1::unordered_set;
 
-  using namespace sociarium_project_thread_manager;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_common;
   using namespace sociarium_project_texture;
@@ -80,11 +80,8 @@ namespace hashimoto_ut {
   class GraphRetouchThreadImpl : public GraphRetouchThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    GraphRetouchThreadImpl(
-      shared_ptr<ThreadManager> thread_manager,
-      wchar_t const* filename)
-         : thread_manager_(thread_manager),
-           filename_(filename),
+    GraphRetouchThreadImpl(wchar_t const* filename)
+         : filename_(filename),
            is_completed_(false) {}
 
 
@@ -93,7 +90,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void terminate(void) const {
+    void terminate(void) {
 
       if (wglMakeCurrent(0, 0)==FALSE)
         show_last_error(L"GraphRetouchThread::terminate/wglMakeCurrent");
@@ -104,14 +101,11 @@ namespace hashimoto_ut {
 
       if (is_completed_) {
         // Update node sizes and edge widths.
-        get(NODE_SIZE_UPDATE)->set(NodeSizeUpdateThread::create(get(NODE_SIZE_UPDATE)));
-        get(EDGE_WIDTH_UPDATE)->set(EdgeWidthUpdateThread::create(get(EDGE_WIDTH_UPDATE)));
+        invoke(NODE_SIZE_UPDATE, NodeSizeUpdateThread::create());
+        invoke(EDGE_WIDTH_UPDATE, EdgeWidthUpdateThread::create());
       }
 
-      // Delete itself via ThreadManager.
-      shared_ptr<ThreadManager> tm = thread_manager_.lock();
-      assert(tm!=0);
-      tm->set(shared_ptr<Thread>());
+      detach(GRAPH_RETOUCH);
     }
 
 
@@ -372,7 +366,6 @@ namespace hashimoto_ut {
     }
 
   private:
-    weak_ptr<ThreadManager> thread_manager_;
     wstring const filename_;
     bool is_completed_;
   };
@@ -380,11 +373,8 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of GraphRetouchThread.
-  shared_ptr<GraphRetouchThread> GraphRetouchThread::create(
-    shared_ptr<ThreadManager> thread_manager,
-    wchar_t const* filename) {
-    return shared_ptr<GraphRetouchThread>(
-      new GraphRetouchThreadImpl(thread_manager, filename));
+  shared_ptr<GraphRetouchThread> GraphRetouchThread::create(wchar_t const* filename) {
+    return shared_ptr<GraphRetouchThread>(new GraphRetouchThreadImpl(filename));
   }
 
 } // The end of the namespace "hashimoto_ut"

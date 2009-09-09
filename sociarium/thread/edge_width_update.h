@@ -37,15 +37,11 @@
 
 namespace hashimoto_ut {
 
-  class ThreadManager;
-
   ////////////////////////////////////////////////////////////////////////////////
   class EdgeWidthUpdateThread : public Thread {
   public:
     virtual ~EdgeWidthUpdateThread() {}
-
-    static std::tr1::shared_ptr<EdgeWidthUpdateThread>
-      create(std::tr1::shared_ptr<ThreadManager> thread_manager);
+    static std::tr1::shared_ptr<EdgeWidthUpdateThread> create(void);
   };
   
 } // The end of the namespace hashimoto_ut

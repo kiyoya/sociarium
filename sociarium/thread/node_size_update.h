@@ -37,15 +37,11 @@
 
 namespace hashimoto_ut {
 
-  class ThreadManager;
-
   ////////////////////////////////////////////////////////////////////////////////
   class NodeSizeUpdateThread : public Thread {
   public:
     virtual ~NodeSizeUpdateThread() {}
-
-    static std::tr1::shared_ptr<NodeSizeUpdateThread>
-      create(std::tr1::shared_ptr<ThreadManager> thread_manager);
+    static std::tr1::shared_ptr<NodeSizeUpdateThread> create(void);
   };
   
 } // The end of the namespace hashimoto_ut

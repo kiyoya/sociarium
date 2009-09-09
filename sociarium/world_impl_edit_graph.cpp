@@ -38,7 +38,7 @@
 #include "common.h"
 #include "language.h"
 #include "color.h"
-#include "thread_manager.h"
+#include "thread.h"
 #include "flag_operation.h"
 #include "sociarium_graph_time_series.h"
 #include "community_transition_diagram.h"
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_common;
   using namespace sociarium_project_color;
-  using namespace sociarium_project_thread_manager;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_language;
 
   namespace {
@@ -1105,9 +1105,8 @@ namespace hashimoto_ut {
 
     bool another_thread_is_running = false;
 
-    for (int i=0; i<sociarium_project_thread_manager::NUMBER_OF_THREAD_CATEGORIES; ++i) {
-      if (i!=sociarium_project_thread_manager::FORCE_DIRECTION &&
-          sociarium_project_thread_manager::get(i)->is_running()) {
+    for (int i=0; i<NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      if (i!=FORCE_DIRECTION && joinable(i)) {
         another_thread_is_running = true;
         break;
       }
@@ -1123,11 +1122,12 @@ namespace hashimoto_ut {
       return;
     }
 
-    if (message_box(get_window_handle(),
-                    MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
-                    APPLICATION_TITLE,
-                    L"%s",
-                    get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
+    if (message_box(
+      get_window_handle(),
+      MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+      APPLICATION_TITLE,
+      L"%s",
+      get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
       return;
 
     // --------------------------------------------------------------------------------
