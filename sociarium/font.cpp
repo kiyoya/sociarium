@@ -57,8 +57,9 @@ namespace hashimoto_ut {
 			// [TODO]
       char const FONT_OPTION[][255] = {
         // Priority sequence of default used fonts.
-        "/Library/Fonts/Arial.ttf",
-				"/Library/Fonts/Osaka.ttf"
+        "/Library/Fonts/ヒラギノ丸ゴ ProN W4.otf",
+        "/Library/Fonts/Verdana.ttf",
+        "/Library/Fonts/Arial.ttf"
         };
 #elif _MSC_VER
       char const FONT_OPTION[][_MAX_PATH] = {
