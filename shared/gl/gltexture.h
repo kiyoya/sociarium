@@ -34,9 +34,17 @@
 #ifndef INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
 #define INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
 
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 #ifdef SOCIAIRUM_PROJECT_USES_OPENCV
 #include <cv.h>

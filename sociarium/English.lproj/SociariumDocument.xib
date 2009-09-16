@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">10A432</string>
+		<string key="IBDocument.SystemVersion">10B504</string>
 		<string key="IBDocument.InterfaceBuilderVersion">732</string>
-		<string key="IBDocument.AppKitVersion">1038</string>
+		<string key="IBDocument.AppKitVersion">1038.2</string>
 		<string key="IBDocument.HIToolboxVersion">437.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -58,7 +58,7 @@
 							<reference key="NSSuperview" ref="568628114"/>
 							<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 								<object class="NSMutableData" key="NSPixelAttributes">
-									<bytes key="NS.bytes">AAAASQAAAGAAAAAAA</bytes>
+									<bytes key="NS.bytes">AAAAYAAAAAA</bytes>
 								</object>
 							</object>
 						</object>
@@ -230,10 +230,8 @@
 							<string>setAlgoritumOfCommunityDetectionToModularityMaximizationUsingGreedyMethod:</string>
 							<string>setAlgoritumOfCommunityDetectionToModularityMaximizationUsingTauEoMethod:</string>
 							<string>setAlgoritumOfCommunityDetectionToStronglyConnectedComponents:</string>
-							<string>setAlgoritumOfGraphLayoutToArray:</string>
 							<string>setAlgoritumOfGraphLayoutToCircle:</string>
 							<string>setAlgoritumOfGraphLayoutToCircleInSizeOrder:</string>
-							<string>setAlgoritumOfGraphLayoutToHighDimensionalEmbedding:</string>
 							<string>setAlgoritumOfGraphLayoutToKamadaKawaiMethod:</string>
 							<string>setAlgoritumOfGraphLayoutToRandom:</string>
 							<string>setFontSizeOfCommunity:</string>
@@ -242,11 +240,11 @@
 							<string>setFontSizeOfNode:</string>
 							<string>setSizeOfNode:</string>
 							<string>setStyleOfCommunityEdgeToLine:</string>
-							<string>setStyleOfCommunityEdgeToTexture:</string>
+							<string>setStyleOfCommunityEdgeToPolygon:</string>
 							<string>setStyleOfCommunityToPolygon:</string>
 							<string>setStyleOfCommunityToTexture:</string>
 							<string>setStyleOfEdgeToLine:</string>
-							<string>setStyleOfEdgeToTexture:</string>
+							<string>setStyleOfEdgeToPolygon:</string>
 							<string>setStyleOfNodeToPolygon:</string>
 							<string>setStyleOfNodeToTexture:</string>
 							<string>shiftStyle:</string>
@@ -263,8 +261,6 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>

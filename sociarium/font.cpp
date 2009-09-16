@@ -57,6 +57,7 @@ namespace hashimoto_ut {
 			// [TODO]
       char const FONT_OPTION[][255] = {
         // Priority sequence of default used fonts.
+        "/Library/Fonts/Arial.ttf",
 				"/Library/Fonts/Osaka.ttf"
         };
 #elif _MSC_VER
@@ -69,7 +70,11 @@ namespace hashimoto_ut {
 #endif
 
       size_t const NUMBER_OF_FONT_OPTIONS
+#ifdef __APPLE__
+        = sizeof(FONT_OPTION)/sizeof(char[255]);
+#elif _MSC_VER
         = sizeof(FONT_OPTION)/sizeof(char[_MAX_PATH]);
+#endif
 
 
       ////////////////////////////////////////////////////////////////////////////////
@@ -124,8 +129,10 @@ namespace hashimoto_ut {
               else if (i==NUMBER_OF_FONT_OPTIONS-1) {
                 // No option available any more.
                 message_box(
+#ifdef _MSC_VER
                   get_window_handle(),
                   MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
                   APPLICATION_TITLE,
                   L"%s: %s [ft_encoding_unicode]",
                   get_message(Message::FTGL_ERROR_CHARMAP),
@@ -135,8 +142,10 @@ namespace hashimoto_ut {
             } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
               // No option available any more.
               message_box(
+#ifdef _MSC_VER
                 get_window_handle(),
                 MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
                 APPLICATION_TITLE,
                 L"%s: %s [%d]",
                 get_message(Message::FTGL_ERROR_FACESIZE),
@@ -146,8 +155,10 @@ namespace hashimoto_ut {
           } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
             // No option available any more.
             message_box(
+#ifdef _MSC_VER
               get_window_handle(),
               MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
               APPLICATION_TITLE,
               L"%s",
               get_message(Message::FTGL_ERROR_CREATE));

@@ -29,10 +29,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #pragma warning(disable:4503) // about the name decoration.
+#endif
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include "win32api.h"
+#endif
 #include "graph_creation.h"
 #include "../common.h"
 #include "../language.h"
@@ -59,17 +69,48 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       class GraphCreationModuleManager {
       public:
+#ifdef __APPLE__
+        typedef unordered_map<CFURLRef, pair<CFBundleRef, FuncCreateGraphTimeSeries> >
+#elif _MSC_VER
         typedef unordered_map<wstring, pair<HMODULE, FuncCreateGraphTimeSeries> >
+#endif
           ModuleMap;
 
         GraphCreationModuleManager(void) {}
 
         ~GraphCreationModuleManager() {
           for (ModuleMap::const_iterator i=module_.begin(); i!=module_.end(); ++i)
+					{
+#ifdef __APPLE__
+            if (i->first) CFRelease(i->first);
+            if (i->second.first) CFRelease(i->second.first);
+#elif
             if (i->second.first) FreeLibrary(i->second.first);
+#endif
+					}
         }
 
         FuncCreateGraphTimeSeries get(int data_format, wchar_t const* module_filename) {
+#ifdef __APPLE__
+          CFBundleRef handle = NULL;
+          CFBundleRef mainBundle = CFBundleGetMainBundle();
+          CFURLRef pluginURL = CFBundleCopyBuiltInPlugInsURL(mainBundle);
+          CFURLRef path;
+          if (data_format==DataFormat::ADJACENCY_MATRIX)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("GraphCreationReadAdjacencyMatrix.plugin"), FALSE);
+          else if (data_format==DataFormat::ADJACENCY_LIST)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("GraphCreationReadAdjacencyList.plugin"), FALSE);
+          else if (data_format==DataFormat::EDGE_LIST)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("GraphCreationReadEdgeList.plugin"), FALSE);
+          else if (data_format==DataFormat::USER_DEFINED_MODULE)
+          {
+            CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, wcs2mbcs(module_filename, wcslen(module_filename)).c_str(), kCFStringEncodingUTF8);
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, str, FALSE);
+            CFRelease(str);
+          }
+          else assert(0 && "never reach");
+          CFRelease(pluginURL);
+#elif _MSC_VER
           HMODULE handle = 0;
           wstring path = L"dll\\";
           if (data_format==DataFormat::ADJACENCY_MATRIX)
@@ -81,12 +122,18 @@ namespace hashimoto_ut {
           else if (data_format==DataFormat::USER_DEFINED_MODULE)
             path += module_filename;
           else assert(0 && "never reach");
-
+#endif
+          
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {
             // Not yet loaded.
+#ifdef __APPLE__
+            if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL) {
+              show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
+#elif _MSC_VER
             if ((handle=LoadLibrary(path.c_str()))==0) {
               show_last_error(path.c_str());
+#endif
               return 0;
             }
 
@@ -97,11 +144,22 @@ namespace hashimoto_ut {
           else return module_[path].second;
 
           // Find an appropriate function in DLL.
+#ifdef __APPLE__
+          pair<CFBundleRef, FuncCreateGraphTimeSeries>& p = module_[path];
+          CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, function_name.c_str(), kCFStringEncodingUTF8);
+          p.second = (FuncCreateGraphTimeSeries)CFBundleGetFunctionPointerForName(p.first, str);
+          CFRelease(str);
+#elif _MSC_VER
           pair<HMODULE, FuncCreateGraphTimeSeries>& p = module_[path];
           p.second = (FuncCreateGraphTimeSeries)GetProcAddress(p.first, function_name.c_str());
+#endif
 
           if (p.second==0) {
+#ifdef __APPLE__
+            show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
+#elif _MSC_VER
             show_last_error(path.c_str());
+#endif
             return 0;
           }
 

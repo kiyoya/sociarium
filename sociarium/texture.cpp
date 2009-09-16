@@ -36,12 +36,16 @@
 #else
 #include <tr1/unordered_map>
 #endif
+#ifdef __APPLE__
+#include <GL/glew.h>
+#else
 #include <gl/glew.h>
+#endif
 #include "texture.h"
 #include "common.h"
 #include "language.h"
 #include "../shared/msgbox.h"
-#include "../shared/GL/gltexture.h"
+#include "../shared/gl/gltexture.h"
 
 #define SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
 
@@ -104,14 +108,19 @@ namespace hashimoto_ut {
       int const err = texture->create(full_path.c_str(), wrap_s, wrap_t);
 #endif
 
+      // [TODO]
+      /*
       if (err!=GLTexture::SUCCEEDED)
         message_box(
+#ifdef _MSC_VER
           get_window_handle(),
           MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
           APPLICATION_TITLE,
           L"%s: %s (%d)",
           get_message(Message::FAILED_TO_CREATE_TEXTURE),
           full_path.c_str(), err);
+       */
     }
 
     ////////////////////////////////////////////////////////////////////////////////

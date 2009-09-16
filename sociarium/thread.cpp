@@ -31,7 +31,11 @@
 
 #include <cassert>
 #include <deque>
+#ifdef _MSC_VER
 #include <array>
+#else
+#include <tr1/array>
+#endif
 #include <string>
 #include "thread.h"
 #include "language.h"

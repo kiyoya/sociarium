@@ -30,8 +30,12 @@
  */
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "resource.h"
 #include "language.h"
 #include "common.h"
@@ -47,17 +51,23 @@ namespace hashimoto_ut {
 
   namespace sociarium_project_language {
 
+#ifdef _MSC_VER
     typedef __declspec(dllimport)
       void (__cdecl* FuncLoadMessage)(vector<wstring>& message);
 
     typedef __declspec(dllimport)
       void (__cdecl* FuncLoadMenu)(unordered_map<int, wstring>& menu);
-
+#else
+    typedef void (* FuncLoadMessage)(vector<wstring>& message);
+    typedef void (* FuncLoadMenu)(unordered_map<int, wstring>& menu);
+#endif
+    
     namespace {
       shared_ptr<Message> message_object;
     }
-
+    
     ////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     void initialize(HWND hwnd, wchar_t const* filename) {
 
       wstring path = wstring(L"dll\\")+filename;
@@ -2071,7 +2081,7 @@ namespace hashimoto_ut {
 
       FreeLibrary(handle);
     }
-
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
     Message const* get_message_object(void) {

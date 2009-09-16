@@ -110,8 +110,12 @@ namespace hashimoto_ut {
     // To be inserted into a target loop.
     void wait(void) {
       
+#ifdef __APPLE__
+      CFAbsoluteTime now = CFAbsoluteTimeGetCurrent()*fps_;
+#elif _MSC_VER
       unsigned long now = timeGetTime()*fps_;
-
+#endif
+      
       if (last_>now){
         now += ULONG_MAX-last_;
         last_ = 0;
@@ -124,7 +128,11 @@ namespace hashimoto_ut {
         unsigned long wait_time = frame_time_+err_-diff;
         err_ = wait_time%fps_;
         wait_time -= err_;
+#ifdef _MSC_VER
         Sleep(wait_time/fps_);
+#else
+        usleep(wait_time/fps_);
+#endif
         last_ += wait_time;
       }
     }

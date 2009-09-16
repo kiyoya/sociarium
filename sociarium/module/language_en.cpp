@@ -32,14 +32,20 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "../resource.h"
 #include "../language.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -47,9 +53,12 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::tr1::unordered_map;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl load_menu(unordered_map<int, wstring>& menu) {
-
+#else
+    extern "C" void load_menu(unordered_map<int, wstring>& menu) {
+#endif
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_FILE]
         = L"&File";
@@ -469,9 +478,13 @@ namespace hashimoto_ut {
     }
 
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl load_message(vector<wstring>& message) {
-
+#else
+      extern "C" void load_message(vector<wstring>& message) {
+#endif
+      
       using namespace sociarium_project_language;
 
       assert(message.size()==Message::NUMBER_OF_MESSAGES);

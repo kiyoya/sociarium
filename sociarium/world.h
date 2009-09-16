@@ -42,7 +42,7 @@
 #include <tr1/memory>
 #endif
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
+#include <OpenGL/OpenGL.h>
 #else
 #include <GL/gl.h>
 #endif
@@ -83,17 +83,14 @@ namespace hashimoto_ut {
     virtual void remove_marked_elements(int menu) const = 0;
 
 #ifdef __APPLE__
-    static std::tr1::shared_ptr<World> create(void * context);
+    static World * create(CGLContextObj context);
+		static void destroy(World * world);
 #else
     static std::tr1::shared_ptr<World> create(void);
 #endif
 
   protected:
-#ifdef __APPLE__
-    World(void * context);
-#else
     World(void) {}
-#endif
   };
 
 } // The end of the namespace "hashimoto_ut"

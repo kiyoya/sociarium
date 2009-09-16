@@ -32,9 +32,14 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_COMMUNITY_TRANSITION_DIAGRAM_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_COMMUNITY_TRANSITION_DIAGRAM_H
 
-#include <memory>
 #include <vector>
+#ifdef _MSC_VER
 #include <array>
+#include <memory>
+#else
+#include <tr1/array>
+#include <tr1/memory>
+#endif
 #include "../shared/vector2.h"
 #include "../shared/vector3.h"
 

@@ -41,6 +41,7 @@
 #endif
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
+#include "win32api.h"
 #endif
 #include "community_detection.h"
 #include "../common.h"
@@ -69,8 +70,12 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       class CommunityDetectionModuleManager {
       public:
+#ifdef __APPLE__
+        typedef unordered_map<CFURLRef, pair<CFBundleRef, FuncDetectCommunity> > ModuleMap;
+#elif _MSC_VER
         typedef unordered_map<wstring, pair<HMODULE, FuncDetectCommunity> > ModuleMap;
-
+#endif
+        
         CommunityDetectionModuleManager(void) {}
 
         ~CommunityDetectionModuleManager() {
@@ -143,10 +148,11 @@ namespace hashimoto_ut {
             // Not yet loaded.
 #ifdef __APPLE__
             if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL) {
+              show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
 #elif _MSC_VER
             if ((handle=LoadLibrary(path.c_str()))==0) {
-#endif
               show_last_error(path.c_str());
+#endif
               return 0;
             }
             module_[path].first = handle;
@@ -158,14 +164,20 @@ namespace hashimoto_ut {
           // Find an appropriate function in DLL.
 #ifdef __APPLE__
           pair<CFBundleRef, FuncDetectCommunity>& p = module_[path];
-          p.second = (FuncDetectCommunity)CFBundleGetFunctionPointerForName(p.first, CFSTR(function_name.c_str()));
+          CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, function_name.c_str(), kCFStringEncodingUTF8);
+          p.second = (FuncDetectCommunity)CFBundleGetFunctionPointerForName(p.first, str);
+          CFRelease(str);
 #elif _MSC_VER
           pair<HMODULE, FuncDetectCommunity>& p = module_[path];
           p.second = (FuncDetectCommunity)GetProcAddress(p.first, function_name.c_str());
 #endif
 
           if (p.second==0) {
+#ifdef __APPLE__
+            show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
+#elif _MSC_VER
             show_last_error(path.c_str());
+#endif
             return 0;
           }
 

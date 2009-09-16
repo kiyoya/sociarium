@@ -37,7 +37,7 @@
 #include <windows.h>
 #endif
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
+#include <OpenGL/OpenGL.h>
 #else
 #include <gl/gl.h>
 #endif
@@ -68,9 +68,6 @@ namespace hashimoto_ut {
 #ifdef _MSC_VER
     HINSTANCE get_instance_handle(void);
     void set_instance_handle(HINSTANCE hinst);
-#else
-    void * get_instance_handle(void);
-    void set_instance_handle(void *);
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -78,9 +75,6 @@ namespace hashimoto_ut {
 #ifdef _MSC_VER
     HWND get_window_handle(void);
     void set_window_handle(HWND hwnd);
-#else
-    void * get_window_handle(void);
-    void set_window_handle(void *);
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -88,24 +82,21 @@ namespace hashimoto_ut {
 #ifdef _MSC_VER
     HDC get_device_context(void);
     void set_device_context(HDC dc);
-#else
-    void * get_device_context(void);
-    void set_device_context(void *);
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
     // Handle of the rendering context.
-#ifdef _MSC_VER
+#ifdef __APPLE__
+    CGLContextObj get_rendering_context(int thread_id);
+    void set_rendering_context(int thread_id, CGLContextObj context);
+#elif _MSC_VER
     HGLRC get_rendering_context(int thread_id);
     void set_rendering_context(int thread_id, HGLRC rc);
-#else
-    void * get_rendering_context(int thread_id);
-    void set_rendering_context(int thread_id, void * rc);
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
     void show_last_error(wchar_t const* text=L"");
-
+    
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef DEBUG
     void dump_error_log(wchar_t const* fmt, ...);

@@ -33,8 +33,13 @@
 #include <deque>
 #include <string>
 #include <fstream>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <unordered_set>
+#else
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
+#endif
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include "graph_creation.h"
@@ -98,7 +103,11 @@ namespace hashimoto_ut {
 
       initialize_texture_folder_path();
 
+#ifdef __APPLE__
+      if (CGLSetCurrentContext(NULL) != kCGLNoError)
+#elif _MSC_VER
       if (wglMakeCurrent(0, 0)==FALSE)
+#endif
         show_last_error(L"GraphCreationThread::terminate/wglMakeCurrent");
 
       // Clear the progress message.
@@ -178,8 +187,10 @@ namespace hashimoto_ut {
           data_format = DataFormat::EDGE_LIST;
         else {
           message_box(
+#ifdef _MSC_VER
             get_window_handle(),
             MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
             APPLICATION_TITLE,
             L"%s: %s",
             get_message(Message::UNSUPPORTED_DATA_FORMAT),
@@ -199,10 +210,16 @@ namespace hashimoto_ut {
         return terminate();
       }
 
+#ifdef __APPLE__
+      CGLContextObj context = get_rendering_context(RenderingContext::LOAD_TEXTURES);
+      
+      if (CGLSetCurrentContext(context) != kCGLNoError)
+#elif _MSC_VER
       HDC dc = get_device_context();
       HGLRC rc = get_rendering_context(RenderingContext::LOAD_TEXTURES);
 
       if (wglMakeCurrent(dc, rc)==FALSE)
+#endif
         show_last_error(L"GraphCreationThread::operator()/wglMakeCurrent");
 
       // --------------------------------------------------------------------------------
@@ -303,8 +320,10 @@ namespace hashimoto_ut {
           if (check_node_id_duplication.find(np.identifier)
               !=check_node_id_duplication.end()) {
             message_box(
+#ifdef _MSC_VER
               get_window_handle(),
               MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
               APPLICATION_TITLE,
               L"%s: %s [%s]",
               get_message(Message::NODE_IDENTIFIER_DUPLICATION),
@@ -326,7 +345,7 @@ namespace hashimoto_ut {
               p = static_node_property.insert(
                 StaticNodeProperty(static_node_property.size()));
             assert(p.second==true);
-            snp = &*p.first;
+            snp = const_cast<StaticNodeProperty *>(&*p.first);
 
             {
               // Set identifier and name.
@@ -403,8 +422,10 @@ namespace hashimoto_ut {
           if (check_edge_id_duplication.find(ep.identifier)
               !=check_edge_id_duplication.end()) {
             message_box(
+#ifdef _MSC_VER
               get_window_handle(),
               MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
               APPLICATION_TITLE,
               L"%s: %s [%s]",
               get_message(Message::EDGE_IDENTIFIER_DUPLICATION),
@@ -426,7 +447,7 @@ namespace hashimoto_ut {
               p = static_edge_property.insert(
                 StaticEdgeProperty(static_edge_property.size()));
             assert(p.second==true);
-            sep = &*p.first;
+            sep = const_cast<StaticEdgeProperty *>(&*p.first);
 
             sep->set_identifier(ep.identifier);
             sep->set_name(ep.name);

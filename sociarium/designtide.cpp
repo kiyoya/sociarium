@@ -31,9 +31,18 @@
 
 #include <vector>
 #include <memory>
+#ifdef _MSC_VER
 #include <array>
 #include <windows.h>
+#else
+#include <tr1/array>
+#endif
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include <GL/glew.h>
+#else
 #include <gl/glew.h>
+#endif
 #include <boost/format.hpp>
 #include "designtide.h"
 #include "cvframe.h"
@@ -72,7 +81,11 @@ namespace hashimoto_ut {
   namespace sociarium_project_designtide {
 
     namespace {
+#ifdef __APPLE__
+      CFAbsoluteTime balloon_start_time = 0;
+#elif _MSC_VER
       unsigned long balloon_start_time = 0;
+#endif
       Vector2<float> pos_balloon;
       array<float, 4> rgba;
 
@@ -104,7 +117,7 @@ namespace hashimoto_ut {
         if (action==0) {
 
           unsigned long const wait_time
-            = 3000+(is_special?0:unsigned long(1000*myrand()));
+            = 3000+(is_special?0:(unsigned long)(1000*myrand()));
 
           if (now_time-time>wait_time) {
             time = now_time;
@@ -206,9 +219,25 @@ namespace hashimoto_ut {
                 rgba[0] = predefined_color[i->first->get_color_id()].x;
                 rgba[1] = predefined_color[i->first->get_color_id()].y;
                 rgba[2] = predefined_color[i->first->get_color_id()].z;
+#ifdef __APPLE__
+                balloon_start_time = CFAbsoluteTimeGetCurrent();
+#elif _MSC_VER
                 balloon_start_time = timeGetTime();
+#endif
                 pos_balloon = pos;
-
+     
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+                
+#ifdef __APPLE__
+                CGLContextObj context = get_rendering_context(RenderingContext::DRAW);
+                CGLContextObj context_cvfrace;
+                
+                if (CGLCreateContext(CGLGetPixelFormat(context), context, &context_cvfrace) != kCGLNoError)
+                  show_last_error(L"sociarium_project_designtide::popup/wglCreateContext");
+                
+                shared_ptr<CVFrame> cvframe
+                  = sociarium_project_cvframe::create(context_cvfrace);
+#elif _MSC_VER
                 HDC dc = get_device_context();
                 HGLRC rc_cvframe = wglCreateContext(dc);
 
@@ -222,13 +251,15 @@ namespace hashimoto_ut {
 
                 shared_ptr<CVFrame> cvframe
                   = sociarium_project_cvframe::create(dc, rc_cvframe);
-
+#endif
+                
                 assert(cvframe!=0);
 
                 cvframe->set_movie("movie.avi");
                 cvframe->set_masking_image("balloon.png");
 
                 sociarium_project_cvframe::invoke(cvframe);
+#endif
               }
             }
           }
@@ -239,7 +270,11 @@ namespace hashimoto_ut {
 
           ts->read_unlock();
 
+#ifdef __APPLE__
+          time = CFAbsoluteTimeGetCurrent();
+#elif _MSC_VER
           time = timeGetTime();
+#endif
         }
 
       }
@@ -264,8 +299,11 @@ namespace hashimoto_ut {
           = texture_walking_man[i]->create_mipmap(
             filename.c_str(), GL_CLAMP_TO_EDGE_EXT, GL_CLAMP_TO_EDGE_EXT);
         if (err!=GLTexture::SUCCEEDED)
-          message_box(get_window_handle(),
+          message_box(
+#ifdef _MSC_VER
+                      get_window_handle(),
                       MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
                       APPLICATION_TITLE,
                       L"Failed to make walking men");
       }
@@ -313,8 +351,11 @@ namespace hashimoto_ut {
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
       if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)!=GL_FRAMEBUFFER_COMPLETE_EXT)
-        message_box(get_window_handle(),
+        message_box(
+#ifdef _MSC_VER
+                    get_window_handle(),
                     MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
                     APPLICATION_TITLE,
                     L"FBO");
     }
@@ -329,6 +370,8 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     void draw_balloon(float size, float angleH, float angleV) {
 
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+      
       shared_ptr<CVFrame> cvframe = get_current_frame();
 
       if (!joinable()) return;
@@ -463,6 +506,7 @@ namespace hashimoto_ut {
       }
 
       cvframe->read_unlock();
+#endif
     }
 
 
@@ -743,8 +787,13 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     void draw(float angleH, float angleV) {
 
+#ifdef __APPLE__
+      CFAbsoluteTime now_time = CFAbsoluteTimeGetCurrent();
+      CFAbsoluteTime diff_time = now_time-balloon_start_time;
+#elif _MSC_VER
       unsigned long now_time = timeGetTime();
       unsigned long diff_time = now_time-balloon_start_time;
+#endif
 
       rgba[3] = (11000-diff_time)/1000.0f;
 

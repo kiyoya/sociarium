@@ -32,9 +32,15 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include <boost/thread.hpp>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include "../shared/thread.h"
 #include "../shared/mutex.h"
 
@@ -56,7 +62,11 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   namespace sociarium_project_cvframe {
 
+#ifdef __APPLE__
+    std::tr1::shared_ptr<CVFrame> create(void * context);
+#else
     std::tr1::shared_ptr<CVFrame> create(HDC hdc, HGLRC hrc);
+#endif
     std::tr1::shared_ptr<CVFrame> get_current_frame(void);
     void invoke(std::tr1::shared_ptr<CVFrame> cvframe);
     void terminate(void);

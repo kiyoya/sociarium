@@ -30,10 +30,10 @@
 - (IBAction)setAlgoritumOfCommunityDetectionToModularityMaximizationUsingTauEoMethod:(id)sender;
 - (IBAction)setAlgoritumOfCommunityDetectionToBetweennessCentralityClustering:(id)sender;
 - (IBAction)setAlgoritumOfGraphLayoutToKamadaKawaiMethod:(id)sender;
-- (IBAction)setAlgoritumOfGraphLayoutToHighDimensionalEmbedding:(id)sender;
+//- (IBAction)setAlgoritumOfGraphLayoutToHighDimensionalEmbedding:(id)sender;
 - (IBAction)setAlgoritumOfGraphLayoutToCircle:(id)sender;
 - (IBAction)setAlgoritumOfGraphLayoutToCircleInSizeOrder:(id)sender;
-- (IBAction)setAlgoritumOfGraphLayoutToArray:(id)sender;
+//- (IBAction)setAlgoritumOfGraphLayoutToArray:(id)sender;
 - (IBAction)setAlgoritumOfGraphLayoutToRandom:(id)sender;
 - (IBAction)setFontSizeOfCommunity:(id)sender;
 - (IBAction)setFontSizeOfCommunityEdge:(id)sender;
@@ -41,11 +41,11 @@
 - (IBAction)setFontSizeOfNode:(id)sender;
 - (IBAction)setSizeOfNode:(id)sender;
 - (IBAction)setStyleOfCommunityEdgeToLine:(id)sender;
-- (IBAction)setStyleOfCommunityEdgeToTexture:(id)sender;
+- (IBAction)setStyleOfCommunityEdgeToPolygon:(id)sender;
 - (IBAction)setStyleOfCommunityToPolygon:(id)sender;
 - (IBAction)setStyleOfCommunityToTexture:(id)sender;
 - (IBAction)setStyleOfEdgeToLine:(id)sender;
-- (IBAction)setStyleOfEdgeToTexture:(id)sender;
+- (IBAction)setStyleOfEdgeToPolygon:(id)sender;
 - (IBAction)setStyleOfNodeToPolygon:(id)sender;
 - (IBAction)setStyleOfNodeToTexture:(id)sender;
 - (IBAction)shiftStyle:(id)sender;

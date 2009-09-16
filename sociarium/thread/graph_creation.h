@@ -32,7 +32,11 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_CREATION_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_CREATION_H
 
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 #include "../../shared/thread.h"
 
 namespace hashimoto_ut {

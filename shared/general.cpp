@@ -47,7 +47,13 @@ namespace hashimoto_ut {
     static int const BUFFER_SIZE = 1000;
     char buf[BUFFER_SIZE];
     FILE* fp;
+#ifdef _MSC_VER
     errno_t err = fopen_s(&fp, filename, "rb");
+    if (err == 0) return false;
+#else
+    fp = fopen(filename, "rb");
+    if (fp == NULL) return false;
+#endif
     size_t const sz = fread(buf, 1, BUFFER_SIZE, fp);
     fclose(fp);
     for (size_t i=0; i<sz; ++i)

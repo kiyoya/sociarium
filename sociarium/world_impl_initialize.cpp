@@ -29,9 +29,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <GL/glew.h>
+#else
+#ifdef _MSC_VER
+#include <GL/wglew.h>
+#endif
 #include <gl/glew.h>
 #include <gl/wglew.h>
+#endif
 #include <FTGL/ftgl.h>
 #include "world_impl.h"
 #include "cvframe.h"
@@ -48,10 +57,12 @@
 #include "fps_manager.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
-#include "../shared/GL/glview.h"
-#include "../shared/GL/gltexture.h"
+#include "../shared/gl/glview.h"
+#include "../shared/gl/gltexture.h"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "glew32.lib")
+#endif
 
 #include "designtide.h"
 
@@ -64,17 +75,34 @@ namespace hashimoto_ut {
 
 
   ////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+  World * World::create(CGLContextObj context) {
+		return new WorldImpl(context);
+  }
+	
+	void World::destroy(World * world) {
+		if (world) delete world;
+	}
+#else
   shared_ptr<World> World::create(void) {
     return shared_ptr<World>(new WorldImpl());
   }
+#endif
 
 
   ////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+  WorldImpl::WorldImpl(CGLContextObj context) {
+#else
   WorldImpl::WorldImpl(void) {
-
+#endif
+    
     // --------------------------------------------------------------------------------
     // Initialize the OpenGL environment.
 
+#ifdef __APPLE__
+    set_rendering_context(RenderingContext::DRAW, context);
+#elif _MSC_VER
     bool const glew_is_available
       = sociarium_project_glew::initialize();
 
@@ -127,8 +155,10 @@ namespace hashimoto_ut {
 
       if (msaa_is_available && number_of_formats>0) {
         message_box(
+#ifdef _MSC_VER
           get_window_handle(),
           MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
+#endif
           APPLICATION_TITLE,
           get_message(Message::GLEW_MSAA_8));
       } else {
@@ -140,8 +170,10 @@ namespace hashimoto_ut {
 
         if (msaa_is_available && number_of_formats>0) {
           message_box(
+#ifdef _MSC_VER
             get_window_handle(),
             MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
+#endif
             APPLICATION_TITLE,
             get_message(Message::GLEW_MSAA_4));
         } else {
@@ -153,14 +185,18 @@ namespace hashimoto_ut {
 
           if (msaa_is_available && number_of_formats>0) {
             message_box(
+#ifdef _MSC_VER
               get_window_handle(),
               MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
+#endif
               APPLICATION_TITLE,
               get_message(Message::GLEW_MSAA_2));
           } else {
             message_box(
+#ifdef _MSC_VER
               get_window_handle(),
               MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
+#endif
               APPLICATION_TITLE,
               get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
             msaa_is_available = FALSE;
@@ -169,8 +205,10 @@ namespace hashimoto_ut {
       }
     } else {
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         get_message(Message::GLEW_FAILED_TO_INITIALIZE));
     }
@@ -191,7 +229,7 @@ namespace hashimoto_ut {
       show_last_error(L"WorldImpl::World/SetPixelFormat");
       exit(1);
     }
-
+    
     // Create a rendering context for drawing.
     HGLRC rc_draw = wglCreateContext(dc);
 
@@ -202,26 +240,42 @@ namespace hashimoto_ut {
 
     set_rendering_context(
       RenderingContext::DRAW, rc_draw);
-
+#endif
+    
     // Create a rendering context for loading textures.
+#ifdef __APPLE__
+    CGLContextObj context_texture;
+    CGLError err = CGLCreateContext(CGLGetPixelFormat(context), context, &context_texture);
+    if (err != kCGLNoError) {
+#elif _MSC_VER
     HGLRC rc_texture = wglCreateContext(dc);
 
     if (rc_texture==NULL) {
+#endif
       show_last_error(L"WorldImpl::World/wglCreateContext (loading textures)");
       exit(1);
     }
 
+#ifdef __APPLE__
+    set_rendering_context(
+      RenderingContext::LOAD_TEXTURES, context_texture);
+#elif _MSC_VER
     set_rendering_context(
       RenderingContext::LOAD_TEXTURES, rc_texture);
 
-    // Share textures between both contexts.
+      // Share textures between both contexts.
     if (wglShareLists(rc_draw, rc_texture)==FALSE) {
       show_last_error(L"WorldImpl::World/wglShareLists (drawing<->loading textures)");
       exit(1);
     }
-
+#endif
+      
     // Activate the drawing context in the main thread.
+#ifdef __APPLE__
+    if (CGLSetCurrentContext(context) != kCGLNoError) {
+#elif _MSC_VER
     if (wglMakeCurrent(dc, rc_draw)==FALSE) {
+#endif
       show_last_error(L"WorldImpl::World/wglMakeCurrent");
       exit(1);
     }
@@ -234,9 +288,12 @@ namespace hashimoto_ut {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glAlphaFunc(GL_ALWAYS, 0.0f);
 
+      // [TODO]
+#ifdef _MSC_VER
     if (msaa_is_available)
       glEnable(GL_MULTISAMPLE);
-
+#endif
+      
     // --------------------------------------------------------------------------------
     // Initialize view.
     center_.set(0.0, 0.0);
@@ -287,7 +344,7 @@ namespace hashimoto_ut {
     sociarium_project_fps_manager::start(60);
 
 
-    sociarium_project_designtide::initialize();
+    //sociarium_project_designtide::initialize();
   }
 
 
@@ -306,9 +363,14 @@ namespace hashimoto_ut {
 #endif
 
     // --------------------------------------------------------------------------------
+#ifdef __APPLE__
+    if (CGLSetCurrentContext(NULL) != kCGLNoError)
+#elif _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
+#endif
       show_last_error(L"WorldImpl::~World/wglMakeCurrent");
 
+#ifdef _MSC_VER
     HWND hwnd = get_window_handle();
 
     if (hwnd==NULL)
@@ -318,13 +380,14 @@ namespace hashimoto_ut {
 
     if (ReleaseDC(hwnd, dc)==0)
       show_last_error(L"WorldImpl::~World/ReleaseDC");
-
+    
     HGLRC rc_draw = get_rendering_context(
       RenderingContext::DRAW);
 
     if (wglDeleteContext(rc_draw)==FALSE)
       show_last_error(L"WorldImpl::~World/wglDeleteContext (drawing)");
-
+#endif
+    
 #if 0
     HGLRC rc_textures = get_rendering_context(
       RenderingContext::LOAD_TEXTURES);

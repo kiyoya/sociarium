@@ -29,9 +29,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <GL/glew.h>
+#else
 #include <gl/glew.h>
+#endif
+#ifdef _MSC_VER
 #include <gl/wglew.h>
+#endif
 #include "glew.h"
 #include "common.h"
 
@@ -43,6 +51,7 @@ namespace hashimoto_ut {
 
     bool initialize(void) {
 
+#ifdef _MSC_VER
       ////////////////////////////////////////////////////////////////////////////////
       // Make a dummy window, then initialize GLEW environment.
 
@@ -120,7 +129,8 @@ namespace hashimoto_ut {
         wglDeleteContext(rc);
         return false;
       }
-
+#endif
+      
       /*
        * The above code is just for calling "glewInit()" below validly.
        */
@@ -129,6 +139,7 @@ namespace hashimoto_ut {
       // 5. Initialize the glew environment.
       GLenum err = glewInit();
 
+#ifdef _MSC_VER
       // --------------------------------------------------------------------------------
       // Termination.
       wglMakeCurrent(NULL, NULL);
@@ -141,7 +152,8 @@ namespace hashimoto_ut {
         show_last_error(L"sociarium_project_glew::initialize/glewInit");
         return false;
       }
-
+#endif
+      
       return true;
     }
 

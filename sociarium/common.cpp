@@ -30,8 +30,12 @@
  */
 
 #include <cassert>
+#include <iostream>
 #include <vector>
-#ifdef _MSC_VER
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include "win32api.h"
+#elif _MSC_VER
 #include <windows.h>
 #endif
 #include "common.h"
@@ -47,7 +51,9 @@ namespace hashimoto_ut {
 
     namespace {
       wstring module_path;
-#ifdef _MSC_VER
+#ifdef __APPLE__
+      vector<CGLContextObj> rendering_context(RenderingContext::NUMBER_OF_CATEGORIES, NULL);
+#elif _MSC_VER
       HWND window_handle = NULL;
       HINSTANCE instance_handle = NULL;
       HDC device_context = NULL;
@@ -65,6 +71,7 @@ namespace hashimoto_ut {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     HINSTANCE get_instance_handle(void) {
       return instance_handle;
     }
@@ -72,7 +79,7 @@ namespace hashimoto_ut {
     void set_instance_handle(HINSTANCE hinst) {
       instance_handle = hinst;
     }
-
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef _MSC_VER
@@ -83,12 +90,10 @@ namespace hashimoto_ut {
     void set_window_handle(HWND hwnd) {
       window_handle = hwnd;
     }
-#else
-    void * get_window_handle(void) { return NULL; }
-    void set_window_handle(void *) { };
 #endif
     
     ////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     HDC get_device_context(void) {
       return device_context;
     }
@@ -96,9 +101,20 @@ namespace hashimoto_ut {
     void set_device_context(HDC dc) {
       device_context = dc;
     }
-
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+    CGLContextObj get_rendering_context(int thread_id) {
+      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
+      return rendering_context[thread_id];
+    }
+    
+    void set_rendering_context(int thread_id, CGLContextObj context) {
+      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
+      rendering_context[thread_id] = context;
+    }
+#elif _MSC_VER
     HGLRC get_rendering_context(int thread_id) {
       assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
       return rendering_context[thread_id];
@@ -108,11 +124,14 @@ namespace hashimoto_ut {
       assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
       rendering_context[thread_id] = rc;
     }
-
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
     void show_last_error(wchar_t const* text) {
 #ifdef __APPLE__
+      CFStringRef buf = CFStringCreateWithWString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
+      CFShow(buf);
+      CFRelease(buf);
 #elif _MSC_VER
       LPVOID buf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER

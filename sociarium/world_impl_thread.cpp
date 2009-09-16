@@ -29,6 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __APPLE__
+#include <OpenGL/OpenGL.h>
+#endif
 #include "world_impl.h"
 #include "common.h"
 #include "language.h"
@@ -60,8 +63,10 @@ namespace hashimoto_ut {
        * other threads can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -76,8 +81,10 @@ namespace hashimoto_ut {
        * the graph creation thread can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -97,8 +104,10 @@ namespace hashimoto_ut {
        * other threads can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -113,8 +122,10 @@ namespace hashimoto_ut {
        * the graph creation thread can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -134,8 +145,10 @@ namespace hashimoto_ut {
        * other threads can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -144,8 +157,10 @@ namespace hashimoto_ut {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -165,8 +180,10 @@ namespace hashimoto_ut {
        * other threads can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -175,8 +192,10 @@ namespace hashimoto_ut {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -196,8 +215,10 @@ namespace hashimoto_ut {
        * other threads can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -206,8 +227,10 @@ namespace hashimoto_ut {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -227,8 +250,10 @@ namespace hashimoto_ut {
        * other threads can't be invoked.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -237,8 +262,10 @@ namespace hashimoto_ut {
       /* Multiple execution of the same kind of thread is prohibited.
        */
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));

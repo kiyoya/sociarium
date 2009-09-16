@@ -33,8 +33,13 @@
 #include <deque>
 #include <string>
 #include <fstream>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <unordered_set>
+#else
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
+#endif
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include "graph_retouch.h"
@@ -92,7 +97,11 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     void terminate(void) {
 
+#ifdef __APPLE__
+      if (CGLSetCurrentContext(NULL) != kCGLNoError)
+#elif _MSC_VER
       if (wglMakeCurrent(0, 0)==FALSE)
+#endif
         show_last_error(L"GraphRetouchThread::terminate/wglMakeCurrent");
 
       // Clear the progress message.
@@ -171,8 +180,10 @@ namespace hashimoto_ut {
           data_format = DataFormat::EDGE_LIST;
         else {
           message_box(
+#ifdef _MSC_VER
             get_window_handle(),
             MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
             APPLICATION_TITLE,
             L"%s: %s",
             get_message(Message::UNSUPPORTED_DATA_FORMAT),
@@ -191,12 +202,18 @@ namespace hashimoto_ut {
         return terminate();
       }
 
+#ifdef __APPLE__
+      CGLContextObj context = get_rendering_context(RenderingContext::LOAD_TEXTURES);
+      
+      if (CGLSetCurrentContext(context) != kCGLNoError)
+#elif _MSC_VER
       HDC dc = get_device_context();
       HGLRC rc = get_rendering_context(RenderingContext::LOAD_TEXTURES);
 
       if (wglMakeCurrent(dc, rc)==FALSE)
+#endif
         show_last_error(L"GraphRetouchThread::operator()/wglMakeCurrent");
-
+      
       // --------------------------------------------------------------------------------
       // Execute the module function.
 

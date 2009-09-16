@@ -39,7 +39,7 @@ namespace hashimoto_ut {
 #ifdef _MSC_VER
   int message_box(HWND hwnd, UINT type, char const* title, char const* fmt, ...);
 #else
-  int message_box(void *, UINT type, char const* title, char const* fmt, ...);
+  int message_box(char const* title, char const* fmt, ...);
 #endif
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ namespace hashimoto_ut {
 #ifdef _MSC_VER
   int message_box(HWND hwnd, UINT type, wchar_t const* title, wchar_t const* fmt, ...);
 #else
-  int message_box(void *, UINT type, wchar_t const* title, wchar_t const* fmt, ...);
+  int message_box(wchar_t const* title, wchar_t const* fmt, ...);
 #endif
 
 } // The end of the namespace "hashimoto_ut"

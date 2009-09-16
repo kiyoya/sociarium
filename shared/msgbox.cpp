@@ -41,7 +41,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   // char
 #ifdef __APPLE__
-  int message_box(void *, UINT type, char const* title, char const* fmt, ...) {
+  int message_box(char const* title, char const* fmt, ...) {
 	}
 #elif _MSC_VER
   int message_box(HWND hwnd, UINT type, char const* title, char const* fmt, ...) {
@@ -58,7 +58,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
 #ifdef __APPLE__
-  int message_box(void *, UINT type, wchar_t const* title, wchar_t const* fmt, ...) {
+  int message_box(wchar_t const* title, wchar_t const* fmt, ...) {
 	}
 #elif _MSC_VER
   int message_box(HWND hwnd, UINT type, wchar_t const* title, wchar_t const* fmt, ...) {

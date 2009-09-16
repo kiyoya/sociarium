@@ -30,7 +30,11 @@
  */
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "force_direction.h"
 #include "../algorithm_selector.h"
 #include "../layout.h"

@@ -53,10 +53,11 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef _MSC_VER
     typedef __declspec(dllimport)
-      void (__cdecl* FuncDetectCommunity)(
+      void (__cdecl* FuncDetectCommunity)
 #else
-    typedef void (* FuncDetectCommunity)(
+    typedef void (* FuncDetectCommunity)
 #endif
+      (
         Thread* parent,
         std::wstring* status,
         Message const* message,

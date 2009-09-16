@@ -7,7 +7,7 @@
 //
 
 #import "SociariumView.h"
-#import "mouse_and_selection.h"
+#import "selection.h"
 
 using namespace hashimoto_ut;
 
@@ -19,17 +19,33 @@ using namespace hashimoto_ut;
 
 - (void)prepareOpenGL
 {
-  if (world_)
-  {
-    delete world_;
-  }
-	
-  world_ = new World([[self openGLContext] CGLContextObj]);
+  [super prepareOpenGL];
+  
+  World::destroy(world_);
+  world_ = World::create(static_cast<CGLContextObj>([[self openGLContext] CGLContextObj]));
+  
+  // [TODO] timer
 }
 
-- (void)update
+- (void)reshape
 {
+  [super reshape];
+  NSRect bounds = [self bounds];
+  Vector2<int> wsize(bounds.size.width, bounds.size.height);
+  world_->resize_window(wsize);
+}
+
+#pragma mark NSView
+
+- (void)drawRect:(NSRect)aRect
+{
+  [[self openGLContext] makeCurrentContext];
+  [[self openGLContext] setView:self];
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
   world_->draw();
+  glFinish();
+  [[self openGLContext] flushBuffer];
+  [super drawRect:aRect];
 }
 
 #pragma mark NSResponder
@@ -97,7 +113,7 @@ using namespace hashimoto_ut;
 
 - (void) dealloc
 {
-  delete world_, world_ = NULL;
+  World::destroy(world_), world_ = NULL;
   [super dealloc];
 }
 

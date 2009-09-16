@@ -34,7 +34,9 @@
 
 #include <vector>
 #include <string>
-#ifdef _MSC_VER
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#elif _MSC_VER
 #include <windows.h>
 #endif
 
@@ -116,7 +118,11 @@ namespace hashimoto_ut {
   // Multi-byte character string <-> Wide character string
   std::wstring mbcs2wcs(char const* cs, size_t length);
   std::string wcs2mbcs(wchar_t const* cs, size_t length);
-
+#ifdef __APPLE__
+  std::wstring CFStringGetWString(CFStringRef cs);
+  CFStringRef CFStringCreateWithWString(CFAllocatorRef alloc, wchar_t const* cs, CFStringEncoding encoding);
+#endif
+  
   struct MBCS2WCS {
     std::wstring operator()(const std::string& s) const {
       return mbcs2wcs(s.c_str(), s.size());
@@ -128,7 +134,7 @@ namespace hashimoto_ut {
       return wcs2mbcs(s.c_str(), s.size());
     }
   };
-
+  
 } // The end of the namespace "hashimoto_ut"
 
 #endif // INCLUDE_GUARD_SHARED_WIN32API_H

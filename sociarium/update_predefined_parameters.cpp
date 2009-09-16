@@ -29,9 +29,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include <boost/lexical_cast.hpp>
+#ifdef __APPLE__
+#include <GL/glew.h>
+#else
 #include <gl/glew.h>
+#endif
 #include "draw.h"
 #include "layout.h"
 #include "texture.h"

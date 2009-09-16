@@ -33,7 +33,9 @@
 #include <sstream>
 #include <iostream>
 #include <boost/format.hpp>
+#ifdef _MSC_VER
 #include <mlang.h>
+#endif
 #include "read_file.h"
 #include "../../common.h"
 #include "../../language.h"
@@ -80,6 +82,7 @@ namespace hashimoto_ut {
        */
 
       ////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
       bool convert2sjis(char const* filename, stringstream& ss, wstring& status) {
 
         CoInitialize(NULL);
@@ -166,7 +169,8 @@ namespace hashimoto_ut {
         CoUninitialize();
         return true;
       }
-
+#endif
+      
     } // The end of the anonymous namespace
 
 
@@ -191,9 +195,12 @@ namespace hashimoto_ut {
 
       stringstream ss;
 
+      // [TODO]
+#ifdef _MSC_VER
       if (!convert2sjis(filename, ss, status[0]))
         return false;
-
+#endif
+      
       string line;
 
       for (int i=1; getline(ss, line); ++i) {

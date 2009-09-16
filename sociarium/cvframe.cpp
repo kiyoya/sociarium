@@ -29,13 +29,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <GL/glew.h>
+#else
 #include <gl/glew.h>
+#endif
 
-#include "../shared/GL/gltexture.h"
+#include "../shared/gl/gltexture.h"
 #ifdef SOCIAIRUM_PROJECT_USES_OPENCV
 
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 #include <shlwapi.h>
 #include <highgui.h>
 
@@ -45,10 +55,12 @@
 #include "../shared/msgbox.h"
 #include "../shared/win32api.h"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "cxcore.lib")
 #pragma comment(lib, "cv.lib")
 #pragma comment(lib, "cvaux.lib")
 #pragma comment(lib, "highgui.lib")
+#endif
 
 namespace hashimoto_ut {
 

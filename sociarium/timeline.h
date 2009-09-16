@@ -32,7 +32,9 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_TIMELINE_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_TIMELINE_H
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 
 namespace hashimoto_ut {
 
@@ -54,8 +56,12 @@ namespace hashimoto_ut {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     UINT get_latency(void);
-
+#else
+    unsigned int get_latency(void);
+#endif
+    
     ////////////////////////////////////////////////////////////////////////////////
     int get_auto_run_id(void);
     void set_auto_run_id(int id);

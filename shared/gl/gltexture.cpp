@@ -67,9 +67,12 @@ namespace hashimoto_ut {
     width_(0), height_(0), xcoord_(0.0f), ycoord_(0.0f) {
 
       glGenTextures(1, &id_);
+#ifndef __APPLE__
+      // [TODO]
       GLenum err = glGetError();
       assert(err!=GL_INVALID_VALUE);
       assert(err!=GL_INVALID_OPERATION);
+#endif
     }
 
 
@@ -203,7 +206,7 @@ namespace hashimoto_ut {
           CFRelease(imageRef);
           return UNSUPPORTED_FILE_FORMAT;
         default:
-          CFRelease(imageRef);
+          if (imageRef) CFRelease(imageRef);
           return FAILED_TO_LOAD_IMAGE;
       }
 

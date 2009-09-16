@@ -27,7 +27,7 @@ using namespace hashimoto_ut;
 
 - (IBAction)executeLayout:(id)sender
 {
-  sociarium.world->layout_graph();
+  sociarium.world->layout();
 }
 
 - (IBAction)executeCommunityDetection:(id)sender
@@ -79,37 +79,41 @@ using namespace hashimoto_ut;
 
 - (IBAction)setAlgoritumOfCommunityDetectionToBetweennessCentralityClustering:(id)sender
 {
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_CLUSTERING);
+  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_SEPARATION);
 }
 
 - (IBAction)setAlgoritumOfGraphLayoutToKamadaKawaiMethod:(id)sender
 {
-  sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::KAMADA_KAWAI_METHOD);
+  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::KAMADA_KAWAI_METHOD);
 }
 
+/*
 - (IBAction)setAlgoritumOfGraphLayoutToHighDimensionalEmbedding:(id)sender
 {
-  sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::HDE);
+  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::HDE);
 }
+ */
 
 - (IBAction)setAlgoritumOfGraphLayoutToCircle:(id)sender
 {
-  sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE);
+  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE);
 }
 
 - (IBAction)setAlgoritumOfGraphLayoutToCircleInSizeOrder:(id)sender
 {
-  sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER);
+  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER);
 }
 
+/*
 - (IBAction)setAlgoritumOfGraphLayoutToArray:(id)sender
 {
-  sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::ARRAY);
+  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::ARRAY);
 }
+ */
 
 - (IBAction)setAlgoritumOfGraphLayoutToRandom:(id)sender
 {
-  sociarium_project_algorithm_selector::set_graph_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::RANDOM);
+  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::RANDOM);
 }
 
 - (IBAction)setFontSizeOfCommunity:(id)sender
@@ -134,42 +138,42 @@ using namespace hashimoto_ut;
 
 - (IBAction)setStyleOfCommunityEdgeToLine:(id)sender
 {  
-  sociarium_project_view::set_community_edge_style(sociarium_project_view::CommunityEdgeView::Style::LINE);
+  sociarium_project_view::set_community_edge_style(CommunityEdgeStyle::LINE);
 }
 
-- (IBAction)setStyleOfCommunityEdgeToTexture:(id)sender
+- (IBAction)setStyleOfCommunityEdgeToPolygon:(id)sender
 {
-  sociarium_project_view::set_community_edge_style(sociarium_project_view::CommunityEdgeView::Style::TEXTURE);
+  sociarium_project_view::set_community_edge_style(CommunityEdgeStyle::POLYGON);
 }
 
 - (IBAction)setStyleOfCommunityToPolygon:(id)sender
 {
-  sociarium_project_view::set_community_style(sociarium_project_view::CommunityView::Style::POLYGON_CIRCLE);  
+  sociarium_project_view::set_community_style(CommunityStyle::POLYGON_CIRCLE);  
 }
 
 - (IBAction)setStyleOfCommunityToTexture:(id)sender
 {  
-  sociarium_project_view::set_community_style(sociarium_project_view::CommunityView::Style::TEXTURE);
+  sociarium_project_view::set_community_style(CommunityStyle::TEXTURE);
 }
 
 - (IBAction)setStyleOfEdgeToLine:(id)sender
 {
-  sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::LINE);  
+  sociarium_project_view::set_edge_style(EdgeStyle::LINE);  
 }
 
-- (IBAction)setStyleOfEdgeToTexture:(id)sender
+- (IBAction)setStyleOfEdgeToPolygon:(id)sender
 {  
-  sociarium_project_view::set_edge_style(sociarium_project_view::EdgeView::Style::TEXTURE);
+  sociarium_project_view::set_edge_style(EdgeStyle::POLYGON);
 }
 
 - (IBAction)setStyleOfNodeToPolygon:(id)sender
 {
-  sociarium_project_view::set_node_style(sociarium_project_view::NodeView::Style::POLYGON);
+  sociarium_project_view::set_node_style(NodeStyle::POLYGON);
 }
 
 - (IBAction)setStyleOfNodeToTexture:(id)sender
 {
-  sociarium_project_view::set_node_style(sociarium_project_view::NodeView::Style::TEXTURE);
+  sociarium_project_view::set_node_style(NodeStyle::TEXTURE);
 }
 
 - (IBAction)shiftStyle:(id)sender
@@ -187,22 +191,22 @@ using namespace hashimoto_ut;
 
 - (IBAction)toggleLabelVisibilityOfEdge:(id)sender
 {
-  sociarium_project_view::set_show_edge_label(!sociarium_project_view::get_show_edge_label());
+  sociarium_project_view::set_show_edge_name(!sociarium_project_view::get_show_edge_name());
 }
 
 - (IBAction)toggleLabelVisibilityOfNode:(id)sender
 {
-  sociarium_project_view::set_show_node_label(!sociarium_project_view::get_show_node_label());
+  sociarium_project_view::set_show_node_name(!sociarium_project_view::get_show_node_name());
 }
 
 - (IBAction)toggleLabelVisibilityOfCommunity:(id)sender
 {
-  sociarium_project_view::set_show_community_label(!sociarium_project_view::get_show_community_label());
+  sociarium_project_view::set_show_community_name(!sociarium_project_view::get_show_community_name());
 }
 
 - (IBAction)toggleLabelVisibilityOfCommunityEdge:(id)sender
 {
-  sociarium_project_view::set_show_community_edge_label(!sociarium_project_view::get_show_community_edge_label());
+  sociarium_project_view::set_show_community_edge_name(!sociarium_project_view::get_show_community_edge_name());
 }
 
 - (IBAction)toggleVisibilityOfEdge:(id)sender

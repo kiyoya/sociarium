@@ -35,8 +35,12 @@
 #include <cassert>
 #include <vector>
 #include <string>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
 
 namespace hashimoto_ut {
 
@@ -166,8 +170,11 @@ namespace hashimoto_ut {
 
 
   namespace sociarium_project_language {
-
+#ifdef __APPLE__
+    void initialize(wchar_t const* filename);
+#elif _MSC_VE
     void initialize(HWND hwnd, wchar_t const* filename);
+#endif
     Message const* get_message_object(void);
     wchar_t const* get_message(int message_id);
 

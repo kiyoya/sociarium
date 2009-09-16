@@ -30,6 +30,7 @@
  */
 
 #include "fps_manager.h"
+#include <boost/thread.hpp>
 #include "../shared/fps.h"
 
 namespace hashimoto_ut {

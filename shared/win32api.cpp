@@ -227,4 +227,21 @@ namespace hashimoto_ut {
     return string(mbcs.get());
   }
 
+#ifdef __APPLE__
+  std::wstring CFStringGetWString(CFStringRef cs) {
+    CFIndex len = CFStringGetLength(cs);
+    CFIndex max = CFStringGetMaximumSizeForEncoding(len, kCFStringEncodingUTF8);
+    char *data = (char *)malloc(sizeof(char) * max + 1);
+    CFStringGetCString(cs, data, max+1, kCFStringEncodingUTF8);
+    wstring str = mbcs2wcs(data, strlen(data));
+    free(data);
+    return str;
+  }
+  
+  CFStringRef CFStringCreateWithWString(CFAllocatorRef alloc, wchar_t const* cs, CFStringEncoding encoding)
+  {
+    return CFStringCreateWithCString(alloc, wcs2mbcs(cs, wcslen(cs)).c_str(), encoding);
+  }
+#endif
+  
 } // The end of the namespace "hashimoto_ut"

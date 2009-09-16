@@ -32,7 +32,11 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_SELECTION_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_SELECTION_H
 
+#ifdef _MSC_VER
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 #include "../shared/vector2.h"
 
 namespace hashimoto_ut {
@@ -50,9 +54,11 @@ namespace hashimoto_ut {
       LBUTTON_UP = 0,
       LBUTTON_DOWN,
       LBUTTON_DBL,
+			LBUTTON_DRAG,
       RBUTTON_UP,
       RBUTTON_DOWN,
       RBUTTON_DBL,
+			RBUTTON_DRAG,
       MBUTTON_UP,
       MBUTTON_DOWN,
       WHEEL,
@@ -60,6 +66,14 @@ namespace hashimoto_ut {
       NUMBER_OF_ACTIONS
     };
   }
+
+	namespace MouseModifier {
+		enum {
+			NONE = 0,
+			CONTROL,
+			SHIFT,
+		};
+	}
 
   ////////////////////////////////////////////////////////////////////////////////
   namespace SelectionCategory {

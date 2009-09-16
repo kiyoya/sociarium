@@ -34,15 +34,16 @@
 #include <numeric>
 #include <fstream>
 #ifdef _MSC_VER
+#include <array>
 #include <functional>
 #include <unordered_set>
 #include <unordered_map>
 #else
+#include <tr1/array>
 #include <tr1/functional>
 #include <tr1/unordered_set>
 #include <tr1/unordered_map>
 #endif
-#include <array>
 #include "selection.h"
 #include "layout.h"
 #include "color.h"
@@ -65,14 +66,14 @@ namespace hashimoto_ut {
   using std::tr1::array;
   using std::tr1::unordered_set;
   using std::tr1::unordered_map;
-
+  
   namespace {
 
     wchar_t const* LAYER_TITLE = L"s.o.c.i.a.r.i.u.m";
 
     struct CreateSociariumGraph {
       void operator()(shared_ptr<SociariumGraph>& g) const {
-        g.swap(SociariumGraph::create());
+        g = SociariumGraph::create();
       }
     };
 
@@ -442,7 +443,7 @@ namespace hashimoto_ut {
 
       // Rebuild an empty community level.
       for (size_t layer=0; layer<number_of_layers(); ++layer) {
-        graph_series_[1][layer].swap(SociariumGraph::create());
+        graph_series_[1][layer] = SociariumGraph::create();
 
         shared_ptr<SociariumGraph> g0 = graph_series_[0][layer];
 

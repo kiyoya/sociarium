@@ -30,14 +30,23 @@
  */
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 #include "world_impl.h"
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
 #include "community_transition_diagram.h"
-#include "../shared/GL/glview.h"
+#include "../shared/gl/glview.h"
 
 namespace hashimoto_ut {
 

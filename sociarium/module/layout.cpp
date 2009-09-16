@@ -41,6 +41,7 @@
 #endif
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
+#include "win32api.h"
 #endif
 #include "layout.h"
 #include "../common.h"
@@ -69,8 +70,12 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       class LayoutModuleManager {
       public:
+#ifdef __APPLE__
+        typedef unordered_map<CFURLRef, pair<CFBundleRef, FuncLayout> > ModuleMap;
+#elif _MSC_VER
         typedef unordered_map<wstring, pair<HMODULE, FuncLayout> > ModuleMap;
-
+#endif
+        
         LayoutModuleManager(void) {}
 
         ~LayoutModuleManager() {
@@ -96,7 +101,9 @@ namespace hashimoto_ut {
           CFURLRef path;
           if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::KAMADA_KAWAI_METHOD)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutKamadaKawaiMethod.plugin"), FALSE);
-          else if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::HDE)
+          else if (method==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2
+                   || method==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3
+                   || method==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutHighDimensionalEmbedding.plugin"), FALSE);
           else if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutCircle.plugin"), FALSE);
@@ -126,16 +133,18 @@ namespace hashimoto_ut {
           else if (method==LayoutAlgorithm::LATTICE)
             path += L"layout_lattice.dll";
           else assert(0 && "never reach");
-
+#endif
+          
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {
             // Not yet loaded.
 #ifdef __APPLE__
             if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL) {
+              show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
 #elif _MSC_VER
             if ((handle=LoadLibrary(path.c_str()))==0) {
-#endif
               show_last_error(path.c_str());
+#endif
               return 0;
             }
             module_[path].first = handle;
@@ -147,14 +156,20 @@ namespace hashimoto_ut {
           // Find an appropriate function in DLL.
 #ifdef __APPLE__
           pair<CFBundleRef, FuncLayout>& p = module_[path];
-          p.second = (FuncLayoutGraph)CFBundleGetFunctionPointerForName(module_[path].first, CFSTR("layout_graph"));
+          CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, function_name.c_str(), kCFStringEncodingUTF8);
+          p.second = (FuncLayout)CFBundleGetFunctionPointerForName(p.first, str);
+          CFRelease(str);
 #elif _MSC_VER
           pair<HMODULE, FuncLayout>& p = module_[path];
           p.second = (FuncLayout)GetProcAddress(p.first, function_name.c_str());
 #endif
 
           if (p.second==0) {
+#ifdef __APPLE__
+            show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
+#elif _MSC_VER
             show_last_error(path.c_str());
+#endif
             return 0;
           }
 

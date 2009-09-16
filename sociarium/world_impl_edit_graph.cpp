@@ -32,7 +32,9 @@
 #include <vector>
 #include <algorithm>
 #include <boost/bind.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "world_impl.h"
 #include "resource.h"
 #include "common.h"
@@ -1114,14 +1116,18 @@ namespace hashimoto_ut {
 
     if (another_thread_is_running) {
       message_box(
+#ifdef _MSC_VER
         get_window_handle(),
         MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+#endif
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
+    // [TODO]
+#ifdef _MSC_VER
     if (message_box(
       get_window_handle(),
       MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
@@ -1129,7 +1135,8 @@ namespace hashimoto_ut {
       L"%s",
       get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
       return;
-
+#endif
+    
     // --------------------------------------------------------------------------------
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();

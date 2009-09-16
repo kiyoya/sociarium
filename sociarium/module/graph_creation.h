@@ -35,9 +35,14 @@
 #include <vector>
 #include <deque>
 #include <string>
+#ifdef _MSC_VER
 #include <memory>
 #include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#include <tr1/unordered_map>
+#endif
 #include "../../shared/vector2.h"
 
 namespace hashimoto_ut {
@@ -67,8 +72,13 @@ namespace hashimoto_ut {
     };
 
     ////////////////////////////////////////////////////////////////////////////////
+#ifdef _MSC_VER
     typedef __declspec(dllimport)
       void (__cdecl* FuncCreateGraphTimeSeries)(
+#else
+    typedef void (* FuncCreateGraphTimeSeries)(
+#endif
+
         Thread* parent,
         std::deque<std::wstring>& status,
         Message const* message,

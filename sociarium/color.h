@@ -32,7 +32,11 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_COLOR_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_COLOR_H
 
+#ifdef _MSC_VER
 #include <array>
+#else
+#include <tr1/array>
+#endif
 
 namespace hashimoto_ut {
 
@@ -40,7 +44,7 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     namespace ColorCategory {
-      enum {
+      enum _ {
         BACKGROUND = 0,
         BACKGROUND2,
         LAYOUT_FRAME_BORDER,

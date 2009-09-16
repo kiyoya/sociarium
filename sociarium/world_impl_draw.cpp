@@ -30,8 +30,14 @@
  */
 
 #include <cassert>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include "world_impl.h"
 #include "common.h"
 #include "draw.h"
@@ -42,9 +48,11 @@
 #include "selection.h"
 #include "fps_manager.h"
 #include "sociarium_graph_time_series.h"
-#include "../shared/GL/glview.h"
+#include "../shared/gl/glview.h"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "winmm.lib")
+#endif
 
 #include "designtide.h"
 
@@ -152,8 +160,10 @@ namespace hashimoto_ut {
     draw_orthogonal_part();
     view_->pop_matrix();
 
+#ifdef _MSC_VER
     HDC dc = get_device_context();
     SwapBuffers(dc);
+#endif
   }
 
 
@@ -477,7 +487,7 @@ namespace hashimoto_ut {
       sociarium_project_designtide::draw_captured_frame(angleH, angleV);
 #endif
 
-#if 1
+#if 0
       sociarium_project_designtide::draw(angleH, angleV);
 #endif
     }

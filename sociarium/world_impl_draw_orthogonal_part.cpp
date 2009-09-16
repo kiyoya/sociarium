@@ -31,10 +31,14 @@
 
 #include <vector>
 #include <deque>
-#include <memory>
 #include <string>
 #include <boost/format.hpp>
+#ifdef _MSC_VER
+#include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
+#endif
 #include <FTGL/ftgl.h>
 #include "draw.h"
 #include "color.h"
@@ -46,8 +50,8 @@
 #include "sociarium_graph_time_series.h"
 #include "community_transition_diagram.h"
 #include "../shared/predefined_color.h"
-#include "../shared/GL/glview.h"
-#include "../shared/GL/gltexture.h"
+#include "../shared/gl/glview.h"
+#include "../shared/gl/gltexture.h"
 
 namespace hashimoto_ut {
 
@@ -282,7 +286,7 @@ namespace hashimoto_ut {
         glTranslatef(0.5f*(1.0f-scale.x*w), 0.4f*scale.y*h, 0.0f);
         glScalef(scale.x, scale.y, 0.0f);
         glColor4fv(get_color(ColorCategory::LAYER_NAME).data());
-        f->Render(text.c_str());
+        f->Render(text.c_str()); //[TODO]
         glPopMatrix();
       }
 
@@ -435,6 +439,14 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
+    struct MessageBlock {
+      int index_of_status;
+      float w, h, w_sub, h_sub;
+      float frame_height;
+      MessageBlock(void) : index_of_status(0), w(0.0f), h(0.0f),
+      w_sub(0.0f), h_sub(0.0f), frame_height(0.0f) {}
+    };
+    
     void draw_thread_message(Vector2<float> const& scale) {
 
       using namespace sociarium_project_thread;
@@ -444,14 +456,6 @@ namespace hashimoto_ut {
 
       static float const upper_margin = 4;
       static float const lower_margin = 8;
-
-      struct MessageBlock {
-        int index_of_status;
-        float w, h, w_sub, h_sub;
-        float frame_height;
-        MessageBlock(void) : index_of_status(0), w(0.0f), h(0.0f),
-        w_sub(0.0f), h_sub(0.0f), frame_height(0.0f) {}
-      };
 
       vector<MessageBlock> message_block;
 

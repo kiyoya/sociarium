@@ -30,7 +30,11 @@
  */
 
 #include <map>
+#ifdef _MSC_VER
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "community_transition_diagram.h"
 #include "sociarium_graph_time_series.h"
 #include "../shared/mutex.h"
@@ -316,16 +320,16 @@ namespace hashimoto_ut {
 
       ////////////////////////////////////////////////////////////////////////////////
       // Before and after calling update(), don't forget to call write_lock/unlock().
+        struct TrajectoryCore {
+          size_t first_layer;
+          pair<vector<float>, vector<float> > base_position;
+          vector<Vector3<float> > color;
+        };
+        
         void update(int mode) {
 
           typedef SociariumGraphTimeSeries::StaticNodePropertySet StaticNodePropertySet;
           typedef SociariumGraphTimeSeries::DynamicNodePropertyMap DynamicNodePropertyMap;
-
-          struct TrajectoryCore {
-            size_t first_layer;
-            pair<vector<float>, vector<float> > base_position;
-            vector<Vector3<float> > color;
-          };
 
           diagram_mode = mode;
 
