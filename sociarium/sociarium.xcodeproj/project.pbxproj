@@ -42,6 +42,12 @@
 		6C3AD3211060D37700FD0003 /* language_en.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3AD3201060D37700FD0003 /* language_en.cpp */; };
 		6C3AD37C1060D5B000FD0003 /* LanguageEn.plugin in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6C3AD2F71060D19B00FD0003 /* LanguageEn.plugin */; };
 		6C4A818010563C4700830512 /* libboost_thread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4A817F10563C4700830512 /* libboost_thread.dylib */; };
+		6C5693581061480D0020ACFA /* graph_creation_read_adjacency_matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C569342106146F70020ACFA /* graph_creation_read_adjacency_matrix.cpp */; };
+		6C5693631061486F0020ACFA /* libboost_thread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4A817F10563C4700830512 /* libboost_thread.dylib */; };
+		6C56936B106149240020ACFA /* general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1117104EDF9E0022B602 /* general.cpp */; };
+		6C569373106149350020ACFA /* win32api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EAC4B1053A9FA003BC47D /* win32api.cpp */; };
+		6C5693781061495C0020ACFA /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1100104EDF910022B602 /* graph.cpp */; };
+		6C569380106149770020ACFA /* msgbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1121104EDF9E0022B602 /* msgbox.cpp */; };
 		6C5EA8571053842C003BC47D /* SociariumView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8561053842C003BC47D /* SociariumView.mm */; };
 		6C5EA8D21053871B003BC47D /* community_detection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8851053871A003BC47D /* community_detection.cpp */; };
 		6C5EA8F01053871B003BC47D /* layout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8B41053871A003BC47D /* layout.cpp */; };
@@ -85,6 +91,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6C3AD2F61060D19B00FD0003;
 			remoteInfo = LanguageEn;
+		};
+		6C56935A1061481D0020ACFA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A37F4A9FDCFA73011CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6C5693521061479F0020ACFA /* GraphCreationReadAdjacencyMatrix */;
+			remoteInfo = GraphCreationReadAdjacencyMatrix;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -167,6 +180,9 @@
 		6C3AD2F71060D19B00FD0003 /* LanguageEn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LanguageEn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C3AD3201060D37700FD0003 /* language_en.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_en.cpp; sourceTree = "<group>"; };
 		6C4A817F10563C4700830512 /* libboost_thread.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_thread.dylib; path = /usr/local/lib/libboost_thread.dylib; sourceTree = "<absolute>"; };
+		6C569342106146F70020ACFA /* graph_creation_read_adjacency_matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graph_creation_read_adjacency_matrix.cpp; sourceTree = "<group>"; };
+		6C5693531061479F0020ACFA /* GraphCreationReadAdjacencyMatrix.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphCreationReadAdjacencyMatrix.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C5693541061479F0020ACFA /* GraphCreationReadAdjacencyMatrix-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GraphCreationReadAdjacencyMatrix-Info.plist"; sourceTree = "<group>"; };
 		6C5EA8551053842C003BC47D /* SociariumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SociariumView.h; sourceTree = "<group>"; };
 		6C5EA8561053842C003BC47D /* SociariumView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SociariumView.mm; sourceTree = "<group>"; };
 		6C5EA8851053871A003BC47D /* community_detection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = community_detection.cpp; sourceTree = "<group>"; };
@@ -248,6 +264,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6C5693511061479F0020ACFA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C5693631061486F0020ACFA /* libboost_thread.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D15AC330486D014006FF6A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -294,6 +318,7 @@
 			children = (
 				8D15AC370486D014006FF6A4 /* sociarium.app */,
 				6C3AD2F71060D19B00FD0003 /* LanguageEn.plugin */,
+				6C5693531061479F0020ACFA /* GraphCreationReadAdjacencyMatrix.plugin */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -309,7 +334,7 @@
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
 				19C28FB0FE9D524F11CA2CBB /* Products */,
-				6C3AD2E41060D0DE00FD0003 /* LanguageEn-Info.plist */,
+				6C5693541061479F0020ACFA /* GraphCreationReadAdjacencyMatrix-Info.plist */,
 			);
 			name = sociarium;
 			sourceTree = "<group>";
@@ -342,8 +367,9 @@
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
 				6CAC1134104EDFE10022B602 /* SociariumDocument.xib */,
-				8D15AC360486D014006FF6A4 /* sociarium-Info.plist */,
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
+				8D15AC360486D014006FF6A4 /* sociarium-Info.plist */,
+				6C3AD2E41060D0DE00FD0003 /* LanguageEn-Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -373,6 +399,7 @@
 				6C5EA8861053871A003BC47D /* community_detection.h */,
 				6C3ACB65105FC11700FD0003 /* graph_creation.cpp */,
 				6C3ACB66105FC11700FD0003 /* graph_creation.h */,
+				6C569342106146F70020ACFA /* graph_creation_read_adjacency_matrix.cpp */,
 				6C3AD3201060D37700FD0003 /* language_en.cpp */,
 				6C5EA8B41053871A003BC47D /* layout.cpp */,
 				6C5EA8B51053871A003BC47D /* layout.h */,
@@ -550,6 +577,23 @@
 			productReference = 6C3AD2F71060D19B00FD0003 /* LanguageEn.plugin */;
 			productType = "com.apple.product-type.bundle";
 		};
+		6C5693521061479F0020ACFA /* GraphCreationReadAdjacencyMatrix */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C569357106147A00020ACFA /* Build configuration list for PBXNativeTarget "GraphCreationReadAdjacencyMatrix" */;
+			buildPhases = (
+				6C56934F1061479F0020ACFA /* Resources */,
+				6C5693501061479F0020ACFA /* Sources */,
+				6C5693511061479F0020ACFA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GraphCreationReadAdjacencyMatrix;
+			productName = GraphCreationReadAdjacencyMatrix;
+			productReference = 6C5693531061479F0020ACFA /* GraphCreationReadAdjacencyMatrix.plugin */;
+			productType = "com.apple.product-type.bundle";
+		};
 		8D15AC270486D014006FF6A4 /* sociarium */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "sociarium" */;
@@ -562,6 +606,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6C56935B1061481D0020ACFA /* PBXTargetDependency */,
 				6C3AD3041060D26300FD0003 /* PBXTargetDependency */,
 			);
 			name = sociarium;
@@ -584,12 +629,20 @@
 			targets = (
 				8D15AC270486D014006FF6A4 /* sociarium */,
 				6C3AD2F61060D19B00FD0003 /* LanguageEn */,
+				6C5693521061479F0020ACFA /* GraphCreationReadAdjacencyMatrix */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		6C3AD2F31060D19B00FD0003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C56934F1061479F0020ACFA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -615,6 +668,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				6C3AD3211060D37700FD0003 /* language_en.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C5693501061479F0020ACFA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C56936B106149240020ACFA /* general.cpp in Sources */,
+				6C5693781061495C0020ACFA /* graph.cpp in Sources */,
+				6C5693581061480D0020ACFA /* graph_creation_read_adjacency_matrix.cpp in Sources */,
+				6C569380106149770020ACFA /* msgbox.cpp in Sources */,
+				6C569373106149350020ACFA /* win32api.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -688,6 +753,11 @@
 			isa = PBXTargetDependency;
 			target = 6C3AD2F61060D19B00FD0003 /* LanguageEn */;
 			targetProxy = 6C3AD3031060D26300FD0003 /* PBXContainerItemProxy */;
+		};
+		6C56935B1061481D0020ACFA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6C5693521061479F0020ACFA /* GraphCreationReadAdjacencyMatrix */;
+			targetProxy = 6C56935A1061481D0020ACFA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -777,6 +847,56 @@
 			};
 			name = Release;
 		};
+		6C569355106147A00020ACFA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "GraphCreationReadAdjacencyMatrix-Info.plist";
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = GraphCreationReadAdjacencyMatrix;
+				WRAPPER_EXTENSION = plugin;
+			};
+			name = Debug;
+		};
+		6C569356106147A00020ACFA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "GraphCreationReadAdjacencyMatrix-Info.plist";
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = GraphCreationReadAdjacencyMatrix;
+				WRAPPER_EXTENSION = plugin;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		C05733C808A9546B00998B17 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -855,6 +975,15 @@
 			buildConfigurations = (
 				6C3AD2F81060D19C00FD0003 /* Debug */,
 				6C3AD2F91060D19C00FD0003 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6C569357106147A00020ACFA /* Build configuration list for PBXNativeTarget "GraphCreationReadAdjacencyMatrix" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C569355106147A00020ACFA /* Debug */,
+				6C569356106147A00020ACFA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

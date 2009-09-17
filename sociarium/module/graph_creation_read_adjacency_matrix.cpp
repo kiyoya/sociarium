@@ -31,8 +31,11 @@
 
 #include <cassert>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "graph_creation.h"
 #include "../common.h"
 #include "../language.h"
@@ -42,9 +45,11 @@
 #include "../../shared/msgbox.h"
 #include "../../graph/graph.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -61,10 +66,12 @@ namespace hashimoto_ut {
   using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_language;
 
-
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
-
+#else
+  extern "C" void create_graph_time_series(
+#endif
       Thread* parent,
       deque<wstring>& status,
       Message const* message,
@@ -111,8 +118,10 @@ namespace hashimoto_ut {
           threshold = boost::lexical_cast<float>(pos->second.first);
         } catch (...) {
           message_box(
+#ifdef _MSC_VER
             get_window_handle(),
             MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);
@@ -121,8 +130,10 @@ namespace hashimoto_ut {
 
       if (delimiter=='\0') {
         message_box(
+#ifdef _MSC_VER
           get_window_handle(),
           MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
           APPLICATION_TITLE,
           L"%s: %s",
           message->get(Message::UNCERTAIN_DELIMITER),
@@ -155,8 +166,10 @@ namespace hashimoto_ut {
 
         if (tok.size()!=nsz) {
           message_box(
+#ifdef _MSC_VER
             get_window_handle(),
             MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
             APPLICATION_TITLE,
             L"%s: %s [line=%d]",
             message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -174,8 +187,10 @@ namespace hashimoto_ut {
             weight_matrix(j,i) = w;
           } catch (...) {
             message_box(
+#ifdef _MSC_VER
               get_window_handle(),
               MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+#endif
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[i].second);

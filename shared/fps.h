@@ -35,6 +35,7 @@
 #include <cassert>
 #ifdef __APPLE__
 #include <CoreFoundation/CFDate.h>
+#include <iostream>
 #elif _MSC_VER
 #include <windows.h>
 #endif
@@ -69,8 +70,8 @@ namespace hashimoto_ut {
     void operator()(void) {
       for (;;) {
 #ifdef __APPLE__
-        usleep(1000); // update every 1000 msec
-        fps_ = 1000.0*count_/(CFAbsoluteTimeGetCurrent()-last_);
+        usleep(1000000);
+        fps_ = count_/(CFAbsoluteTimeGetCurrent()-last_);
         last_ = CFAbsoluteTimeGetCurrent();
 #elif _MSC_VER
         Sleep(1000); // update every 1000 msec
@@ -96,7 +97,11 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   class FPSKeeper {
   public:
+#ifdef __APPLE__
+    FPSKeeper(unsigned long fps=1) : frame_time_(1.0), last_(0), fps_(fps) {
+#elif _MSC_VER
     FPSKeeper(unsigned long fps=1) : frame_time_(1000), last_(0), err_(0), fps_(fps) {
+#endif
       if (fps_<1) fps_ = 1;
     }
 
@@ -111,10 +116,10 @@ namespace hashimoto_ut {
     void wait(void) {
       
 #ifdef __APPLE__
-      CFAbsoluteTime now = CFAbsoluteTimeGetCurrent()*fps_;
+      CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+      CFTimeInterval const diff = now-last_;
 #elif _MSC_VER
       unsigned long now = timeGetTime()*fps_;
-#endif
       
       if (last_>now){
         now += ULONG_MAX-last_;
@@ -122,25 +127,36 @@ namespace hashimoto_ut {
       }
 
       unsigned long const diff = now-last_;
-      last_ = now;
+#endif
 
+#ifdef __APPLE__
+      // [TODO]
+      if (0 && frame_time_>diff && last_ != 0){
+        CFTimeInterval wait_time = frame_time_-diff;
+        usleep(wait_time * 1000);
+#elif _MSC_VER
       if (frame_time_+err_>diff){
         unsigned long wait_time = frame_time_+err_-diff;
         err_ = wait_time%fps_;
         wait_time -= err_;
-#ifdef _MSC_VER
         Sleep(wait_time/fps_);
-#else
-        usleep(wait_time/fps_);
 #endif
-        last_ += wait_time;
+        last_ = now+wait_time;
+      }
+      else{
+        last_ = now;
       }
     }
 
   private:
+#ifdef __APPLE__
+    CFTimeInterval const frame_time_;
+    CFAbsoluteTime last_;
+#elif _MSC_VER
     unsigned long const frame_time_;
     unsigned long last_;
     unsigned long err_;
+#endif
     unsigned long fps_;
   };
 

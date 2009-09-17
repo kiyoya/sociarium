@@ -11,9 +11,16 @@
 
 @interface SociariumView : NSOpenGLView
 {
+  NSURL * fileURL;
+  
+  NSTimer * redrawTimer;
+  
   hashimoto_ut::World * world_;
 }
 
+- (void) timerDidFireRedraw:(NSTimer *)timer;
+
+@property (nonatomic, copy) NSURL * fileURL;
 @property (nonatomic, readonly) hashimoto_ut::World * world;
 
 @end

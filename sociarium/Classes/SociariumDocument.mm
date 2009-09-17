@@ -9,10 +9,15 @@
 #import "SociariumDocument.h"
 #import "algorithm_selector.h"
 #import "view.h"
+#import "win32api.h"
+#import <string>
 
+using namespace std;
 using namespace hashimoto_ut;
 
 @implementation SociariumDocument
+
+@synthesize fileURL;
 
 #pragma mark IBActions
 
@@ -217,6 +222,11 @@ using namespace hashimoto_ut;
 {
 }
 
+- (IBAction)toggleVisibilityOfFPS:(id)sender
+{
+  sociarium_project_view::set_show_fps(!sociarium_project_view::get_show_fps());
+}
+
 - (IBAction)toggleVisibilityOfCommunity:(id)sender
 {
 }
@@ -227,6 +237,7 @@ using namespace hashimoto_ut;
 
 #pragma mark NSDocument
 
+/*
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
 {
   if (outError)
@@ -235,14 +246,23 @@ using namespace hashimoto_ut;
   }
   return nil;
 }
+ */
 
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
+- (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError
 {
+  if ([absoluteURL isFileURL])
+  {
+    fileURL = [absoluteURL copy];
+    
+    return YES;
+  }
+  
   if (outError)
   {
     *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:unimpErr userInfo:NULL];
   }
-  return YES;
+  
+  return NO;
 }
 
 - (NSString *)windowNibName
@@ -250,9 +270,11 @@ using namespace hashimoto_ut;
   return @"SociariumDocument";
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *) aController
+- (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
   [super windowControllerDidLoadNib:aController];
+  
+  sociarium.fileURL = fileURL;
 }
 
 #pragma mark NSObject
@@ -263,6 +285,12 @@ using namespace hashimoto_ut;
   {
   }
   return self;
+}
+
+- (void)dealloc
+{
+  [super dealloc];
+  [fileURL release];
 }
 
 @end

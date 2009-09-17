@@ -12,7 +12,8 @@
 
 @interface SociariumDocument : NSDocument
 {
-  IBOutlet SociariumView *sociarium;
+  NSURL * fileURL;
+  IBOutlet SociariumView * sociarium;
 }
 
 - (IBAction)cancelRunningThread:(id)sender;
@@ -56,8 +57,11 @@
 - (IBAction)toggleLabelVisibilityOfCommunityEdge:(id)sender;
 - (IBAction)toggleUseOfWeightedModularity:(id)sender;
 - (IBAction)toggleVisibilityOfEdge:(id)sender;
+- (IBAction)toggleVisibilityOfFPS:(id)sender;
 - (IBAction)toggleVisibilityOfNode:(id)sender;
 - (IBAction)toggleVisibilityOfCommunity:(id)sender;
 - (IBAction)toggleVisibilityOfCommunityEdge:(id)sender;
+
+@property (nonatomic, readonly) NSURL * fileURL;
 
 @end

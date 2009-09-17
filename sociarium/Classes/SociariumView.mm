@@ -8,12 +8,20 @@
 
 #import "SociariumView.h"
 #import "selection.h"
+#import "win32api.h"
+#import <string>
 
 using namespace hashimoto_ut;
 
 @implementation SociariumView
 
+@synthesize fileURL;
 @synthesize world = world_;
+
+- (void) timerDidFireRedraw:(NSTimer *)timer
+{
+  [self setNeedsDisplay:YES];
+}
 
 #pragma mark NSOpenGLView
 
@@ -24,7 +32,19 @@ using namespace hashimoto_ut;
   World::destroy(world_);
   world_ = World::create(static_cast<CGLContextObj>([[self openGLContext] CGLContextObj]));
   
-  // [TODO] timer
+  if (redrawTimer)
+  {
+    [redrawTimer invalidate];
+    [redrawTimer release], redrawTimer = nil;
+  }
+  redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.001f target:self selector:@selector(timerDidFireRedraw:) userInfo:nil repeats:YES];
+  [redrawTimer retain];
+  
+  if (fileURL)
+  {
+    std::wstring filename(CFStringGetWString((CFStringRef)[fileURL path]));
+    world_->create_graph(filename.c_str());
+  }
 }
 
 - (void)reshape
@@ -113,8 +133,15 @@ using namespace hashimoto_ut;
 
 - (void) dealloc
 {
+  if (redrawTimer)
+  {
+    [redrawTimer invalidate];
+    [redrawTimer release];
+  }
+  
   World::destroy(world_), world_ = NULL;
   [super dealloc];
+  [fileURL release];
 }
 
 @end
