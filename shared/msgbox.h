@@ -45,11 +45,19 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // char
+#ifdef __APPLE__
+  bool message_box(void * window, int type, char const* title, char const* fmt, ...);
+#elif _MSC_VER
   bool message_box(HWND hwnd, int type, char const* title, char const* fmt, ...);
-
+#endif
+  
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
+#ifdef __APPLE__
+  bool message_box(void * hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...);
+#elif _MSC_VER
   bool message_box(HWND hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...);
+#endif
 
 } // The end of the namespace "hashimoto_ut"
 
