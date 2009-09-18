@@ -103,7 +103,7 @@ namespace hashimoto_ut {
       if (err!=GLTexture::SUCCEEDED)
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"%s: %s (%d)",
           get_message(Message::FAILED_TO_CREATE_TEXTURE),

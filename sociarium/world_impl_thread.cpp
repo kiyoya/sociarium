@@ -61,7 +61,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -77,7 +77,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -98,7 +98,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -114,7 +114,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -135,7 +135,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -145,7 +145,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -166,7 +166,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -176,7 +176,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -197,7 +197,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -207,7 +207,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
@@ -228,7 +228,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::GRAPH_IS_LOCKED));
@@ -238,7 +238,7 @@ namespace hashimoto_ut {
        */
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::ALERT,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));

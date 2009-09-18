@@ -79,19 +79,19 @@ namespace hashimoto_ut {
     if (another_thread_is_running) {
       message_box(
         get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
+        MessageType::INFO,
         APPLICATION_TITLE,
         L"%s",
         get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    if (message_box(
+    if ( ! message_box(
       get_window_handle(),
-      MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+      MessageType::QUESTION,
       APPLICATION_TITLE,
       L"%s",
-      get_message(Message::CLEAR_COMMUNITY))==IDCANCEL)
+      get_message(Message::CLEAR_COMMUNITY)))
       return;
 
     shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();

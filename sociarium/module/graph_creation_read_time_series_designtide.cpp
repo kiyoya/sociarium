@@ -122,7 +122,7 @@ namespace hashimoto_ut {
         } catch (...) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);
@@ -135,7 +135,7 @@ namespace hashimoto_ut {
         } catch (...) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);
@@ -148,7 +148,7 @@ namespace hashimoto_ut {
         } catch (...) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);
@@ -158,7 +158,7 @@ namespace hashimoto_ut {
       if (delimiter=='\0') {
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"%s: %s",
           message->get(Message::UNCERTAIN_DELIMITER),
@@ -169,7 +169,7 @@ namespace hashimoto_ut {
       if (interval==-1) {
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"no @interval: %s",
           filename.c_str());
@@ -179,7 +179,7 @@ namespace hashimoto_ut {
       if (characteristic_time==-1) {
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"no @characteristic_time: %s",
           filename.c_str());
@@ -250,7 +250,7 @@ namespace hashimoto_ut {
           } catch (...) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), pos->second.second);
@@ -293,7 +293,7 @@ namespace hashimoto_ut {
               || (tok.size()<number_of_columns)) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"%s: %s [line=%d]",
               message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -311,7 +311,7 @@ namespace hashimoto_ut {
           if (tok[time_column].empty() || source.empty() && target.empty()) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[count].second);
@@ -323,7 +323,7 @@ namespace hashimoto_ut {
           } catch (...) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[count].second);
@@ -350,7 +350,7 @@ namespace hashimoto_ut {
             if (tok.size()<number_of_columns) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [line=%d]",
                 message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -367,7 +367,7 @@ namespace hashimoto_ut {
           } catch (...) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[count].second);
@@ -380,7 +380,7 @@ namespace hashimoto_ut {
             if (tok.size()<number_of_columns) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [line=%d]",
                 message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -392,13 +392,13 @@ namespace hashimoto_ut {
             string& texture_file_name = node_name2texture_file_name[source];
 
             if (!texture_file_name.empty() && texture_file_name!=tok[source_texture_column]) {
-              if (message_box(
+              if (!message_box(
                 get_window_handle(),
-                MB_OKCANCEL|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::QUESTION,
                 APPLICATION_TITLE,
                 L"texture confliction: %s [%s, line=%d]",
                 filename.c_str(), tok[source_texture_column].c_str(),
-                data[count].second)==IDCANCEL) return;
+                data[count].second)) return;
             } else
               texture_file_name = tok[source_texture_column];
           }
@@ -407,7 +407,7 @@ namespace hashimoto_ut {
             if (tok.size()<number_of_columns) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [line=%d]",
                 message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -419,13 +419,13 @@ namespace hashimoto_ut {
             string& texture_file_name = node_name2texture_file_name[target];
 
             if (!texture_file_name.empty() && texture_file_name!=tok[target_texture_column]) {
-              if (message_box(
+              if (!message_box(
                 get_window_handle(),
-                MB_OKCANCEL|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::QUESTION,
                 APPLICATION_TITLE,
                 L"texture confliction: %s [%s, line=%d]",
                 filename.c_str(), tok[target_texture_column].c_str(),
-                data[count].second)==IDCANCEL) return;
+                data[count].second)) return;
             } else
               texture_file_name = tok[target_texture_column];
           }
@@ -448,7 +448,7 @@ namespace hashimoto_ut {
             if (tok.size()<number_of_columns) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [line=%d]",
                 message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -459,13 +459,13 @@ namespace hashimoto_ut {
             trim(tok[name_column]);
             string& name = identifier2edge_name[identifier];
             if (!name.empty() && name!=tok[name_column]) {
-              if (message_box(
+              if (!message_box(
                 get_window_handle(),
-                MB_OKCANCEL|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::QUESTION,
                 APPLICATION_TITLE,
                 L"name confliction: %s [%s, line=%d]",
                 filename.c_str(), tok[name_column].c_str(),
-                data[count].second)==IDCANCEL) return;
+                data[count].second)) return;
             } else
               name = tok[name_column];
           }
@@ -479,7 +479,7 @@ namespace hashimoto_ut {
       if (node_time_series.empty() && edge_time_series.empty()) {
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"%s: %s",
           message->get(Message::NO_VALID_DATA),

@@ -179,7 +179,7 @@ namespace hashimoto_ut {
         else {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             get_message(Message::UNSUPPORTED_DATA_FORMAT),
@@ -304,7 +304,7 @@ namespace hashimoto_ut {
               !=check_node_id_duplication.end()) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"%s: %s [%s]",
               get_message(Message::NODE_IDENTIFIER_DUPLICATION),
@@ -404,7 +404,7 @@ namespace hashimoto_ut {
               !=check_edge_id_duplication.end()) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"%s: %s [%s]",
               get_message(Message::EDGE_IDENTIFIER_DUPLICATION),

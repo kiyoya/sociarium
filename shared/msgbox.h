@@ -34,13 +34,22 @@
 
 namespace hashimoto_ut {
 
+  namespace MessageType {
+    enum {
+      CRITICAL = 0,
+      ALERT,
+      INFO,
+      QUESTION,
+    };
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // char
-  int message_box(HWND hwnd, UINT type, char const* title, char const* fmt, ...);
+  bool message_box(HWND hwnd, int type, char const* title, char const* fmt, ...);
 
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
-  int message_box(HWND hwnd, UINT type, wchar_t const* title, wchar_t const* fmt, ...);
+  bool message_box(HWND hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...);
 
 } // The end of the namespace "hashimoto_ut"
 

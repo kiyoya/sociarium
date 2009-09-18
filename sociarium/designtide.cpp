@@ -209,6 +209,7 @@ namespace hashimoto_ut {
                 balloon_start_time = timeGetTime();
                 pos_balloon = pos;
 
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
                 HDC dc = get_device_context();
                 HGLRC rc_cvframe = wglCreateContext(dc);
 
@@ -229,6 +230,7 @@ namespace hashimoto_ut {
                 cvframe->set_masking_image("balloon.png");
 
                 sociarium_project_cvframe::invoke(cvframe);
+#endif // SOCIAIRUM_PROJECT_USES_OPENCV
               }
             }
           }
@@ -265,7 +267,7 @@ namespace hashimoto_ut {
             filename.c_str(), GL_CLAMP_TO_EDGE_EXT, GL_CLAMP_TO_EDGE_EXT);
         if (err!=GLTexture::SUCCEEDED)
           message_box(get_window_handle(),
-                      MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                      MessageType::CRITICAL,
                       APPLICATION_TITLE,
                       L"Failed to make walking men");
       }
@@ -314,7 +316,7 @@ namespace hashimoto_ut {
 
       if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)!=GL_FRAMEBUFFER_COMPLETE_EXT)
         message_box(get_window_handle(),
-                    MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                    MessageType::CRITICAL,
                     APPLICATION_TITLE,
                     L"FBO");
     }
@@ -328,6 +330,8 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     void draw_balloon(float size, float angleH, float angleV) {
+
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
 
       shared_ptr<CVFrame> cvframe = get_current_frame();
 
@@ -463,6 +467,7 @@ namespace hashimoto_ut {
       }
 
       cvframe->read_unlock();
+#endif // SOCIAIRUM_PROJECT_USES_OPENCV
     }
 
 

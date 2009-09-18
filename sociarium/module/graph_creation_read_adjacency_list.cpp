@@ -105,7 +105,7 @@ namespace hashimoto_ut {
       if (delimiter=='\0') {
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"%s: %s",
           message->get(Message::UNCERTAIN_DELIMITER),

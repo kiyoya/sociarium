@@ -126,7 +126,7 @@ namespace hashimoto_ut {
           MLDETECTCP_HTML, 0, is_src, &encoding, &encsize))) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s [%s]",
             get_message(Message::UNKNOWN_CHARACTER_ENCODING),
