@@ -33,7 +33,6 @@
 #include <boost/shared_array.hpp>
 #ifdef _MSC_VER
 #include <windows.h>
-#endif
 #include "msgbox.h"
 
 namespace hashimoto_ut {
@@ -67,7 +66,6 @@ namespace hashimoto_ut {
 
     return MessageBoxA(hwnd, buf.get(), title, t) == IDOK;
   }
-#endif
 
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
@@ -98,6 +96,7 @@ namespace hashimoto_ut {
 
     return MessageBoxW(hwnd, buf.get(), title, t) == IDOK;
   }
-#endif
+
+#endif // _MSC_VER
 
 } // The end of the namespace "hashimoto_ut"
