@@ -155,10 +155,8 @@ namespace hashimoto_ut {
 
       if (msaa_is_available && number_of_formats>0) {
         message_box(
-#ifdef _MSC_VER
           get_window_handle(),
-          MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-#endif
+          MessageType::INFO,
           APPLICATION_TITLE,
           get_message(Message::GLEW_MSAA_8));
       } else {
@@ -170,10 +168,8 @@ namespace hashimoto_ut {
 
         if (msaa_is_available && number_of_formats>0) {
           message_box(
-#ifdef _MSC_VER
             get_window_handle(),
-            MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-#endif
+            MessageType::INFO,
             APPLICATION_TITLE,
             get_message(Message::GLEW_MSAA_4));
         } else {
@@ -185,18 +181,14 @@ namespace hashimoto_ut {
 
           if (msaa_is_available && number_of_formats>0) {
             message_box(
-#ifdef _MSC_VER
               get_window_handle(),
-              MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-#endif
+              MessageType::INFO,
               APPLICATION_TITLE,
               get_message(Message::GLEW_MSAA_2));
           } else {
             message_box(
-#ifdef _MSC_VER
               get_window_handle(),
-              MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-#endif
+              MessageType::INFO,
               APPLICATION_TITLE,
               get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
             msaa_is_available = FALSE;
@@ -205,10 +197,8 @@ namespace hashimoto_ut {
       }
     } else {
       message_box(
-#ifdef _MSC_VER
         get_window_handle(),
-        MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+        MessageType::CRITICAL,
         APPLICATION_TITLE,
         get_message(Message::GLEW_FAILED_TO_INITIALIZE));
     }

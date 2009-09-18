@@ -187,10 +187,8 @@ namespace hashimoto_ut {
           data_format = DataFormat::EDGE_LIST;
         else {
           message_box(
-#ifdef _MSC_VER
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             get_message(Message::UNSUPPORTED_DATA_FORMAT),
@@ -320,10 +318,8 @@ namespace hashimoto_ut {
           if (check_node_id_duplication.find(np.identifier)
               !=check_node_id_duplication.end()) {
             message_box(
-#ifdef _MSC_VER
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"%s: %s [%s]",
               get_message(Message::NODE_IDENTIFIER_DUPLICATION),
@@ -422,10 +418,8 @@ namespace hashimoto_ut {
           if (check_edge_id_duplication.find(ep.identifier)
               !=check_edge_id_duplication.end()) {
             message_box(
-#ifdef _MSC_VER
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"%s: %s [%s]",
               get_message(Message::EDGE_IDENTIFIER_DUPLICATION),

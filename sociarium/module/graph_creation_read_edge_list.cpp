@@ -108,7 +108,7 @@ namespace hashimoto_ut {
         } catch (...) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);
@@ -118,7 +118,7 @@ namespace hashimoto_ut {
       if (delimiter=='\0') {
         message_box(
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"%s: %s",
           message->get(Message::UNCERTAIN_DELIMITER),
@@ -182,7 +182,7 @@ namespace hashimoto_ut {
         if ((number_of_columns==0 && tok.size()<2) || (tok.size()<number_of_columns)) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s [line=%d]",
             message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -199,7 +199,7 @@ namespace hashimoto_ut {
         if (source.empty() || target.empty()) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), data[count].second);
@@ -222,7 +222,7 @@ namespace hashimoto_ut {
             if (tok.size()<number_of_columns) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [line=%d]",
                 message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -235,7 +235,7 @@ namespace hashimoto_ut {
             if (!ep.first.empty() && ep.first!=tok[name_column]) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"name confliction: %s [line=%d]",
                 filename.c_str(), data[count].second);
@@ -265,7 +265,7 @@ namespace hashimoto_ut {
             if (tok.size()<number_of_columns) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [line=%d]",
                 message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -282,7 +282,7 @@ namespace hashimoto_ut {
           } catch (...) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[count].second);

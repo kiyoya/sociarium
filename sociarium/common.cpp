@@ -141,7 +141,7 @@ namespace hashimoto_ut {
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                     (LPTSTR)&buf, 0, NULL);
       message_box(get_window_handle(),
-                  MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                  MessageType::CRITICAL,
                   APPLICATION_TITLE,
                   L"%s%s", (wchar_t*)buf, text);
       LocalFree(buf);

@@ -180,10 +180,8 @@ namespace hashimoto_ut {
           data_format = DataFormat::EDGE_LIST;
         else {
           message_box(
-#ifdef _MSC_VER
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             get_message(Message::UNSUPPORTED_DATA_FORMAT),

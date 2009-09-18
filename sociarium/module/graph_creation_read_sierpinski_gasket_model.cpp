@@ -103,7 +103,7 @@ namespace hashimoto_ut {
         } catch (...) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);

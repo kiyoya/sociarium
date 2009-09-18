@@ -120,7 +120,7 @@ namespace hashimoto_ut {
         if ((capture_=cvCreateCameraCapture(0))==0) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             ERROR_FAILED_TO_CREATE_CAMERA_CAPTURE);
           return;
@@ -137,7 +137,7 @@ namespace hashimoto_ut {
           mbcs2wcs(movie_filename, strlen(movie_filename)).c_str())==NULL) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             ERROR_PATH_FILE_EXISTS,
@@ -150,7 +150,7 @@ namespace hashimoto_ut {
         if (capture_==0) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             ERROR_FAILED_TO_CREATE_FILE_CAPTURE,
@@ -171,7 +171,7 @@ namespace hashimoto_ut {
         if (image==0) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             ERROR_FAILED_TO_LOAD_MASKING_IMAGE,
@@ -196,7 +196,7 @@ namespace hashimoto_ut {
         if (chroma_key_background_==0) {
           message_box(
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s",
             ERROR_FAILED_TO_LOAD_MASKING_IMAGE,

@@ -143,7 +143,7 @@ namespace hashimoto_ut {
           if (identifier2node.find(id)!=identifier2node.end()) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[count].second);
@@ -167,7 +167,7 @@ namespace hashimoto_ut {
           if (tok.size()<2) {
             message_box(
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[count].second);
@@ -192,7 +192,7 @@ namespace hashimoto_ut {
             if (m0==identifier2node.end() || m1==identifier2node.end()) {
               message_box(
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"bad data: %s [line=%d]",
                 filename.c_str(), data[count].second);

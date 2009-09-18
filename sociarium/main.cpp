@@ -159,9 +159,10 @@ namespace hashimoto_ut {
       if (joinable(GRAPH_CREATION)) {
         tf->suspend();
         if (message_box(
-          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          hwnd,
+          MessageType::QUESTION,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          get_message(Message::CANCEL_RUNNING_THREAD))) {
           tf->cancel();
           join(GRAPH_CREATION);
         } else
@@ -183,9 +184,10 @@ namespace hashimoto_ut {
       if (joinable(GRAPH_CREATION)) {
         tf->suspend();
         if (message_box(
-          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          hwnd,
+          MessageType::QUESTION,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          get_message(Message::CANCEL_RUNNING_THREAD))) {
           tf->cancel();
           join(GRAPH_CREATION);
         } else
@@ -202,9 +204,10 @@ namespace hashimoto_ut {
       if (joinable(LAYOUT)) {
         tf->suspend();
         if (message_box(
-          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          hwnd,
+          MessageType::QUESTION,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          get_message(Message::CANCEL_RUNNING_THREAD))) {
           tf->cancel();
           join(LAYOUT);
         } else
@@ -221,9 +224,10 @@ namespace hashimoto_ut {
       if (joinable(COMMUNITY_DETECTION)) {
         tf->suspend();
         if (message_box(
-          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          hwnd,
+          MessageType::QUESTION,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          get_message(Message::CANCEL_RUNNING_THREAD))) {
           tf->cancel();
           join(COMMUNITY_DETECTION);
         } else
@@ -240,9 +244,10 @@ namespace hashimoto_ut {
       if (joinable(NODE_SIZE_UPDATE)) {
         tf->suspend();
         if (message_box(
-          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          hwnd,
+          MessageType::QUESTION,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          get_message(Message::CANCEL_RUNNING_THREAD))) {
           tf->cancel();
           join(NODE_SIZE_UPDATE);
         } else
@@ -259,9 +264,10 @@ namespace hashimoto_ut {
       if (joinable(EDGE_WIDTH_UPDATE)) {
         tf->suspend();
         if (message_box(
-          hwnd, MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+          hwnd,
+          MessageType::QUESTION,
           APPLICATION_TITLE,
-          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+          get_message(Message::CANCEL_RUNNING_THREAD))) {
           tf->cancel();
           join(EDGE_WIDTH_UPDATE);
         } else
@@ -1771,7 +1777,8 @@ namespace hashimoto_ut {
     if (is_text(filename_s.c_str()))
       world_->create_graph(filename);
     else message_box(
-      hwnd, MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
+      hwnd,
+      MessageType::CRITICAL,
       APPLICATION_TITLE,
       L"%s: %s",
       get_message(Message::IS_NOT_TEXTFILE),
@@ -1782,9 +1789,9 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmClose(HWND hwnd) {
     if (message_box(hwnd,
-                    MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
+                    MessageType::QUESTION,
                     APPLICATION_TITLE,
-                    get_message(Message::QUIT))==IDOK)
+                    get_message(Message::QUIT)))
       DestroyWindow(hwnd);
   }
 

@@ -130,10 +130,8 @@ namespace hashimoto_ut {
               else if (i==NUMBER_OF_FONT_OPTIONS-1) {
                 // No option available any more.
                 message_box(
-#ifdef _MSC_VER
                   get_window_handle(),
-                  MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+                  MessageType::CRITICAL,
                   APPLICATION_TITLE,
                   L"%s: %s [ft_encoding_unicode]",
                   get_message(Message::FTGL_ERROR_CHARMAP),
@@ -143,10 +141,8 @@ namespace hashimoto_ut {
             } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
               // No option available any more.
               message_box(
-#ifdef _MSC_VER
                 get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+                MessageType::CRITICAL,
                 APPLICATION_TITLE,
                 L"%s: %s [%d]",
                 get_message(Message::FTGL_ERROR_FACESIZE),
@@ -156,10 +152,8 @@ namespace hashimoto_ut {
           } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
             // No option available any more.
             message_box(
-#ifdef _MSC_VER
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"%s",
               get_message(Message::FTGL_ERROR_CREATE));

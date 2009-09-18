@@ -118,10 +118,8 @@ namespace hashimoto_ut {
           threshold = boost::lexical_cast<float>(pos->second.first);
         } catch (...) {
           message_box(
-#ifdef _MSC_VER
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"bad data: %s [line=%d]",
             filename.c_str(), pos->second.second);
@@ -130,10 +128,8 @@ namespace hashimoto_ut {
 
       if (delimiter=='\0') {
         message_box(
-#ifdef _MSC_VER
           get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+          MessageType::CRITICAL,
           APPLICATION_TITLE,
           L"%s: %s",
           message->get(Message::UNCERTAIN_DELIMITER),
@@ -166,10 +162,8 @@ namespace hashimoto_ut {
 
         if (tok.size()!=nsz) {
           message_box(
-#ifdef _MSC_VER
             get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+            MessageType::CRITICAL,
             APPLICATION_TITLE,
             L"%s: %s [line=%d]",
             message->get(Message::INVALID_NUMBER_OF_ITEMS),
@@ -187,10 +181,8 @@ namespace hashimoto_ut {
             weight_matrix(j,i) = w;
           } catch (...) {
             message_box(
-#ifdef _MSC_VER
               get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-#endif
+              MessageType::CRITICAL,
               APPLICATION_TITLE,
               L"bad data: %s [line=%d]",
               filename.c_str(), data[i].second);
