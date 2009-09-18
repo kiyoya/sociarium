@@ -40,6 +40,14 @@ namespace hashimoto_ut {
 
   class ThreadManager;
 
+	namespace RenderingContext {
+		enum {
+			DRAW = 0,
+			LOAD_TEXTURES,
+			NUMBER_OF_CATEGORIES
+		};
+	}
+
   ////////////////////////////////////////////////////////////////////////////////
   class World {
   public:
@@ -69,6 +77,39 @@ namespace hashimoto_ut {
     virtual void hide_marked_element(int menu) const = 0;
     virtual void show_elements(int menu) const = 0;
     virtual void remove_marked_elements(int menu) const = 0;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Absolute path of the module.
+    std::wstring const& get_module_path(void);
+    void set_module_path(std::wstring const& path);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Application instance.
+    HINSTANCE get_instance_handle(void);
+    void set_instance_handle(HINSTANCE hinst);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Handle of the main window.
+    HWND get_window_handle(void);
+    void set_window_handle(HWND hwnd);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Handle of the device context.
+    HDC get_device_context(void);
+    void set_device_context(HDC dc);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Handle of the rendering context.
+    HGLRC get_rendering_context(int thread_id);
+    void set_rendering_context(int thread_id, HGLRC rc);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void show_last_error(wchar_t const* text=L"");
+
+    ////////////////////////////////////////////////////////////////////////////////
+#ifdef DEBUG
+    void dump_error_log(wchar_t const* fmt, ...);
+#endif
 
     static std::tr1::shared_ptr<World> create(void);
 

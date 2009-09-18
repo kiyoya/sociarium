@@ -44,47 +44,6 @@ namespace hashimoto_ut {
       wchar_t const* APPLICATION_TITLE = L"s.o.c.i.a.r.i.u.m";
     }
 
-    namespace RenderingContext {
-      enum {
-        DRAW = 0,
-        LOAD_TEXTURES,
-        NUMBER_OF_CATEGORIES
-      };
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Absolute path of the module.
-    std::wstring const& get_module_path(void);
-    void set_module_path(std::wstring const& path);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Application instance.
-    HINSTANCE get_instance_handle(void);
-    void set_instance_handle(HINSTANCE hinst);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the main window.
-    HWND get_window_handle(void);
-    void set_window_handle(HWND hwnd);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the device context.
-    HDC get_device_context(void);
-    void set_device_context(HDC dc);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the rendering context.
-    HGLRC get_rendering_context(int thread_id);
-    void set_rendering_context(int thread_id, HGLRC rc);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text=L"");
-
-    ////////////////////////////////////////////////////////////////////////////////
-#ifdef DEBUG
-    void dump_error_log(wchar_t const* fmt, ...);
-#endif
-
   } // The end of the namespace "sociarium_project_common"
 
 } // The end of the namespace "hashimoto_ut"

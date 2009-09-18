@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: common.cpp
+﻿// s.o.c.i.a.r.i.u.m: world_impl_common.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -41,86 +41,82 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::endl;
 
-  namespace sociarium_project_common {
-
-    namespace {
-      wstring module_path;
-      HWND window_handle = NULL;
-      HINSTANCE instance_handle = NULL;
-      HDC device_context = NULL;
-      vector<HGLRC> rendering_context(RenderingContext::NUMBER_OF_CATEGORIES, NULL);
-      }
+  namespace {
+    wstring module_path;
+    HWND window_handle = NULL;
+    HINSTANCE instance_handle = NULL;
+    HDC device_context = NULL;
+    vector<HGLRC> rendering_context(RenderingContext::NUMBER_OF_CATEGORIES, NULL);
+  }
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    wstring const& get_module_path(void) {
-      return module_path;
-    }
+  ////////////////////////////////////////////////////////////////////////////////
+  wstring const& WorldImpl::get_module_path(void) {
+    return module_path;
+  }
 
-    void set_module_path(wstring const& path) {
-      module_path = path;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    HINSTANCE get_instance_handle(void) {
-      return instance_handle;
-    }
-
-    void set_instance_handle(HINSTANCE hinst) {
-      instance_handle = hinst;
-    }
+  void WorldImpl::set_module_path(wstring const& path) {
+    module_path = path;
+  }
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    HWND get_window_handle(void) {
-      return window_handle;
-    }
+  ////////////////////////////////////////////////////////////////////////////////
+  HINSTANCE WorldImpl::get_instance_handle(void) {
+    return instance_handle;
+  }
 
-    void set_window_handle(HWND hwnd) {
-      window_handle = hwnd;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    HDC get_device_context(void) {
-      return device_context;
-    }
-
-    void set_device_context(HDC dc) {
-      device_context = dc;
-    }
+  void WorldImpl::set_instance_handle(HINSTANCE hinst) {
+    instance_handle = hinst;
+  }
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    HGLRC get_rendering_context(int thread_id) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
-      return rendering_context[thread_id];
-    }
+  ////////////////////////////////////////////////////////////////////////////////
+  HWND WorldImpl::get_window_handle(void) {
+    return window_handle;
+  }
 
-    void set_rendering_context(int thread_id, HGLRC rc) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
-      rendering_context[thread_id] = rc;
-    }
+  void WorldImpl::set_window_handle(HWND hwnd) {
+    window_handle = hwnd;
+  }
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text) {
-      LPVOID buf;
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER
-                    | FORMAT_MESSAGE_FROM_SYSTEM
-                    | FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL, GetLastError(),
-                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                    (LPTSTR)&buf, 0, NULL);
-      message_box(get_window_handle(),
-                  MessageType::CRITICAL,
-                  APPLICATION_TITLE,
-                  L"%s%s", (wchar_t*)buf, text);
-      LocalFree(buf);
-    }
+  ////////////////////////////////////////////////////////////////////////////////
+  HDC WorldImpl::get_device_context(void) {
+    return device_context;
+  }
 
-  } // The end of the namespace "sociarium_project_common"
+  void WorldImpl::set_device_context(HDC dc) {
+    device_context = dc;
+  }
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  HGLRC WorldImpl::get_rendering_context(int thread_id) {
+    assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
+    return rendering_context[thread_id];
+  }
+
+  void WorldImpl::set_rendering_context(int thread_id, HGLRC rc) {
+    assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
+    rendering_context[thread_id] = rc;
+  }
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  void WorldImpl::show_last_error(wchar_t const* text) {
+    LPVOID buf;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER
+                  | FORMAT_MESSAGE_FROM_SYSTEM
+                  | FORMAT_MESSAGE_IGNORE_INSERTS,
+                  NULL, GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                  (LPTSTR)&buf, 0, NULL);
+    message_box(get_window_handle(),
+                MessageType::CRITICAL,
+                APPLICATION_TITLE,
+                L"%s%s", (wchar_t*)buf, text);
+    LocalFree(buf);
+  }
 
 } // The end of the namespace "hashimoto_ut"
 
@@ -136,23 +132,19 @@ namespace hashimoto_ut {
   using std::wofstream;
   using std::endl;
 
-  namespace sociarium_project_common {
+  namespace {
+    wofstream error_log("error.log", std::ios::app);
+  }
 
-    namespace {
-      wofstream error_log("error.log", std::ios::app);
-    }
-
-    void dump_error_log(wchar_t const* fmt, ...) {
-      va_list ap;
-      va_start(ap, fmt);
-      int const len = _vscwprintf(fmt, ap)+1;
-      boost::shared_array<wchar_t> buf(new wchar_t [len]);
-      vswprintf_s(buf.get(), len, fmt, ap);
-      va_end(ap);
-      error_log << buf << endl;
-    }
-
-  } // The end of the namespace "sociarium_project_common"
+  void WorldImpl::dump_error_log(wchar_t const* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    int const len = _vscwprintf(fmt, ap)+1;
+    boost::shared_array<wchar_t> buf(new wchar_t [len]);
+    vswprintf_s(buf.get(), len, fmt, ap);
+    va_end(ap);
+    error_log << buf << endl;
+  }
 
 } // The end of the namespace "hashimoto_ut"
 #endif
