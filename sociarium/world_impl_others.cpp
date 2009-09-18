@@ -86,7 +86,7 @@ namespace hashimoto_ut {
       return;
     }
 
-    if ( ! message_box(
+    if (!message_box(
       get_window_handle(),
       MessageType::QUESTION,
       APPLICATION_TITLE,
