@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="graph_creation_read_adjacency_matrix"
-	ProjectGUID="{146FDE4B-C7F2-4C0B-A5B2-87B19C8753CE}"
+	Name="graph_creation_read_lattice_model"
+	ProjectGUID="{B82A0C91-3811-486A-893E-ECC8DE0FF3E2}"
 	RootNamespace="read_adjacency_matrix"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -185,7 +185,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\graph_creation_read_adjacency_matrix.cpp"
+				RelativePath="..\graph_creation_read_lattice_model.cpp"
 				>
 			</File>
 			<File
@@ -224,10 +224,6 @@
 			</File>
 			<File
 				RelativePath="..\..\menu_and_message.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\message.h"
 				>
 			</File>
 			<File

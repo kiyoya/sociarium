@@ -33,9 +33,9 @@
 #include <memory>
 #include <unordered_map>
 #include <gl/glew.h>
-#include "texture.h"
 #include "common.h"
-#include "language.h"
+#include "menu_and_message.h"
+#include "texture.h"
 #include "../shared/msgbox.h"
 #include "../shared/GL/texture.h"
 
@@ -50,7 +50,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace {
 
@@ -91,9 +91,9 @@ namespace hashimoto_ut {
       wstring const full_path = get_full_path_of_texture_folder()+filename;
 
 #ifdef SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
-      int const err = texture->create_mipmap(full_path.c_str(), wrap_s, wrap_t);
+      int const err = texture->set_mipmap(full_path.c_str(), wrap_s, wrap_t);
 #else
-      int const err = texture->create(full_path.c_str(), wrap_s, wrap_t);
+      int const err = texture->set(full_path.c_str(), wrap_s, wrap_t);
 #endif
 
       if (err!=Texture::SUCCEEDED)
@@ -115,9 +115,9 @@ namespace hashimoto_ut {
         shared_ptr<Texture> texture = Texture::create();
 
 #ifdef SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
-        int const err = texture->create_mipmap(full_path.c_str(), wrap_s, wrap_t);
+        int const err = texture->set_mipmap(full_path.c_str(), wrap_s, wrap_t);
 #else
-        int const err = texture->create(full_path.c_str(), wrap_s, wrap_t);
+        int const err = texture->set(full_path.c_str(), wrap_s, wrap_t);
 #endif
 
         if (err!=Texture::SUCCEEDED)

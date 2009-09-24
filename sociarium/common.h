@@ -54,6 +54,7 @@ namespace hashimoto_ut {
       enum {
         DRAW = 0,
         LOAD_TEXTURES,
+        CVFRAME,
         NUMBER_OF_THREAD_CATEGORIES
       };
     }

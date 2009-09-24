@@ -33,7 +33,7 @@
 #include <boost/format.hpp>
 #include "community_detection.h"
 #include "../graph_utility.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"
 #include "../../graph/util/traverser.h"
@@ -52,7 +52,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_community_detection;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(

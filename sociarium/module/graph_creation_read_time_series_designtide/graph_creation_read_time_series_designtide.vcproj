@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="graph_creation_read_adjacency_matrix"
-	ProjectGUID="{146FDE4B-C7F2-4C0B-A5B2-87B19C8753CE}"
+	Name="graph_creation_read_time_series_designtide"
+	ProjectGUID="{F890BFDF-712D-4893-97B0-61CDC2D7A41D}"
 	RootNamespace="read_adjacency_matrix"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\shared\general.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\graph\graph.cpp"
 				>
 			</File>
@@ -185,19 +189,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\graph_creation_read_adjacency_matrix.cpp"
+				RelativePath="..\graph_creation_read_time_series_designtide.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\menu_and_message.cpp"
+				RelativePath="..\..\language.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\shared\msgbox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\util.cpp"
 				>
 			</File>
 			<File
@@ -215,6 +215,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\shared\general.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\graph\graph.h"
 				>
 			</File>
@@ -223,19 +227,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\menu_and_message.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\message.h"
+				RelativePath="..\..\language.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\shared\msgbox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\util.h"
 				>
 			</File>
 			<File

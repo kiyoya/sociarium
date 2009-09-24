@@ -38,10 +38,10 @@
 #include <windows.h>
 #include "graph_creation.h"
 #include "../common.h"
-#include "../language.h"
-#include "../../shared/thread.h"
-#include "../../shared/general.h"
+#include "../menu_and_message.h"
 #include "../../shared/msgbox.h"
+#include "../../shared/thread.h"
+#include "../../shared/util.h"
 #include "../../graph/graph.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
@@ -66,7 +66,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
   extern "C" __declspec(dllexport)
@@ -387,9 +387,8 @@ namespace hashimoto_ut {
           else
             node_time_series.insert(make_pair(time, make_pair(source, weight)));
         } else {
-          wstring const identifier
+          wstring identifier
             = (directed||source<target)?source+delimiter+target:target+delimiter+source;
-          edge_time_series.insert(make_pair(time, make_pair(identifier, weight)));
 
           if (number_of_columns==0 || name_column==-1)
             identifier2edge_name[identifier]
@@ -404,6 +403,7 @@ namespace hashimoto_ut {
             }
 
             trim(tok[name_column]);
+            identifier += delimiter+tok[name_column];
             wstring& name = identifier2edge_name[identifier];
 
             if (!name.empty() && name!=tok[name_column]) {
@@ -414,6 +414,8 @@ namespace hashimoto_ut {
             } else
               name = tok[name_column];
           }
+
+          edge_time_series.insert(make_pair(time, make_pair(identifier, weight)));
         }
       }
 

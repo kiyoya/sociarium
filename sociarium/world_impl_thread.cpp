@@ -29,11 +29,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "world_impl.h"
 #include "common.h"
-#include "language.h"
-#include "thread.h"
+#include "menu_and_message.h"
 #include "sociarium_graph_time_series.h"
+#include "thread.h"
+#include "world_impl.h"
 #include "thread/graph_creation.h"
 #if 0
 #include "thread/graph_retouch.h"
@@ -51,7 +51,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_thread;
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::create_graph(wchar_t const* filename) const {

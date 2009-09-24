@@ -30,12 +30,12 @@
  */
 
 #include <windows.h>
-#include "world_impl.h"
 #include "common.h"
-#include "language.h"
+#include "menu_and_message.h"
 #include "selection.h"
-#include "thread.h"
 #include "sociarium_graph_time_series.h"
+#include "thread.h"
+#include "world_impl.h"
 #include "../shared/msgbox.h"
 
 namespace hashimoto_ut {
@@ -44,7 +44,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_common;
   using namespace sociarium_project_thread;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::forward_layer(Vector2<int> const& mpos) {

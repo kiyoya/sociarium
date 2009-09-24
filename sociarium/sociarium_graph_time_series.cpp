@@ -37,13 +37,13 @@
 #include <array>
 #include <unordered_set>
 #include <unordered_map>
-#include "selection.h"
-#include "layout.h"
-#include "color.h"
-#include "flag_operation.h"
 #include "algorithm_selector.h"
-#include "sociarium_graph_time_series.h"
+#include "color.h"
 #include "community_transition_diagram.h"
+#include "flag_operation.h"
+#include "layout.h"
+#include "selection.h"
+#include "sociarium_graph_time_series.h"
 #include "thread/force_direction.h"
 #include "../shared/mutex.h"
 #include "../shared/predefined_color.h"
@@ -172,8 +172,8 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraph>
       get_graph(size_t level, size_t index_of_layer) const {
         assert(0<=index_of_layer && index_of_layer<number_of_layers());
-      return graph_series_[level][index_of_layer];
-    }
+        return graph_series_[level][index_of_layer];
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +190,7 @@ namespace hashimoto_ut {
     }
 
     size_t number_of_static_edges(size_t level) const {
-            assert(0<=level && level<number_of_levels);
+      assert(0<=level && level<number_of_levels);
       return static_edge_property_[level].size();
     }
 
@@ -198,27 +198,27 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     StaticNodePropertySet::const_iterator
       static_node_property_begin(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_node_property_[level].begin();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_node_property_[level].begin();
+      }
 
     StaticNodePropertySet::const_iterator
       static_node_property_end(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_node_property_[level].end();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_node_property_[level].end();
+      }
 
     StaticEdgePropertySet::const_iterator
       static_edge_property_begin(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_edge_property_[level].begin();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_edge_property_[level].begin();
+      }
 
     StaticEdgePropertySet::const_iterator
       static_edge_property_end(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_edge_property_[level].end();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_edge_property_[level].end();
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -308,6 +308,24 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
+    StaticNodePropertySet::iterator
+      find_static_node(size_t level, wstring const& name) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_node_property_[level].begin(),
+                       static_node_property_[level].end(),
+                       bind(std::equal_to<wstring>(),
+                            bind(&StaticNodeProperty::get_name, _1), name));
+      }
+
+    StaticEdgePropertySet::iterator
+      find_static_edge(size_t level, wstring const& name) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_edge_property_[level].begin(),
+                       static_edge_property_[level].end(),
+                       bind(std::equal_to<wstring>(),
+                            bind(&StaticEdgeProperty::get_name, _1), name));
+      }
+
     StaticNodePropertySet::const_iterator
       find_static_node(size_t level, wstring const& name) const {
         assert(0<=level && level<number_of_levels);
@@ -324,6 +342,26 @@ namespace hashimoto_ut {
                        static_edge_property_[level].end(),
                        bind(std::equal_to<wstring>(),
                             bind(&StaticEdgeProperty::get_name, _1), name));
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    StaticNodePropertySet::iterator
+      find_static_node(size_t level, size_t id) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_node_property_[level].begin(),
+                       static_node_property_[level].end(),
+                       bind(std::equal_to<size_t>(),
+                            bind(&StaticNodeProperty::get_id, _1), id));
+      }
+
+    StaticEdgePropertySet::iterator
+      find_static_edge(size_t level, size_t id) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_edge_property_[level].begin(),
+                       static_edge_property_[level].end(),
+                       bind(std::equal_to<size_t>(),
+                            bind(&StaticEdgeProperty::get_id, _1), id));
       }
 
     StaticNodePropertySet::const_iterator

@@ -46,6 +46,11 @@
 #include "../graph/graphex.h"
 #include "../graph/util/traverser.h"
 
+#if 0
+#include <fstream>
+std::ofstream logfile("pos.csv");
+#endif
+
 namespace hashimoto_ut {
 
   using std::vector;
@@ -147,6 +152,10 @@ namespace hashimoto_ut {
       select(mpos);
       mpos_LBUTTONDOWN = mpos;
       mpos_world_LBUTTONDOWN = mpos_world;
+
+#if 0
+      logfile << mpos_world.x << ',' << mpos_world.y<< std::endl;
+#endif
 
       // --------------------------------------------------------------------------------
       // Capture the time slider.

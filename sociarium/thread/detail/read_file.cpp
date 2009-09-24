@@ -36,12 +36,12 @@
 #include <mlang.h>
 #include "read_file.h"
 #include "../../common.h"
-#include "../../language.h"
+#include "../../menu_and_message.h"
 #include "../../thread.h"
 #include "../../module/graph_creation.h"
-#include "../../../shared/general.h"
-#include "../../../shared/thread.h"
 #include "../../../shared/msgbox.h"
+#include "../../../shared/thread.h"
+#include "../../../shared/util.h"
 #include "../../../shared/win32api.h"
 
 namespace hashimoto_ut {
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_thread_detail_read_file {
 
@@ -117,6 +117,7 @@ namespace hashimoto_ut {
 
         // Judge character encoding.
         status = get_message(Message::CHECKING_TEXT_ENCODING);
+
         int encsize = 1;
         DetectEncodingInfo encoding;
 
@@ -131,24 +132,31 @@ namespace hashimoto_ut {
         }
 
         LARGE_INTEGER pos = { 0 };
-        is_src->Seek(pos, STREAM_SEEK_SET, NULL);
-
-        // Convert a text into UTF-16 encoding.
-        status = get_message(Message::CONVERTING_INTO_UTF16_ENCODING);
-        HGLOBAL hdst = GlobalAlloc(GMEM_MOVEABLE, 0);
-        IStream* is_dst;
-        CreateStreamOnHGlobal(hdst, true, &is_dst);
-        DWORD mode = 0;
-        UINT const destCodePage = 1200;
-        ml->ConvertStringInIStream(
-          &mode, 0, NULL, encoding.nCodePage, destCodePage, is_src, is_dst);
         wchar_t const null_char = L'\0';
-        is_dst->Write(&null_char, sizeof(wchar_t), NULL);
 
-        ss << (wchar_t*)GlobalLock(hdst);
+        if (encoding.nCodePage==1200) { // is UTF-16
+          // Read as it is.
+          is_src->Seek(pos, STREAM_SEEK_END, NULL);
+          is_src->Write(&null_char, sizeof(wchar_t), NULL);
+          ss << (wchar_t*)GlobalLock(hsrc);
 
-        GlobalUnlock(hdst);
-        is_dst->Release();
+        } else {
+          // Convert into UTF-16 encoding.
+          status = get_message(Message::CONVERTING_INTO_UTF16_ENCODING);
+          is_src->Seek(pos, STREAM_SEEK_SET, NULL);
+          HGLOBAL hdst = GlobalAlloc(GMEM_MOVEABLE, 0);
+          IStream* is_dst;
+          CreateStreamOnHGlobal(hdst, true, &is_dst);
+          DWORD mode = 0;
+          UINT const destCodePage = 1200;
+          ml->ConvertStringInIStream(
+            &mode, 0, NULL, encoding.nCodePage, destCodePage, is_src, is_dst);
+          is_dst->Write(&null_char, sizeof(wchar_t), NULL);
+          ss << (wchar_t*)GlobalLock(hdst);
+          GlobalUnlock(hdst);
+          is_dst->Release();
+        }
+
         is_src->Release();
         CoUninitialize();
         return true;
@@ -172,6 +180,10 @@ namespace hashimoto_ut {
 
       using namespace sociarium_project_thread;
       deque<wstring>& status = get_status(GRAPH_CREATION);
+
+      status[0]
+        = (boost::wformat(L"%s: 0%%")
+           %get_message(Message::READING_DATA_FILE)).str();
 
       string const filename_mb = wcs2mbcs(filename, wcslen(filename));
       int const num = number_of_lines(filename_mb.c_str());
@@ -201,6 +213,8 @@ namespace hashimoto_ut {
         trim(line);
 
         if (!line.empty()) {
+          if (i==1 && line[0]==0xFEFF || line[0]==0xFFFE)
+            line = line.substr(1); // omit BOM.
           if (line[0]==param_symbol) {
             size_t pos = line.find(L'=');
             if (pos==wstring::npos) {

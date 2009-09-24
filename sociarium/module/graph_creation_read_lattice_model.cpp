@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: module/graph_creation_read_sierpinski_gasket_model.cpp
+﻿// s.o.c.i.a.r.i.u.m: module/graph_creation_read_lattice.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -30,8 +30,8 @@
  */
 
 #include <cassert>
+#include <unordered_map>
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
 #include <windows.h>
 #include "graph_creation.h"
 #include "../common.h"
@@ -40,7 +40,6 @@
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
-#include "../../graph/graphex.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
@@ -52,7 +51,9 @@ namespace hashimoto_ut {
   using std::deque;
   using std::string;
   using std::wstring;
+  using std::make_pair;
   using std::pair;
+  using std::getline;
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
@@ -84,21 +85,40 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // Read parameters.
 
-      bool directed = false;
       wstring title;
-      size_t depth = 0;
+      size_t xsize = 0;
+      size_t ysize = 0;
 
       unordered_map<wstring, pair<wstring, int> >::const_iterator pos;
 
-      if ((pos=params.find(L"directed"))!=params.end())
-        directed = true;
-
       if ((pos=params.find(L"title"))!=params.end() && !pos->second.first.empty())
-        title =pos->second.first;
+        title = pos->second.first;
 
-      if ((pos=params.find(L"depth"))!=params.end()) {
+      if ((pos=params.find(L"xsize"))!=params.end()) {
         try {
-          depth = boost::lexical_cast<size_t>(pos->second.first);
+          xsize = boost::lexical_cast<size_t>(pos->second.first);
+          if (xsize<2) {
+            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                        L"xsize<2: %s [line=%d]",
+                        filename.c_str(), pos->second.second);
+            return;
+          }
+        } catch (...) {
+          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                      L"bad data: %s [line=%d]",
+                      filename.c_str(), pos->second.second);
+        }
+      }
+
+      if ((pos=params.find(L"ysize"))!=params.end()) {
+        try {
+          ysize = boost::lexical_cast<size_t>(pos->second.first);
+          if (ysize<2) {
+            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                        L"ysize<2: %s [line=%d]",
+                        filename.c_str(), pos->second.second);
+            return;
+          }
         } catch (...) {
           message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
                       L"bad data: %s [line=%d]",
@@ -110,77 +130,77 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // Make a graph.
 
-      vector<shared_ptr<Graph> >(1, Graph::create(directed)).swap(graph);
+      vector<shared_ptr<Graph> >(1, Graph::create(false)).swap(graph);
       shared_ptr<Graph>& g = graph[0];
 
       status[0]
         = (boost::wformat(L"%s")
            %message.get(Message::MAKING_GRAPH_SNAPSHOT)).str();
 
+      vector<vector<Node* > > n(xsize, vector<Node*>(ysize));
+
+      size_t const nsz = xsize*ysize;
+      size_t const esz = 2*nsz-xsize-ysize;
+
       status[1]
-        = (boost::wformat(L"Sierpinski Gasket [D=%d, N=%d, E=%d]")
-           %depth%g->nsize()%g->esize()).str();
+        = (boost::wformat(L"Lattice [N=%d%%, E=%d%%]")
+           %int(100.0*g->nsize()/nsz)%int(100.0*g->esize()/esz)).str();
 
-      g->add_node();
-      g->add_node();
-      g->add_node();
-      g->add_edge(g->node(0), g->node(1));
-      g->add_edge(g->node(1), g->node(2));
-      g->add_edge(g->node(2), g->node(0));
+      for (size_t x=0, i=0; x<xsize; ++x) {
+        for (size_t y=0; y<ysize; ++y) {
+          n[x][y] = g->add_node();
 
-      // Merging nodes which degree is two makes a larger triangle.
-      for (size_t d=0; d<depth; ++d) {
+          if (parent.cancel_check()) {
+            graph.clear();
+            return;
+          }
+
+          status[1]
+            = (boost::wformat(L"Lattice [N=%d%%, E=%d%%]")
+               %int(100.0*g->nsize()/nsz)%int(100.0*g->esize()/esz)).str();
+        }
+      }
+
+      for (size_t x=0; x<xsize-1; ++x) {
+        for (size_t y=0; y<ysize-1; ++y) {
+          g->add_edge(n[x][y], n[x+1][y]);
+          g->add_edge(n[x][y], n[x][y+1]);
+
+          if (parent.cancel_check()) {
+            graph.clear();
+            return;
+          }
+
+          status[1]
+            = (boost::wformat(L"Lattice [N=%d%%, E=%d%%]")
+               %int(100.0*g->nsize()/nsz)%int(100.0*g->esize()/esz)).str();
+        }
+      }
+
+      for (size_t x=0; x<xsize-1; ++x) {
+        g->add_edge(n[x][ysize-1], n[x+1][ysize-1]);
+
+        if (parent.cancel_check()) {
+          graph.clear();
+          return;
+        }
 
         status[1]
-          = (boost::wformat(L"%s: Sierpinski Gasket [D=%d, N=%d, E=%d]")
-             %message.get(Message::MAKING_GRAPH_SNAPSHOT)
-             %depth%g->nsize()%g->esize()).str();
+          = (boost::wformat(L"Lattice [N=%d%%, E=%d%%]")
+             %int(100.0*g->nsize()/nsz)%int(100.0*g->esize()/esz)).str();
+      }
 
-        // **********  Catch a termination signal  **********
+      for (size_t y=0; y<ysize-1; ++y) {
+        g->add_edge(n[xsize-1][y], n[xsize-1][y+1]);
+
         if (parent.cancel_check()) {
           graph.clear();
           return;
         }
-
-        shared_ptr<Graph> g1 = copy(g);
-
-        // **********  Catch a termination signal  **********
-        if (parent.cancel_check()) {
-          graph.clear();
-          return;
-        }
-
-        shared_ptr<Graph> g2 = copy(g);
-
-        // **********  Catch a termination signal  **********
-        if (parent.cancel_check()) {
-          graph.clear();
-          return;
-        }
-
-        g->merge(g1);
-        g->merge(g2);
-
-        // **********  Catch a termination signal  **********
-        if (parent.cancel_check()) {
-          graph.clear();
-          return;
-        }
-
-        vector<Node*> v;
-        for (node_iterator i=g->nbegin(); i!=g->nend(); ++i)
-          if ((*i)->degree()==2)
-            v.push_back(*i);
-
-        assert(v.size()==9);
-
-        contract(g, v[0], v[3]);
-        contract(g, v[1], v[6]);
-        contract(g, v[4], v[7]);
 
         status[1]
-          = (boost::wformat(L"Sierpinski Gasket [D=%d, N=%d, E=%d]")
-             %depth%g->nsize()%g->esize()).str();
+          = (boost::wformat(L"Lattice [N=%d%%, E=%d%%]")
+             %int(100.0*g->nsize()/nsz)%int(100.0*g->esize()/esz)).str();
       }
 
 
@@ -223,7 +243,7 @@ namespace hashimoto_ut {
         wstring const& source = node_property[0][e->source()->index()].name;
         wstring const& target = node_property[0][e->target()->index()].name;
         sociarium_project_module_graph_creation::EdgeProperty& ep = edge_property[0][i];
-        ep.identifier = (directed||source<target)?(source+L'~'+target):(target+L'~'+source);
+        ep.identifier = (source<target)?(source+L'~'+target):(target+L'~'+source);
         ep.name = ep.name;
         ep.weight = 1.0f;
       }

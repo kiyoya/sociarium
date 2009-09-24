@@ -34,17 +34,17 @@
 #include <GL/gl.h>
 #include <FTGL/ftgl.h>
 #include "color.h"
-#include "font.h"
-#include "view.h"
 #include "draw.h"
+#include "flag_operation.h"
+#include "font.h"
 #include "layout.h"
 #include "selection.h"
-#include "texture.h"
-#include "flag_operation.h"
 #include "sociarium_graph.h"
-#include "../shared/vector3.h"
+#include "texture.h"
+#include "view.h"
 #include "../shared/math.h"
 #include "../shared/predefined_color.h"
+#include "../shared/vector3.h"
 #include "../shared/gl/texture.h"
 
 namespace hashimoto_ut {

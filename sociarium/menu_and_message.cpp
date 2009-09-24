@@ -32,9 +32,9 @@
 #include <cassert>
 #include <unordered_map>
 #include <windows.h>
-#include "resource.h"
-#include "language.h"
 #include "common.h"
+#include "menu_and_message.h"
+#include "resource.h"
 
 namespace hashimoto_ut {
 
@@ -45,7 +45,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_common;
 
-  namespace sociarium_project_language {
+  namespace sociarium_project_menu_and_message {
 
     typedef __declspec(dllimport)
       void (__cdecl* FuncLoadMessage)(vector<wstring>& message);
@@ -58,7 +58,7 @@ namespace hashimoto_ut {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void initialize(HWND hwnd, wchar_t const* filename) {
+    void initialize(wchar_t const* filename) {
 
       wstring path = wstring(L"dll\\")+filename;
 
@@ -1542,6 +1542,14 @@ namespace hashimoto_ut {
 
           ZeroMemory(&mii, sizeof(mii));
           mii.cbSize = sizeof(mii);
+          mii.fMask = MIIM_TYPE|MIIM_ID;
+          mii.fType = MFT_STRING;
+          mii.wID = IDM_LAYOUT_CARTOGRAMS;
+          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
+          InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+
+          ZeroMemory(&mii, sizeof(mii));
+          mii.cbSize = sizeof(mii);
           mii.fMask = MIIM_TYPE;
           mii.fType = MFT_SEPARATOR;
           InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
@@ -1738,36 +1746,6 @@ namespace hashimoto_ut {
           mii.fType = MFT_SEPARATOR;
           InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
-
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
-
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
-
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
-
           HMENU hmenu_community_connected_components = CreateMenu();
 
           ZeroMemory(&mii, sizeof(mii));
@@ -1901,6 +1879,36 @@ namespace hashimoto_ut {
 //             mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
 //             InsertMenuItem(hmenu_community_others, ++pos, FALSE, &mii);
           }
+
+          ZeroMemory(&mii, sizeof(mii));
+          mii.cbSize = sizeof(mii);
+          mii.fMask = MIIM_TYPE;
+          mii.fType = MFT_SEPARATOR;
+          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+
+          ZeroMemory(&mii, sizeof(mii));
+          mii.cbSize = sizeof(mii);
+          mii.fMask = MIIM_TYPE|MIIM_ID;
+          mii.fType = MFT_STRING;
+          mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM;
+          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
+          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+
+          ZeroMemory(&mii, sizeof(mii));
+          mii.cbSize = sizeof(mii);
+          mii.fMask = MIIM_TYPE|MIIM_ID;
+          mii.fType = MFT_STRING;
+          mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER;
+          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
+          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+
+          ZeroMemory(&mii, sizeof(mii));
+          mii.cbSize = sizeof(mii);
+          mii.fMask = MIIM_TYPE|MIIM_ID;
+          mii.fType = MFT_STRING;
+          mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER;
+          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
+          InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
 
           ZeroMemory(&mii, sizeof(mii));
           mii.cbSize = sizeof(mii);
@@ -2067,6 +2075,7 @@ namespace hashimoto_ut {
 
 
         /////////////////////////////////////////////////////////////////////////////
+        HWND hwnd = get_window_handle();
         SetMenu(hwnd, hmenu);
       }
 
@@ -2086,6 +2095,6 @@ namespace hashimoto_ut {
       return message_object->get(message_id);
     }
 
-  } // The end of the namespace "sociarium_project_language"
+  } // The end of the namespace "sociarium_project_menu_and_message"
 
 } // The end of the namespace "hashimoto_ut"

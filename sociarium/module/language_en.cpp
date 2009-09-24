@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <windows.h>
 #include "../resource.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
@@ -355,11 +355,13 @@ namespace hashimoto_ut {
       menu[IDM_LAYOUT_CIRCLE]
         = L"Circle: Initial arrangement(&3)";
       menu[IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER]
-        = L"Circle: in size order(&4)";
+        = L"Circle: In size order(&4)";
       menu[IDM_LAYOUT_LATTICE]
         = L"Lattice(&5)";
       menu[IDM_LAYOUT_RANDOM]
         = L"Random(&6)";
+      menu[IDM_LAYOUT_CARTOGRAMS]
+        = L"Cartograms(&7)";
       menu[IDM_LAYOUT_FORCE_DIRECTION]
         = L"Real-time force direction(&0)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_RUN]
@@ -399,12 +401,6 @@ namespace hashimoto_ut {
         = L"&Update\tEnter";
       menu[IDM_COMMUNITY_DETECTION_CANCEL]
         = L"&Cancel";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
-        = L"Show Community Transition &Diagram\tD";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
-        = L"Wider range(&X)\tCtrl+Left";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
-        = L"Narrower range(&Z)\tCtrl+Right";
       menu[IDM_COMMUNITY_DETECTION_CONNECTED_COMPONENTS]
         = L"Connected components(&1)";
       menu[IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS]
@@ -433,6 +429,12 @@ namespace hashimoto_ut {
         = L"Betweenness Centrality Separation(&1)";
       menu[IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping(&2)";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
+        = L"Show Community Transition &Diagram\tD";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
+        = L"Wider range(&X)\tCtrl+Left";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
+        = L"Narrower range(&Z)\tCtrl+Right";
       menu[IDM_COMMUNITY_DETECTION_CLEAR]
         = L"Clear(&0)";
 
@@ -472,15 +474,13 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl load_message(vector<wstring>& message) {
 
-      using namespace sociarium_project_language;
+      using namespace sociarium_project_menu_and_message;
 
       assert(message.size()==Message::NUMBER_OF_MESSAGES);
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::QUIT]
         = L"Do you really quit?";
-      message[Message::IS_NOT_TEXTFILE]
-        = L"Not a text-file";
 
 
       /////////////////////////////////////////////////////////////////////////////
@@ -586,7 +586,7 @@ namespace hashimoto_ut {
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::LAYOUTING]
-        = L"Layouting the target graph";
+        = L"Layouting selected elements";
       message[Message::KAMADA_KAWAI_METHOD]
         = L"Kamada-Kawai Method";
       message[Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH]
@@ -601,6 +601,8 @@ namespace hashimoto_ut {
         = L"High Dimensional Embedding [Calculating the principal components]";
       message[Message::HDE_CALCULATING_POSITION]
         = L"High Dimensional Embedding [Calculating positions]";
+      message[Message::CARTOGRAMS]
+        = L"Cartograms";
 
 
       /////////////////////////////////////////////////////////////////////////////

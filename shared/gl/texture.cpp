@@ -54,7 +54,9 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     TextureImpl(void) :
-    width_(0), height_(0), xcoord_(0.0f), ycoord_(0.0f) {
+    width_pot_(0), height_pot_(0),
+    width_(0), height_(0),
+    xcoord_(0.0f), ycoord_(0.0f) {
 
       glGenTextures(1, &id_);
       GLenum err = glGetError();
@@ -70,30 +72,28 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) {
+    int set(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) {
 
       DWORD dw = GetFileAttributes(filename);
 
-      if (dw==-1)
-        return FILE_NOT_FOUND;
+      if (dw==-1) return FILE_NOT_FOUND;
 
       CImage image;
       HRESULT res = image.Load(filename);
 
-      if (res!=S_OK)
-        return FAILED_TO_LOAD_IMAGE;
+      if (res!=S_OK) return FAILED_TO_LOAD_IMAGE;
 
       width_  = image.GetWidth();
       height_ = image.GetHeight();
 
-      GLsizei w_pot = 1;
-      while (w_pot<width_) w_pot *= 2;
+      width_pot_ = 1;
+      while (width_pot_<width_) width_pot_ *= 2;
 
-      GLsizei h_pot = 1;
-      while (h_pot<height_) h_pot *= 2;
+      height_pot_ = 1;
+      while (height_pot_<height_) height_pot_ *= 2;
 
-      xcoord_ = GLfloat(width_)/w_pot;
-      ycoord_ = GLfloat(height_)/h_pot;
+      xcoord_ = GLfloat(width_)/width_pot_;
+      ycoord_ = GLfloat(height_)/height_pot_;
 
       glBindTexture(GL_TEXTURE_2D, id_);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
@@ -108,14 +108,14 @@ namespace hashimoto_ut {
       switch (bpp) {
       case 24:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w_pot, h_pot,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_pot_, height_pot_,
                      0, GL_BGR, GL_UNSIGNED_BYTE, 0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
                         GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
         break;
       case 32:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_pot_, height_pot_, 0,
                      GL_BGRA, GL_UNSIGNED_BYTE, 0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
                         GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
@@ -131,18 +131,16 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create_mipmap(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) {
+    int set_mipmap(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) {
 
       DWORD dw = GetFileAttributes(filename);
 
-      if (dw==-1)
-        return FILE_NOT_FOUND;
+      if (dw==-1) return FILE_NOT_FOUND;
 
       CImage image;
       HRESULT res = image.Load(filename);
 
-      if (res!=S_OK)
-        return FAILED_TO_LOAD_IMAGE;
+      if (res!=S_OK) return FAILED_TO_LOAD_IMAGE;
 
       width_  = image.GetWidth();
       height_ = image.GetHeight();
@@ -182,27 +180,21 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create_subimage(wchar_t const* filename) {
+    int set_subimage(wchar_t const* filename) {
 
       DWORD dw = GetFileAttributes(filename);
 
-      if (dw==-1)
-        return FILE_NOT_FOUND;
+      if (dw==-1) return FILE_NOT_FOUND;
 
       CImage image;
       HRESULT res = image.Load(filename);
 
-      if (res!=S_OK)
-        return FAILED_TO_LOAD_IMAGE;
+      if (res!=S_OK) return FAILED_TO_LOAD_IMAGE;
 
       GLsizei const w = image.GetWidth();
       GLsizei const h = image.GetHeight();
 
-      if (w>width_ || h>height_)
-        return FAILED_TO_LOAD_IMAGE;
-
-      xcoord_ = GLfloat(w)/width_;
-      ycoord_ = GLfloat(h)/height_;
+      if (w>width_ || h>height_) return FAILED_TO_LOAD_IMAGE;
 
       glBindTexture(GL_TEXTURE_2D, id_);
 
@@ -232,19 +224,19 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create(GLuint width, GLuint height, GLenum wrap_s, GLenum wrap_t) {
+    int set(GLuint width, GLuint height, GLenum wrap_s, GLenum wrap_t) {
 
       width_  = width;
       height_ = height;
 
-      GLsizei w_pot = 1;
-      while (w_pot<width_) w_pot *= 2;
+      width_pot_ = 1;
+      while (width_pot_<width_) width_pot_ *= 2;
 
-      GLsizei h_pot = 1;
-      while (h_pot<height_) h_pot *= 2;
+      height_pot_ = 1;
+      while (height_pot_<height_) height_pot_ *= 2;
 
-      xcoord_ = GLfloat(width_)/w_pot;
-      ycoord_ = GLfloat(height_)/h_pot;
+      xcoord_ = GLfloat(width_)/width_pot_;
+      ycoord_ = GLfloat(height_)/height_pot_;
 
       glBindTexture(GL_TEXTURE_2D, id_);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
@@ -253,7 +245,7 @@ namespace hashimoto_ut {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_pot, h_pot, 0,
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_pot_, height_pot_, 0,
                    GL_BGRA, GL_UNSIGNED_BYTE, 0);
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
                       GL_BGRA, GL_UNSIGNED_BYTE, 0);
@@ -264,21 +256,21 @@ namespace hashimoto_ut {
 
 #ifdef SOCIAIRUM_PROJECT_USES_OPENCV
     ////////////////////////////////////////////////////////////////////////////////
-    int create(IplImage* image, GLenum wrap_s, GLenum wrap_t) {
+    int set(IplImage* image, GLenum wrap_s, GLenum wrap_t) {
 
       assert(image!=0);
 
       width_  = image->width;
       height_ = image->height;
 
-      GLsizei w_pot = 1;
-      while (w_pot<width_) w_pot *= 2;
+      width_pot_ = 1;
+      while (width_pot_<width_) width_pot_ *= 2;
 
-      GLsizei h_pot = 1;
-      while (h_pot<height_) h_pot *= 2;
+      height_pot_ = 1;
+      while (height_pot_<height_) height_pot_ *= 2;
 
-      xcoord_ = GLfloat(width_)/w_pot;
-      ycoord_ = GLfloat(height_)/h_pot;
+      xcoord_ = GLfloat(width_)/width_pot_;
+      ycoord_ = GLfloat(height_)/height_pot_;
 
       glBindTexture(GL_TEXTURE_2D, id_);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
@@ -292,14 +284,14 @@ namespace hashimoto_ut {
       switch (nChannels) {
       case 3:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w_pot, h_pot, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_pot_, height_pot_, 0,
                      GL_BGR, GL_UNSIGNED_BYTE, 0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
                         GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;
       case 4:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_pot, h_pot, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_pot_, height_pot_, 0,
                      GL_BGRA, GL_UNSIGNED_BYTE, 0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
                         GL_BGRA, GL_UNSIGNED_BYTE, pixels);
@@ -315,7 +307,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create_mipmap(IplImage* image, GLenum wrap_s, GLenum wrap_t) {
+    int set_mipmap(IplImage* image, GLenum wrap_s, GLenum wrap_t) {
 
       assert(image!=0);
 
@@ -356,18 +348,14 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create_subimage(IplImage* image) {
+    int set_subimage(IplImage* image) {
 
       assert(image!=0);
 
       GLsizei const w = image->width;
       GLsizei const h = image->height;
 
-      if (w>width_ || h>height_)
-        return FAILED_TO_LOAD_IMAGE;
-
-      xcoord_ = GLfloat(w)/width_;
-      ycoord_ = GLfloat(h)/height_;
+      if (w>width_ || h>height_) return FAILED_TO_LOAD_IMAGE;
 
       glBindTexture(GL_TEXTURE_2D, id_);
 
@@ -419,6 +407,8 @@ namespace hashimoto_ut {
 
   private:
     GLuint id_;
+    GLsizei width_pot_;
+    GLsizei height_pot_;
     GLsizei width_;
     GLsizei height_;
     GLfloat xcoord_;

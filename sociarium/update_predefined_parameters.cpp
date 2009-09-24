@@ -33,11 +33,11 @@
 #include <boost/lexical_cast.hpp>
 #include <gl/glew.h>
 #include "draw.h"
+#include "flag_operation.h"
 #include "layout.h"
 #include "texture.h"
-#include "flag_operation.h"
-#include "update_predefined_parameters.h"
 #include "thread/force_direction.h"
+#include "update_predefined_parameters.h"
 #include "../shared/win32api.h"
 
 namespace hashimoto_ut {
@@ -49,13 +49,13 @@ namespace hashimoto_ut {
 
   namespace {
 
-    wchar_t const* INITIAL_NODE_TEXTURE_FILE
+    wchar_t const* DEFAULT_NODE_TEXTURE_FILE
       = L"___system_node.png";
-    wchar_t const* INITIAL_EDGE_TEXTURE_FILE
+    wchar_t const* DEFAULT_EDGE_TEXTURE_FILE
       = L"___system_node.png"; // Not used.
-    wchar_t const* INITIAL_COMMUNITY_TEXTURE_FILE
+    wchar_t const* DEFAULT_COMMUNITY_TEXTURE_FILE
       = L"___system_community.png";
-    wchar_t const* INITIAL_COMMUNITY_EDGE_TEXTURE_FILE
+    wchar_t const* DEFAULT_COMMUNITY_EDGE_TEXTURE_FILE
       = L"___system_community.png"; // Not used.
 
     wstring const pre_texture_folder   = L"texture_folder";
@@ -141,7 +141,7 @@ namespace hashimoto_ut {
         = sociarium_project_texture::get_texture_folder_path();
       sociarium_project_texture::set_texture_folder_path(L"");
       sociarium_project_texture::set_default_node_texture_tmp(
-        INITIAL_NODE_TEXTURE_FILE);
+        DEFAULT_NODE_TEXTURE_FILE);
       sociarium_project_texture::set_texture_folder_path(path_tmp);
     }
 
@@ -154,7 +154,7 @@ namespace hashimoto_ut {
         = sociarium_project_texture::get_texture_folder_path();
       sociarium_project_texture::set_texture_folder_path(L"");
       sociarium_project_texture::set_default_edge_texture_tmp(
-        INITIAL_EDGE_TEXTURE_FILE);
+        DEFAULT_EDGE_TEXTURE_FILE);
       sociarium_project_texture::set_texture_folder_path(path_tmp);
     }
 
@@ -167,7 +167,7 @@ namespace hashimoto_ut {
         = sociarium_project_texture::get_texture_folder_path();
       sociarium_project_texture::set_texture_folder_path(L"");
       sociarium_project_texture::set_default_community_texture_tmp(
-        INITIAL_COMMUNITY_TEXTURE_FILE);
+        DEFAULT_COMMUNITY_TEXTURE_FILE);
       sociarium_project_texture::set_texture_folder_path(path_tmp);
     }
 
@@ -180,7 +180,7 @@ namespace hashimoto_ut {
         = sociarium_project_texture::get_texture_folder_path();
       sociarium_project_texture::set_texture_folder_path(L"");
       sociarium_project_texture::set_default_community_edge_texture_tmp(
-        INITIAL_COMMUNITY_EDGE_TEXTURE_FILE);
+        DEFAULT_COMMUNITY_EDGE_TEXTURE_FILE);
       sociarium_project_texture::set_texture_folder_path(path_tmp);
     }
   }

@@ -31,8 +31,8 @@
 
 #include <boost/format.hpp>
 #include "graph_extractor.h"
+#include "menu_and_message.h"
 #include "thread.h"
-#include "language.h"
 #include "../shared/thread.h"
 
 namespace hashimoto_ut {
@@ -48,7 +48,7 @@ namespace hashimoto_ut {
   typedef SociariumGraph::node_property_iterator node_property_iterator;
   typedef SociariumGraph::edge_property_iterator edge_property_iterator;
 
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_graph_extractor {
 

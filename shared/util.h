@@ -1,5 +1,6 @@
-﻿// general.h
+﻿// util.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
+// update: 2009/09/23
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *
@@ -29,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SHARED_GENERAL_H
-#define INCLUDE_GUARD_SHARED_GENERAL_H
+#ifndef INCLUDE_GUARD_SHARED_UTIL_H
+#define INCLUDE_GUARD_SHARED_UTIL_H
 
 #include <vector>
 #include <string>
@@ -154,4 +155,4 @@ namespace hashimoto_ut {
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SHARED_GENERAL_H
+#endif // INCLUDE_GUARD_SHARED_UTIL_H

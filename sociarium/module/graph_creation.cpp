@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include "graph_creation.h"
 #include "../common.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 
 namespace hashimoto_ut {
 
@@ -45,7 +45,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_module_graph_creation {
 

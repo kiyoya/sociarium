@@ -33,9 +33,9 @@
 #include <string>
 #include <windows.h>
 #include <FTGL/ftgl.h>
-#include "font.h"
 #include "common.h"
-#include "language.h"
+#include "font.h"
+#include "menu_and_message.h"
 #include "../shared/msgbox.h"
 #include "../shared/win32api.h"
 
@@ -45,7 +45,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_font {
 

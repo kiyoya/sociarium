@@ -193,7 +193,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.cpp"
+				RelativePath="..\..\menu_and_message.cpp"
 				>
 			</File>
 			<File
@@ -219,7 +219,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.h"
+				RelativePath="..\..\menu_and_message.h"
 				>
 			</File>
 			<File

@@ -1,5 +1,6 @@
-﻿// general.h
+﻿// util.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
+// update: 2009/09/23
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *
@@ -35,8 +36,8 @@
 #include <fstream>
 #include <algorithm>
 #include <numeric>
-#include "general.h"
 #include "math.h"
+#include "util.h"
 
 namespace hashimoto_ut {
 
@@ -53,12 +54,6 @@ namespace hashimoto_ut {
     for (size_t i=0; i<sz; ++i)
       if (buf[i]=='\0') return false;
     return true;
-//     vector<char> v;
-//     ifstream ifs(filename, ios::in|ios::binary);
-//     copy(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>(), back_inserter(v));
-//     if (v.empty()) return true;
-//     for (size_t i=0, sz=v.size()-1; i<sz; ++i) if (v[i]=='\0') return false;
-//     return true;
   }
 
   ////////////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,7 @@
 #include <boost/random.hpp>
 #include "layout.h"
 #include "../graph_utility.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../shared/msgbox.h"
 #include "../../graph/util/traverser.h"
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_layout;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   extern "C" __declspec(dllexport)
     void __cdecl layout(
@@ -144,8 +144,8 @@ namespace hashimoto_ut {
           status
             = (boost::wformat(L"%s: %d%% (%d/%d)")
                %message.get(Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH)
-               %(cid+1)%cc.size()
-               %int(100.0*(i+1.0)/isz)).str();
+               %int(100.0*(i+1.0)/isz)
+               %(cid+1)%cc.size()).str();
 
           // **********  Catch a termination signal  **********
           if (parent.cancel_check()) return;
@@ -282,7 +282,7 @@ namespace hashimoto_ut {
           assert(de.begin()->first>0.0);
 
           status
-            = (boost::wformat(L"%s: %d%% [%.2f/%.2f] (%d/%d)")
+            = (boost::wformat(L"%s: %d%% [%.02f/%.02f] (%d/%d)")
                %message.get(Message::KAMADA_KAWAI_METHOD)
                %int(100.0*(count+1)/max_iteration)
                %de.begin()->first

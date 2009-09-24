@@ -41,21 +41,21 @@
 #include "node_size_update.h"
 #include "edge_width_update.h"
 #include "detail/read_file.h"
-#include "../module/graph_creation.h"
-#include "../common.h"
-#include "../language.h"
-#include "../color.h"
-#include "../thread.h"
-#include "../layout.h"
-#include "../texture.h"
-#include "../flag_operation.h"
 #include "../algorithm_selector.h"
+#include "../color.h"
+#include "../common.h"
+#include "../flag_operation.h"
+#include "../menu_and_message.h"
+#include "../layout.h"
 #include "../sociarium_graph_time_series.h"
+#include "../texture.h"
+#include "../thread.h"
 #include "../update_predefined_parameters.h"
-#include "../../shared/general.h"
-#include "../../shared/win32api.h"
+#include "../module/graph_creation.h"
 #include "../../shared/msgbox.h"
 #include "../../shared/predefined_color.h"
+#include "../../shared/util.h"
+#include "../../shared/win32api.h"
 
 namespace hashimoto_ut {
 
@@ -72,12 +72,12 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using std::tr1::unordered_set;
 
-  using namespace sociarium_project_thread;
-  using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_common;
+  using namespace sociarium_project_menu_and_message;
+  using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_texture;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_thread_detail_read_file;
-  using namespace sociarium_project_language;
 
   typedef SociariumGraphTimeSeries::StaticNodePropertySet StaticNodePropertySet;
   typedef SociariumGraphTimeSeries::StaticEdgePropertySet StaticEdgePropertySet;

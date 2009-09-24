@@ -33,15 +33,15 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <windows.h>
-#include "world_impl.h"
 #include "resource.h"
-#include "common.h"
-#include "language.h"
 #include "color.h"
-#include "thread.h"
-#include "flag_operation.h"
-#include "sociarium_graph_time_series.h"
+#include "common.h"
 #include "community_transition_diagram.h"
+#include "flag_operation.h"
+#include "menu_and_message.h"
+#include "sociarium_graph_time_series.h"
+#include "thread.h"
+#include "world_impl.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
 
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
   using namespace sociarium_project_common;
   using namespace sociarium_project_color;
   using namespace sociarium_project_thread;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace {
 

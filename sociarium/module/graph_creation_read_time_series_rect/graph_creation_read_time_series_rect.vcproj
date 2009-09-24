@@ -177,10 +177,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\shared\general.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\graph\graph.cpp"
 				>
 			</File>
@@ -193,11 +189,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.cpp"
+				RelativePath="..\..\menu_and_message.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\shared\msgbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\shared\util.cpp"
 				>
 			</File>
 			<File
@@ -215,10 +215,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\shared\general.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\graph\graph.h"
 				>
 			</File>
@@ -227,11 +223,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.h"
+				RelativePath="..\..\menu_and_message.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\shared\msgbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\shared\util.h"
 				>
 			</File>
 			<File

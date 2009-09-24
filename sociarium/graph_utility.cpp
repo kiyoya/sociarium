@@ -35,7 +35,7 @@
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include "graph_utility.h"
-#include "language.h"
+#include "menu_and_message.h"
 #include "../graph/util/traverser.h"
 #include "../shared/thread.h"
 
@@ -51,7 +51,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using boost::numeric::ublas::mapped_matrix;
 
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_graph_utility {
 
@@ -433,6 +433,10 @@ namespace hashimoto_ut {
       for (size_t i=0; i<nsz; ++i) {
         Node const* n = g->node(i);
         size_t const odeg = n->odegree();
+
+        // **********  Catch a termination signal  **********
+        if (parent && parent->cancel_check())
+          return make_pair(false, vector<double>());
 
         if (odeg) {
           double const p = dumping_factor/odeg;

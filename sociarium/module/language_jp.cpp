@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <windows.h>
 #include "../resource.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
@@ -360,6 +360,8 @@ namespace hashimoto_ut {
         = L"格子(&5)";
       menu[IDM_LAYOUT_RANDOM]
         = L"ランダム(&6)";
+      menu[IDM_LAYOUT_CARTOGRAMS]
+        = L"Cartograms(&7)";
       menu[IDM_LAYOUT_FORCE_DIRECTION]
         = L"リアルタイム力学計算(&0)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_RUN]
@@ -399,12 +401,6 @@ namespace hashimoto_ut {
         = L"再計算\tEnter";
       menu[IDM_COMMUNITY_DETECTION_CANCEL]
         = L"キャンセル(&C)";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
-        = L"遷移図の表示(&D)\tD";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
-        = L"より広いエリア(&X)\tCtrl+←";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
-        = L"より狭いエリア(&Z)\tCtrl+→";
       menu[IDM_COMMUNITY_DETECTION_CONNECTED_COMPONENTS]
         = L"連結成分分解(&1)";
       menu[IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS]
@@ -433,6 +429,12 @@ namespace hashimoto_ut {
         = L"媒介中心性分割(&1)";
       menu[IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping(&2)";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
+        = L"遷移図の表示(&D)\tD";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
+        = L"より広いエリア(&X)\tCtrl+←";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
+        = L"より狭いエリア(&Z)\tCtrl+→";
       menu[IDM_COMMUNITY_DETECTION_CLEAR]
         = L"初期化(&0)";
 
@@ -472,15 +474,13 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl load_message(vector<wstring>& message) {
 
-      using namespace sociarium_project_language;
+      using namespace sociarium_project_menu_and_message;
 
       assert(message.size()==Message::NUMBER_OF_MESSAGES);
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::QUIT]
         = L"終了しますか?";
-      message[Message::IS_NOT_TEXTFILE]
-        = L"テキストファイルではありません";
 
 
       /////////////////////////////////////////////////////////////////////////////
@@ -586,7 +586,7 @@ namespace hashimoto_ut {
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::LAYOUTING]
-        = L"選択されたグラフをレイアウトしています";
+        = L"選択された要素をレイアウトしています";
       message[Message::KAMADA_KAWAI_METHOD]
         = L"Kamada-Kawai法";
       message[Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH]
@@ -601,6 +601,8 @@ namespace hashimoto_ut {
         = L"High Dimensional Embedding [主成分を計算中]";
       message[Message::HDE_CALCULATING_POSITION]
         = L"High Dimensional Embedding [座標を計算中]";
+      message[Message::CARTOGRAMS]
+        = L"Cartograms";
 
 
       /////////////////////////////////////////////////////////////////////////////

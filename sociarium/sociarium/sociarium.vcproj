@@ -219,15 +219,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\language.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\layout.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\menu_and_message.cpp"
 				>
 			</File>
 			<File
@@ -310,26 +310,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\shared\general.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\shared\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\shared\"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath="..\..\shared\GL\glview.cpp"
 					>
 					<FileConfiguration
@@ -383,6 +363,26 @@
 				</File>
 				<File
 					RelativePath="..\..\shared\GL\texture.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\shared\util.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -661,15 +661,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\language.h"
-				>
-			</File>
-			<File
 				RelativePath="..\layout.h"
 				>
 			</File>
 			<File
 				RelativePath="..\main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\menu_and_message.h"
 				>
 			</File>
 			<File
@@ -724,10 +724,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\shared\general.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\shared\GL\glview.h"
 					>
 				</File>
@@ -761,6 +757,10 @@
 				</File>
 				<File
 					RelativePath="..\..\shared\timer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\shared\util.h"
 					>
 				</File>
 				<File

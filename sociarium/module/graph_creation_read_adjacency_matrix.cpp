@@ -35,10 +35,10 @@
 #include <windows.h>
 #include "graph_creation.h"
 #include "../common.h"
-#include "../language.h"
-#include "../../shared/thread.h"
-#include "../../shared/general.h"
+#include "../menu_and_message.h"
 #include "../../shared/msgbox.h"
+#include "../../shared/thread.h"
+#include "../../shared/util.h"
 #include "../../graph/graph.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
   using boost::numeric::ublas::mapped_matrix;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
   extern "C" __declspec(dllexport)

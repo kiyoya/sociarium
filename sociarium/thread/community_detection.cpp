@@ -35,15 +35,15 @@
 #include <unordered_map>
 #include <boost/format.hpp>
 #include "community_detection.h"
-#include "../module/community_detection.h"
-#include "../thread.h"
-#include "../texture.h"
+#include "../algorithm_selector.h"
 #include "../color.h"
 #include "../flag_operation.h"
-#include "../algorithm_selector.h"
 #include "../graph_extractor.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../sociarium_graph_time_series.h"
+#include "../texture.h"
+#include "../thread.h"
+#include "../module/community_detection.h"
 #include "../../graph/graphex.h"
 #include "../../shared/predefined_color.h"
 
@@ -63,7 +63,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_module_community_detection;
   using namespace sociarium_project_algorithm_selector;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   typedef SociariumGraphTimeSeries::StaticNodePropertySet StaticNodePropertySet;
   typedef SociariumGraphTimeSeries::StaticEdgePropertySet StaticEdgePropertySet;

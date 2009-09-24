@@ -179,15 +179,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\layout.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\layout_high_dimensional_embedding.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\menu_and_message.cpp"
 				>
 			</File>
 			<File
@@ -209,11 +209,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.h"
+				RelativePath="..\layout.h"
 				>
 			</File>
 			<File
-				RelativePath="..\layout.h"
+				RelativePath="..\..\menu_and_message.h"
 				>
 			</File>
 			<File

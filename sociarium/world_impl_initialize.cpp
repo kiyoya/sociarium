@@ -33,18 +33,18 @@
 #include <gl/glew.h>
 #include <gl/wglew.h>
 #include <FTGL/ftgl.h>
-#include "world_impl.h"
-#include "glew.h"
 #include "common.h"
-#include "language.h"
-#include "texture.h"
+#include "community_transition_diagram.h"
 #include "font.h"
-#include "view.h"
+#include "fps_manager.h"
+#include "glew.h"
+#include "menu_and_message.h"
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
-#include "community_transition_diagram.h"
+#include "texture.h"
 #include "thread.h"
-#include "fps_manager.h"
+#include "view.h"
+#include "world_impl.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
 #include "../shared/GL/glview.h"
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -173,35 +173,29 @@ namespace hashimoto_ut {
       exit(1);
     }
 
-    // Create a rendering context for drawing.
-    HGLRC rc_draw = wglCreateContext(dc);
+    // Create a rendering contexts.
+    for (int i=0; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      HGLRC rc = wglCreateContext(dc);
 
-    if (rc_draw==NULL) {
-      show_last_error(L"WorldImpl::World/wglCreateContext (drawing)");
-      exit(1);
+      if (rc==NULL) {
+        show_last_error(L"WorldImpl::World/wglCreateContext");
+        exit(1);
+      }
+
+      set_rendering_context(i, rc);
     }
 
-    set_rendering_context(
-      RenderingContext::DRAW, rc_draw);
-
-    // Create a rendering context for loading textures.
-    HGLRC rc_texture = wglCreateContext(dc);
-
-    if (rc_texture==NULL) {
-      show_last_error(L"WorldImpl::World/wglCreateContext (loading textures)");
-      exit(1);
-    }
-
-    set_rendering_context(RenderingContext::LOAD_TEXTURES, rc_texture);
-
-    // Share textures between both contexts.
-    if (wglShareLists(rc_draw, rc_texture)==FALSE) {
-      show_last_error(L"WorldImpl::World/wglShareLists (drawing<->loading textures)");
-      exit(1);
+    // Share textures between the drawing context and other contexts.
+    for (int i=1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      if (wglShareLists(get_rendering_context(0),
+                        get_rendering_context(i))==FALSE) {
+        show_last_error(L"WorldImpl::World/wglShareLists");
+        exit(1);
+      }
     }
 
     // Activate the drawing context in the main thread.
-    if (wglMakeCurrent(dc, rc_draw)==FALSE) {
+    if (wglMakeCurrent(dc, get_rendering_context(0))==FALSE) {
       show_last_error(L"WorldImpl::World/wglMakeCurrent");
       exit(1);
     }
@@ -285,18 +279,16 @@ namespace hashimoto_ut {
     if (ReleaseDC(hwnd, dc)==0)
       show_last_error(L"WorldImpl::~World/ReleaseDC");
 
-    HGLRC rc_draw = get_rendering_context(
-      RenderingContext::DRAW);
+    HGLRC rc_draw = get_rendering_context(RenderingContext::DRAW);
 
     if (wglDeleteContext(rc_draw)==FALSE)
-      show_last_error(L"WorldImpl::~World/wglDeleteContext (drawing)");
+      show_last_error(L"WorldImpl::~World/wglDeleteContext");
 
 #if 0
-    HGLRC rc_textures = get_rendering_context(
-      RenderingContext::LOAD_TEXTURES);
-
-    if (wglDeleteContext(rc_textures)==FALSE)
-      show_last_error(L"WorldImpl::~World/wglDeleteContext (loading textures)");
+    for (int i=1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      if (wglDeleteContext(get_rendering_context(i))==FALSE)
+        show_last_error(L"WorldImpl::~World/wglDeleteContext");
+    }
     /* In some environments, this block causes the "pure virtual function" error.
      * It's thought to be causally related to releasing the context activated by
      * another thread, however, I have no idea how should it be correctly written...

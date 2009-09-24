@@ -48,9 +48,9 @@
 
 #include "layout.h"
 #include "../graph_utility.h"
-#include "../language.h"
-#include "../../shared/thread.h"
+#include "../menu_and_message.h"
 #include "../../shared/mtrand.h"
+#include "../../shared/thread.h"
 #include "../../graph/util/traverser.h"
 
 #ifdef NDEBUG
@@ -81,7 +81,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_layout;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace ublas = boost::numeric::ublas;
   namespace lapack = boost::numeric::bindings::lapack;

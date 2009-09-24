@@ -36,7 +36,7 @@
 #include <boost/format.hpp>
 #include <boost/random.hpp>
 #include "community_detection.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"
 
@@ -54,7 +54,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_community_detection;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace {
     int const alpha = 50;
@@ -190,7 +190,7 @@ namespace hashimoto_ut {
           }
 
           status
-            = (boost::wformat(L"%s: Q=%.3f [%d]")
+            = (boost::wformat(L"%s: Q=%.03f [%d]")
                %message.get(Message::MODULARITY_MAXIMIZATION_USING_TEO_METHOD)
                %(0.5*q_max/g->esize())%community.size()).str();
 

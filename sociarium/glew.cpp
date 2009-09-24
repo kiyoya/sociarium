@@ -32,8 +32,8 @@
 #include <windows.h>
 #include <gl/glew.h>
 #include <gl/wglew.h>
-#include "glew.h"
 #include "common.h"
+#include "glew.h"
 
 namespace hashimoto_ut {
 

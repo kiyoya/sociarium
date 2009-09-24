@@ -32,16 +32,16 @@
 #include <cassert>
 #include <windows.h>
 #include <GL/gl.h>
-#include "world_impl.h"
+#include "color.h"
 #include "common.h"
 #include "draw.h"
-#include "layout.h"
-#include "view.h"
-#include "color.h"
 #include "font.h"
-#include "selection.h"
 #include "fps_manager.h"
+#include "layout.h"
+#include "selection.h"
 #include "sociarium_graph_time_series.h"
+#include "view.h"
+#include "world_impl.h"
 #include "../shared/GL/glview.h"
 
 #pragma comment(lib, "winmm.lib")
@@ -248,7 +248,7 @@ namespace hashimoto_ut {
           // Texture.
           for (; i!=end; ++i) {
             Node const* n = i->first;
-            StaticNodeProperty const* snp = i->second.get_static_property();
+            StaticNodeProperty* snp = i->second.get_static_property();
             glPushName(GLuint(n->index()));
             draw_node_with_texture(i->second, angleH, angleV, is_selected(n)||is_selected(snp));
             glPopName();

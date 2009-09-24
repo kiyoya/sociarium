@@ -33,10 +33,10 @@
 #include <memory>
 #include <windows.h>
 #include <GL/glu.h>
-#include "world_impl.h"
+#include "community_transition_diagram.h"
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
-#include "community_transition_diagram.h"
+#include "world_impl.h"
 #include "../shared/GL/glview.h"
 
 namespace hashimoto_ut {
@@ -155,30 +155,30 @@ namespace hashimoto_ut {
         assert(i!=ts->static_node_property_end(level));
         set_selected_static_object((void*)&*i);
       }
-
-//       if (s->get_category()==SelectionCategory::DIAGRAM_FRAME_BORDER) {
-//         if (s->get_id()==SelectionCategory::FrameBorder::TOP ||
-//             s->get_id()==SelectionCategory::FrameBorder::BOTTOM) {
-//           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZENS, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
-//           SetCursor(hcur);
-//         } else if (s->get_id()==SelectionCategory::FrameBorder::RIGHT ||
-//                    s->get_id()==SelectionCategory::FrameBorder::LEFT) {
-//           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZEWE, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
-//           SetCursor(hcur);
-//         } else if (s->get_id()==SelectionCategory::FrameBorder::TOP_RIGHT ||
-//                    s->get_id()==SelectionCategory::FrameBorder::BOTTOM_LEFT) {
-//           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZENESW, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
-//           SetCursor(hcur);
-//         } else if (s->get_id()==SelectionCategory::FrameBorder::TOP_LEFT ||
-//                    s->get_id()==SelectionCategory::FrameBorder::BOTTOM_RIGHT) {
-//           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZENWSE, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
-//           SetCursor(hcur);
-//         }
-//       } else if (s->get_category()==SelectionCategory::LAYOUT_FRAME) {
-//         HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZEALL, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
-//         SetCursor(hcur);
-//       }
-
+#if 0
+       if (s->get_category()==SelectionCategory::DIAGRAM_FRAME_BORDER) {
+         if (s->get_id()==SelectionCategory::FrameBorder::TOP ||
+             s->get_id()==SelectionCategory::FrameBorder::BOTTOM) {
+           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZENS, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
+           SetCursor(hcur);
+         } else if (s->get_id()==SelectionCategory::FrameBorder::RIGHT ||
+                    s->get_id()==SelectionCategory::FrameBorder::LEFT) {
+           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZEWE, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
+           SetCursor(hcur);
+         } else if (s->get_id()==SelectionCategory::FrameBorder::TOP_RIGHT ||
+                    s->get_id()==SelectionCategory::FrameBorder::BOTTOM_LEFT) {
+           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZENESW, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
+           SetCursor(hcur);
+         } else if (s->get_id()==SelectionCategory::FrameBorder::TOP_LEFT ||
+                    s->get_id()==SelectionCategory::FrameBorder::BOTTOM_RIGHT) {
+           HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZENWSE, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
+           SetCursor(hcur);
+         }
+       } else if (s->get_category()==SelectionCategory::LAYOUT_FRAME) {
+         HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_SIZEALL, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
+         SetCursor(hcur);
+       }
+#endif
     } else {
       sociarium_project_selection::clear();
 //       HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));

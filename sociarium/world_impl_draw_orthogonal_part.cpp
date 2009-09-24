@@ -36,15 +36,15 @@
 #include <boost/format.hpp>
 #include <windows.h>
 #include <FTGL/ftgl.h>
-#include "draw.h"
 #include "color.h"
-#include "font.h"
-#include "texture.h"
-#include "selection.h"
-#include "fps_manager.h"
-#include "thread.h"
-#include "sociarium_graph_time_series.h"
 #include "community_transition_diagram.h"
+#include "draw.h"
+#include "font.h"
+#include "fps_manager.h"
+#include "selection.h"
+#include "sociarium_graph_time_series.h"
+#include "texture.h"
+#include "thread.h"
 #include "../shared/predefined_color.h"
 #include "../shared/GL/glview.h"
 #include "../shared/GL/texture.h"
@@ -163,14 +163,14 @@ namespace hashimoto_ut {
 
             glBindTexture(GL_TEXTURE_2D, texture->get());
             glBegin(GL_TRIANGLE_STRIP);
-            glTexCoord2f(0.0f, texture->ycoord());
-            glVertex2f(left, top);
             glTexCoord2f(0.0f, 0.0f);
             glVertex2f(left, bottom);
-            glTexCoord2f(texture->xcoord(), texture->ycoord());
-            glVertex2f(right, top);
+            glTexCoord2f(0.0f, texture->ycoord());
+            glVertex2f(left, top);
             glTexCoord2f(texture->xcoord(), 0.0f);
             glVertex2f(right, bottom);
+            glTexCoord2f(texture->xcoord(), texture->ycoord());
+            glVertex2f(right, top);
             glEnd();
             glBindTexture(GL_TEXTURE_2D, 0);
             glDisable(GL_TEXTURE_2D);

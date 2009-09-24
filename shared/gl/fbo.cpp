@@ -47,7 +47,7 @@ namespace hashimoto_ut {
 
       // Create a texture.
       texture_ = Texture::create();
-      int const err = texture_->create(width, height, wrap_s, wrap_t);
+      int const err = texture_->set(width, height, wrap_s, wrap_t);
       assert(err==Texture::SUCCEEDED);
 
       // Bind the texture to FBO.

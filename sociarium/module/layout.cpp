@@ -34,9 +34,9 @@
 #include <cassert>
 #include <unordered_map>
 #include "layout.h"
-#include "../common.h"
-#include "../language.h"
 #include "../algorithm_selector.h"
+#include "../common.h"
+#include "../menu_and_message.h"
 
 namespace hashimoto_ut {
 
@@ -46,7 +46,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_module_layout {
 
@@ -85,10 +85,12 @@ namespace hashimoto_ut {
             path += L"layout_circle.dll";
           else if (method==LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER)
             path += L"layout_circle_in_size_order.dll";
-          else if (method==LayoutAlgorithm::RANDOM)
-            path += L"layout_random.dll";
           else if (method==LayoutAlgorithm::LATTICE)
             path += L"layout_lattice.dll";
+          else if (method==LayoutAlgorithm::RANDOM)
+            path += L"layout_random.dll";
+          else if (method==LayoutAlgorithm::CARTOGRAMS)
+            path += L"layout_cartograms.dll";
           else assert(0 && "never reach");
 
           // Check if the module has already loaded.

@@ -43,8 +43,9 @@ namespace hashimoto_ut {
   namespace sociarium_project_thread_detail_read_file {
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Read a given file and store parsed data in @params and @data.
-    // If reading were canceled, returns false.
+    // The function reads @filename and store parsed data in @params and @data.
+    // If file reading were canceled (the signal is caught via @parent),
+    // returns false.
     bool read_file(
       Thread* parent, wchar_t const* filename,
       std::tr1::unordered_map<std::wstring, std::pair<std::wstring, int> >& params,
