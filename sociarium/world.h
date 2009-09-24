@@ -52,6 +52,14 @@ namespace hashimoto_ut {
 
   class ThreadManager;
 
+	namespace RenderingContext {
+		enum {
+			DRAW = 0,
+			LOAD_TEXTURES,
+			NUMBER_OF_CATEGORIES
+		};
+	}
+
   ////////////////////////////////////////////////////////////////////////////////
   class World {
   public:
@@ -81,6 +89,50 @@ namespace hashimoto_ut {
     virtual void hide_marked_element(int menu) const = 0;
     virtual void show_elements(int menu) const = 0;
     virtual void remove_marked_elements(int menu) const = 0;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Absolute path of the module.
+    std::wstring const& get_module_path(void);
+    void set_module_path(std::wstring const& path);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Application instance.
+#ifdef _MSC_VER
+    HINSTANCE get_instance_handle(void);
+    void set_instance_handle(HINSTANCE hinst);
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Handle of the main window.
+#ifdef _MSC_VER
+    HWND get_window_handle(void);
+    void set_window_handle(HWND hwnd);
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Handle of the device context.
+#ifdef _MSC_VER
+    HDC get_device_context(void);
+    void set_device_context(HDC dc);
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Handle of the rendering context.
+#ifdef __APPLE__
+    CGLContextObj get_rendering_context(int thread_id);
+    void set_rendering_context(int thread_id, CGLContextObj context);
+#elif _MSC_VER
+    HGLRC get_rendering_context(int thread_id);
+    void set_rendering_context(int thread_id, HGLRC rc);
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void show_last_error(wchar_t const* text=L"");
+
+    ////////////////////////////////////////////////////////////////////////////////
+#ifdef DEBUG
+    void dump_error_log(wchar_t const* fmt, ...);
+#endif
 
 #ifdef __APPLE__
     static World * create(CGLContextObj context);
