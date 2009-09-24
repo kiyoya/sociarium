@@ -36,6 +36,7 @@
 #include "node_size_update.h"
 #include "../graph_extractor.h"
 #include "../thread.h"
+#include "../flag_operation.h"
 #include "../algorithm_selector.h"
 #include "../graph_utility.h"
 #include "../language.h"
@@ -304,7 +305,7 @@ namespace hashimoto_ut {
 
             pair<bool, vector<double> > cc
               = sociarium_project_graph_utility::closeness_centrality(
-                this, &status[1], get_message_object(), t);
+                this, &status[1], &get_message_object(), t);
 
             if (cc.first) {
               assert(cc.second.size()==tnsz);
@@ -336,7 +337,7 @@ namespace hashimoto_ut {
 
             pair<bool, pair<vector<double>, vector<double> > > bc
               = sociarium_project_graph_utility::betweenness_centrality(
-                this, &status[1], get_message_object(), t);
+                this, &status[1], &get_message_object(), t);
 
             if (bc.first) {
               assert(bc.second.first.size()==tnsz);
@@ -363,7 +364,7 @@ namespace hashimoto_ut {
 
             pair<bool, vector<double> > pr
               = sociarium_project_graph_utility::pagerank(
-                this, &status[1], get_message_object(), g_target, 0.85, 1e-2);
+                this, &status[1], &get_message_object(), g_target, 0.85, 1e-2);
 
             if (pr.first) {
               assert(pr.second.size()==tnsz);

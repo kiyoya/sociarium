@@ -1,4 +1,4 @@
-// s.o.c.i.a.r.i.u.m: module/language_jp.cpp
+﻿// s.o.c.i.a.r.i.u.m: module/language_jp.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -52,420 +52,420 @@ namespace hashimoto_ut {
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_FILE]
-        = L"�t�@�C��(&F)";
+        = L"ファイル(&F)";
       menu[IDM_FILE_CANCEL]
-        = L"�L�����Z��(&C)\tESC";
+        = L"キャンセル(&C)\tESC";
       menu[IDM_FILE_QUIT]
-        = L"�I��(&X)\tESC";
+        = L"終了(&X)\tESC";
 
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_VIEW]
-        = L"�`��(&V)";
+        = L"描画(&V)";
       menu[IDM_VIEW_SHOW_NODE]
-        = L"�m�[�h��\��(&1)\t1";
+        = L"ノードを表示(&1)\t1";
       menu[IDM_VIEW_SHOW_EDGE]
-        = L"�G�b�W��\��(&2)\t2";
+        = L"エッジを表示(&2)\t2";
       menu[IDM_VIEW_SHOW_COMMUNITY]
-        = L"�R�~���j�e�B��\��(&3)\t3";
+        = L"コミュニティを表示(&3)\t3";
       menu[IDM_VIEW_SHOW_COMMUNITY_EDGE]
-        = L"�R�~���j�e�B�G�b�W��\��(&4)\t4";
+        = L"コミュニティエッジを表示(&4)\t4";
 
       menu[IDM_VIEW_NODE_SIZE]
-        = L"�m�[�h�̑傫��(&N)";
+        = L"ノードの大きさ(&N)";
       menu[IDM_VIEW_NODE_SIZE_UPDATE]
-        = L"�Čv�Z(&0)";
+        = L"再計算(&0)";
       menu[IDM_VIEW_NODE_SIZE_CANCEL]
-        = L"�L�����Z��(&C)";
+        = L"キャンセル(&C)";
       menu[IDM_VIEW_NODE_SIZE_UNIFORM]
-        = L"��l(&1)";
+        = L"一様(&1)";
       menu[IDM_VIEW_NODE_SIZE_WEIGHT]
-        = L"�d��(&2)";
+        = L"重み(&2)";
       menu[IDM_VIEW_NODE_SIZE_DEGREE_CENTRALITY]
-        = L"�������S��(&3)";
+        = L"次数中心性(&3)";
       menu[IDM_VIEW_NODE_SIZE_CLOSENESS_CENTRALITY]
-        = L"�������S��(&4)";
+        = L"距離中心性(&4)";
       menu[IDM_VIEW_NODE_SIZE_BETWEENNESS_CENTRALITY]
-        = L"�}��S��(&5)";
+        = L"媒介中心性(&5)";
       menu[IDM_VIEW_NODE_SIZE_PAGERANK]
-        = L"�y�[�W�����N(&6)";
+        = L"ページランク(&6)";
       menu[IDM_VIEW_NODE_SIZE_POINT]
-        = L"�_(&7)";
+        = L"点(&7)";
 
       menu[IDM_VIEW_EDGE_WIDTH]
-        = L"�G�b�W�̑���(&E)";
+        = L"エッジの太さ(&E)";
       menu[IDM_VIEW_EDGE_WIDTH_UPDATE]
-        = L"�Čv�Z(&0)";
+        = L"再計算(&0)";
       menu[IDM_VIEW_EDGE_WIDTH_CANCEL]
-        = L"�L�����Z��(&C)";
+        = L"キャンセル(&C)";
       menu[IDM_VIEW_EDGE_WIDTH_UNIFORM]
-        = L"��l(&1)";
+        = L"一様(&1)";
       menu[IDM_VIEW_EDGE_WIDTH_WEIGHT]
-        = L"�d��(&2)";
+        = L"重み(&2)";
       menu[IDM_VIEW_EDGE_WIDTH_BETWEENNESS_CENTRALITY]
-        = L"�}��S��(&3)";
+        = L"媒介中心性(&3)";
 
       menu[IDM_VIEW_NODE_STYLE]
-        = L"�m�[�h�̕`����@(&5)\tShift+Ctrl+1";
+        = L"ノードの描画方法(&5)\tShift+Ctrl+1";
       menu[IDM_VIEW_NODE_STYLE_POLYGON]
-        = L"�|���S��(&1)";
+        = L"ポリゴン(&1)";
       menu[IDM_VIEW_NODE_STYLE_TEXTURE]
-        = L"�e�N�X�`��(&2)";
+        = L"テクスチャ(&2)";
       menu[IDM_VIEW_EDGE_STYLE]
-        = L"�G�b�W�̕`����@(&6)\tShift+Ctrl+2";
+        = L"エッジの描画方法(&6)\tShift+Ctrl+2";
       menu[IDM_VIEW_EDGE_STYLE_LINE]
-        = L"���C��(&1)";
+        = L"ライン(&1)";
       menu[IDM_VIEW_EDGE_STYLE_POLYGON]
-        = L"�|���S��(&2)";
+        = L"ポリゴン(&2)";
       menu[IDM_VIEW_COMMUNITY_STYLE]
-        = L"�R�~���j�e�B�̕`����@(&7)\tShift+Ctrl+3";
+        = L"コミュニティの描画方法(&7)\tShift+Ctrl+3";
       menu[IDM_VIEW_COMMUNITY_STYLE_POLYGON_CIRCLE]
-        = L"�|���S��(&1)";
+        = L"ポリゴン(&1)";
       menu[IDM_VIEW_COMMUNITY_STYLE_TEXTURE]
-        = L"�e�N�X�`��(&2)";
+        = L"テクスチャ(&2)";
       menu[IDM_VIEW_COMMUNITY_EDGE_STYLE]
-        = L"�R�~���j�e�B�G�b�W�̕`����@(&8)\tShift+Ctrl+4";
+        = L"コミュニティエッジの描画方法(&8)\tShift+Ctrl+4";
       menu[IDM_VIEW_COMMUNITY_EDGE_STYLE_LINE]
-        = L"���C��(&1)";
+        = L"ライン(&1)";
       menu[IDM_VIEW_COMMUNITY_EDGE_STYLE_POLYGON]
-        = L"�|���S��(&2)";
+        = L"ポリゴン(&2)";
 
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_STRING]
-        = L"������(&S)";
+        = L"文字列(&S)";
       menu[IDM_STRING_SHOW_NODE_NAME]
-        = L"�m�[�h�̖��O��\��(&1)\tCtrl+1";
+        = L"ノードの名前を表示(&1)\tCtrl+1";
       menu[IDM_STRING_SHOW_EDGE_NAME]
-        = L"�G�b�W�̖��O��\��(&2)\tCtrl+2";
+        = L"エッジの名前を表示(&2)\tCtrl+2";
       menu[IDM_STRING_SHOW_COMMUNITY_NAME]
-        = L"�R�~���j�e�B�̖��O��\��(&3)\tCtrl+3";
+        = L"コミュニティの名前を表示(&3)\tCtrl+3";
       menu[IDM_STRING_SHOW_COMMUNITY_EDGE_NAME]
-        = L"�R�~���j�e�B�G�b�W�̖��O��\��(&4)\tCtrl+4";
+        = L"コミュニティエッジの名前を表示(&4)\tCtrl+4";
       menu[IDM_STRING_NODE_NAME_SIZE]
-        = L"�m�[�h�̖��O�̑傫��(&5)";
+        = L"ノードの名前の大きさ(&5)";
       menu[IDM_STRING_NODE_NAME_SIZE_VARIABLE]
-        = L"�m�[�h�̑傫���ɘA��(&0)";
+        = L"ノードの大きさに連動(&0)";
       menu[IDM_STRING_NODE_NAME_SIZE_0]
-        = L"�ŏ�(&1)";
+        = L"最小(&1)";
       menu[IDM_STRING_NODE_NAME_SIZE_1]
-        = L"��(&2)";
+        = L"小(&2)";
       menu[IDM_STRING_NODE_NAME_SIZE_2]
-        = L"�W��(&3)";
+        = L"標準(&3)";
       menu[IDM_STRING_NODE_NAME_SIZE_3]
-        = L"��(&4)";
+        = L"大(&4)";
       menu[IDM_STRING_NODE_NAME_SIZE_4]
-        = L"�ő�(&5)";
+        = L"最大(&5)";
       menu[IDM_STRING_EDGE_NAME_SIZE]
-        = L"�G�b�W�̖��O�̑傫��(&6)";
+        = L"エッジの名前の大きさ(&6)";
       menu[IDM_STRING_EDGE_NAME_SIZE_VARIABLE]
-        = L"�G�b�W�̑����ɘA��(&0)";
+        = L"エッジの太さに連動(&0)";
       menu[IDM_STRING_EDGE_NAME_SIZE_0]
-        = L"�ŏ�(&1)";
+        = L"最小(&1)";
       menu[IDM_STRING_EDGE_NAME_SIZE_1]
-        = L"��(&2)";
+        = L"小(&2)";
       menu[IDM_STRING_EDGE_NAME_SIZE_2]
-        = L"�W��(&3)";
+        = L"標準(&3)";
       menu[IDM_STRING_EDGE_NAME_SIZE_3]
-        = L"��(&4)";
+        = L"大(&4)";
       menu[IDM_STRING_EDGE_NAME_SIZE_4]
-        = L"�ő�(&5)";
+        = L"最大(&5)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE]
-        = L"�R�~���j�e�B�̖��O�̑傫��(&7)";
+        = L"コミュニティの名前の大きさ(&7)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE_VARIABLE]
-        = L"�R�~���j�e�B�̑傫���ɘA��(&0)";
+        = L"コミュニティの大きさに連動(&0)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE_0]
-        = L"�ŏ�(&1)";
+        = L"最小(&1)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE_1]
-        = L"��(&2)";
+        = L"小(&2)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE_2]
-        = L"�W��(&3)";
+        = L"標準(&3)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE_3]
-        = L"��(&4)";
+        = L"大(&4)";
       menu[IDM_STRING_COMMUNITY_NAME_SIZE_4]
-        = L"�ő�(&5)";
+        = L"最大(&5)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE]
-        = L"�R�~���j�e�B�G�b�W�̖��O�̑傫��(&8)";
+        = L"コミュニティエッジの名前の大きさ(&8)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_VARIABLE]
-        = L"�R�~���j�e�B�G�b�W�̑����ɘA��(&0)";
+        = L"コミュニティエッジの太さに連動(&0)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_0]
-        = L"�ŏ�(&1)";
+        = L"最小(&1)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_1]
-        = L"��(&2)";
+        = L"小(&2)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_2]
-        = L"�W��(&3)";
+        = L"標準(&3)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_3]
-        = L"��(&4)";
+        = L"大(&4)";
       menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_4]
-        = L"�ő�(&5)";
+        = L"最大(&5)";
       menu[IDM_STRING_FONT_TYPE]
-        = L"�����̕`����@(&R)";
+        = L"文字の描画方法(&R)";
       menu[IDM_STRING_FONT_TYPE_POLYGON]
-        = L"�|���S��(&1)";
+        = L"ポリゴン(&1)";
       menu[IDM_STRING_FONT_TYPE_TEXTURE]
-        = L"�e�N�X�`��(&2)";
+        = L"テクスチャ(&2)";
       menu[IDM_STRING_SHOW_FPS]
-        = L"FPS��\��(&F)\tCtrl+F";
+        = L"FPSを表示(&F)\tCtrl+F";
       menu[IDM_STRING_SHOW_LAYER_NAME]
-        = L"���C���[�̖��O��\��(&L)\tL";
+        = L"レイヤーの名前を表示(&L)\tL";
 
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_EDIT]
-        = L"�ҏW(&E)";
+        = L"編集(&E)";
       menu[IDM_EDIT_MARK_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[����I��(&1)";
+        = L"現在のレイヤーから選択(&1)";
       menu[IDM_EDIT_MARK_NODES_ON_CURRENT_LAYER]
-        = L"�m�[�h��I��(&1)";
+        = L"ノードを選択(&1)";
       menu[IDM_EDIT_MARK_EDGES_ON_CURRENT_LAYER]
-        = L"�G�b�W��I��(&2)";
+        = L"エッジを選択(&2)";
       menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"�R�~���j�e�B�ɏ�������m�[�h��I��(&3)";
+        = L"コミュニティに所属するノードを選択(&3)";
       menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"�R�~���j�e�B�ɏ�������G�b�W��I��(&4)";
+        = L"コミュニティに所属するエッジを選択(&4)";
       menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"�R�~���j�e�B�ɏ�������m�[�h�ƃG�b�W��I��(&5)";
+        = L"コミュニティに所属するノードとエッジを選択(&5)";
       menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"�R�~���j�e�B�ɏ������Ȃ��m�[�h��I��(&6)";
+        = L"コミュニティに所属しないノードを選択(&6)";
       menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"�R�~���j�e�B�ɏ������Ȃ��G�b�W��I��(&7)";
+        = L"コミュニティに所属しないエッジを選択(&7)";
       menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"�R�~���j�e�B�ɏ������Ȃ��m�[�h�ƃG�b�W��I��(&8)";
+        = L"コミュニティに所属しないノードとエッジを選択(&8)";
       menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
-        = L"�S�Ă�I��(&A)\tCtrl+A";
+        = L"全てを選択(&A)\tCtrl+A";
       menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
-        = L"�I���𔽓](&I)\tCtrl+I";
+        = L"選択を反転(&I)\tCtrl+I";
 
       menu[IDM_EDIT_MARK_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[����I��(&2)";
+        = L"全てのレイヤーから選択(&2)";
       menu[IDM_EDIT_MARK_NODES_ON_EACH_LAYER]
-        = L"�m�[�h��I��(&1)";
+        = L"ノードを選択(&1)";
       menu[IDM_EDIT_MARK_EDGES_ON_EACH_LAYER]
-        = L"�G�b�W��I��(&2)";
+        = L"エッジを選択(&2)";
       menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"�R�~���j�e�B�ɏ�������m�[�h��I��(&3)";
+        = L"コミュニティに所属するノードを選択(&3)";
       menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"�R�~���j�e�B�ɏ�������G�b�W��I��(&4)";
+        = L"コミュニティに所属するエッジを選択(&4)";
       menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"�R�~���j�e�B�ɏ�������m�[�h�ƃG�b�W��I��(&5)";
+        = L"コミュニティに所属するノードとエッジを選択(&5)";
       menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"�R�~���j�e�B�ɏ������Ȃ��m�[�h��I��(&6)";
+        = L"コミュニティに所属しないノードを選択(&6)";
       menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"�R�~���j�e�B�ɏ������Ȃ��G�b�W��I��(&7)";
+        = L"コミュニティに所属しないエッジを選択(&7)";
       menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"�R�~���j�e�B�ɏ������Ȃ��m�[�h�ƃG�b�W��I��(&8)";
+        = L"コミュニティに所属しないノードとエッジを選択(&8)";
       menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
-        = L"�S�Ă�I��(&A)\tShift+Ctrl+A";
+        = L"全てを選択(&A)\tShift+Ctrl+A";
       menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
-        = L"�I���𔽓](&I)\tShift+Ctrl+I";
+        = L"選択を反転(&I)\tShift+Ctrl+I";
 
       menu[IDM_EDIT_HIDE_MARKED_ELEMENTS]
-        = L"�I�����ꂽ�v�f���B��(&3)",
+        = L"選択された要素を隠す(&3)",
       menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)\tCtrl+H";
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)\tCtrl+H";
       menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)\tShift+Ctrl+H";
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)\tShift+Ctrl+H";
 
       menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL]
-        = L"�I�����ꂽ�v�f�̓���v�f��S�Ẵ��C���[����B��(&4)";
+        = L"選択された要素の同一要素を全てのレイヤーから隠す(&4)";
       menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
-        = L"���݂̃��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)";
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)";
       menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)";
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)";
 
       menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS]
-        = L"�B�ꂽ�v�f��\��(&5)";
+        = L"隠れた要素を表示(&5)";
       menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̉B�ꂽ�m�[�h��Ώ�(&N)";
+        = L"現在のレイヤーの隠れたノードを対象(&N)";
       menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̉B�ꂽ�G�b�W��Ώ�(&E)";
+        = L"現在のレイヤーの隠れたエッジを対象(&E)";
       menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̉B�ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)\tCtrl+U";
+        = L"現在のレイヤーの隠れたノードとエッジを対象(&A)\tCtrl+U";
       menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̉B�ꂽ�m�[�h��Ώ�(&N)";
+        = L"全てのレイヤーの隠れたノードを対象(&N)";
       menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̉B�ꂽ�G�b�W��Ώ�(&E)";
+        = L"全てのレイヤーの隠れたエッジを対象(&E)";
       menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̉B�ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)\tShift+Ctrl+U";
+        = L"全てのレイヤーの隠れたノードとエッジを対象(&A)\tShift+Ctrl+U";
 
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS]
-        = L"�I�����ꂽ�v�f���폜(&6)";
+        = L"選択された要素を削除(&6)";
       menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)\tDel";
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)\tDel";
       menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)\tCtrl+Del";
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)\tCtrl+Del";
 
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL]
-        = L"�I�����ꂽ�v�f�̓���v�f��S�Ẵ��C���[����폜(&7)";
+        = L"選択された要素の同一要素を全てのレイヤーから削除(&7)";
       menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
-        = L"���݂̃��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"���݂̃��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)";
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)";
       menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h��Ώ�(&N)";
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�G�b�W��Ώ�(&E)";
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"�S�Ẵ��C���[�̑I�����ꂽ�m�[�h�ƃG�b�W��Ώ�(&A)";
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)";
 
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_LAYOUT]
-        = L"���C�A�E�g(&L)";
+        = L"レイアウト(&L)";
       menu[IDM_LAYOUT_UPDATE]
-        = L"�Čv�Z\tSpace";
+        = L"再計算\tSpace";
       menu[IDM_LAYOUT_CANCEL]
-        = L"�L�����Z��(&C)";
+        = L"キャンセル(&C)";
       menu[IDM_LAYOUT_KAMADA_KAWAI_METHOD]
-        = L"Kamada-Kawai�@(&1)";
+        = L"Kamada-Kawai法(&1)";
       menu[IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING]
         = L"High Dimensional Embedding(&2)";
       menu[IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_2]
-        = L"��1-2�ŗL����(&1)";
+        = L"第1-2固有成分(&1)";
       menu[IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_3]
-        = L"��1-3�ŗL����(&2)";
+        = L"第1-3固有成分(&2)";
       menu[IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_2_3]
-        = L"��2-3�ŗL����(&3)";
+        = L"第2-3固有成分(&3)";
       menu[IDM_LAYOUT_CIRCLE]
-        = L"�~�F�������(&3)";
+        = L"円：初期状態(&3)";
       menu[IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER]
-        = L"�~�F�傫����(&4)";
+        = L"円：大きさ順(&4)";
       menu[IDM_LAYOUT_LATTICE]
-        = L"�i�q(&5)";
+        = L"格子(&5)";
       menu[IDM_LAYOUT_RANDOM]
-        = L"�����_��(&6)";
+        = L"ランダム(&6)";
       menu[IDM_LAYOUT_FORCE_DIRECTION]
-        = L"���A���^�C���͊w�v�Z(&0)";
+        = L"リアルタイム力学計算(&0)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_RUN]
-        = L"���s(&0)\tCtrl+Space";
+        = L"実行(&0)\tCtrl+Space";
       menu[IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD]
-        = L"Kamada-Kawai�@(&1)";
+        = L"Kamada-Kawai法(&1)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION]
-        = L"Kamada-Kawai�@�{�R�~���j�e�B�Ԑ˗�(&2)";
+        = L"Kamada-Kawai法＋コミュニティ間斥力(&2)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_COMMUNITY_ORIENTED]
-        = L"�R�~���j�e�B�w��(&3)";
+        = L"コミュニティ指向(&3)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_SPRING_AND_REPULSIVE_FORCE]
-        = L"�΂ˁ{�˗�(&4)";
+        = L"ばね＋斥力(&4)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_LATTICE_GAS_METHOD]
-        = L"�i�q�K�X�@(&5)";
+        = L"格子ガス法(&5)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_DESIGNTIDE]
         = L"DESIGNTIDE(&6)";
       menu[IDM_LAYOUT_SHOW_LAYOUT_FRAME]
-        = L"���C�A�E�g�t���[���̕\��(&F)\tF";
+        = L"レイアウトフレームの表示(&F)\tF";
       menu[IDM_LAYOUT_INITIALIZE_LAYOUT_FRAME]
-        = L"���C�A�E�g�t���[���̏�����(&I)\tCtrl+Home";
+        = L"レイアウトフレームの初期化(&I)\tCtrl+Home";
       menu[IDM_LAYOUT_SHOW_GRID]
-        = L"�O���b�h�̕\��(&G)\tG";
+        = L"グリッドの表示(&G)\tG";
       menu[IDM_LAYOUT_SHOW_CENTER]
-        = L"���S�_�ƒ����_�̕\��(&R)";
+        = L"中心点と注視点の表示(&R)";
       menu[IDM_LAYOUT_INITIALIZE_EYEPOINT]
-        = L"���_�̏�����(&I)\tHome";
+        = L"視点の初期化(&I)\tHome";
       menu[IDM_LAYOUT_ZOOM_IN]
-        = L"�g��(&Z)\tPage Down";
+        = L"拡大(&Z)\tPage Down";
       menu[IDM_LAYOUT_ZOOM_OUT]
-        = L"�k��(&X)\tPage Up";
+        = L"縮小(&X)\tPage Up";
 
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_COMMUNITY_DETECTION]
-        = L"�R�~���j�e�B(&C)";
+        = L"コミュニティ(&C)";
       menu[IDM_COMMUNITY_DETECTION_UPDATE]
-        = L"�Čv�Z\tEnter";
+        = L"再計算\tEnter";
       menu[IDM_COMMUNITY_DETECTION_CANCEL]
-        = L"�L�����Z��(&C)";
+        = L"キャンセル(&C)";
       menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
-        = L"�J�ڐ}�̕\��(&D)\tD";
+        = L"遷移図の表示(&D)\tD";
       menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
-        = L"���L���G���A(&X)\tCtrl+��";
+        = L"より広いエリア(&X)\tCtrl+←";
       menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
-        = L"��苷���G���A(&Z)\tCtrl+��";
+        = L"より狭いエリア(&Z)\tCtrl+→";
       menu[IDM_COMMUNITY_DETECTION_CONNECTED_COMPONENTS]
-        = L"�A����������(&1)";
+        = L"連結成分分解(&1)";
       menu[IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS]
-        = L"��A����������(&1)";
+        = L"弱連結成分分解(&1)";
       menu[IDM_COMMUNITY_DETECTION_STRONGLY_CONNECTED_COMPONENTS]
-        = L"���A����������(&2)";
+        = L"強連結成分分解(&2)";
       menu[IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION]
-        = L"���W�������e�B�ő剻(&2)";
+        = L"モジュラリティ最大化(&2)";
       menu[IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD]
-        = L"�~����@(&1)";
+        = L"欲張り法(&1)";
       menu[IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_TEO_METHOD]
-        = L"��-EO�@(&2)";
+        = L"τ-EO法(&2)";
       menu[IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY]
-        = L"�d�ݕt�����W�������e�B(&W)";
+        = L"重み付きモジュラリティ(&W)";
       menu[IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION]
-        = L"�N���[�N�p�[�R���[�V����(&3)";
+        = L"クリークパーコレーション(&3)";
       menu[IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_3]
-        = L"3-�N���[�N�p�[�R���[�V����(&1)";
+        = L"3-クリークパーコレーション(&1)";
       menu[IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_4]
-        = L"4-�N���[�N�p�[�R���[�V����(&2)";
+        = L"4-クリークパーコレーション(&2)";
       menu[IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_5]
-        = L"5-�N���[�N�p�[�R���[�V����(&3)";
+        = L"5-クリークパーコレーション(&3)";
       menu[IDM_COMMUNITY_DETECTION_OTHERS]
-        = L"���̑�(&4)";
+        = L"その他(&4)";
       menu[IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION]
-        = L"�}��S������(&1)";
+        = L"媒介中心性分割(&1)";
       menu[IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping(&2)";
       menu[IDM_COMMUNITY_DETECTION_CLEAR]
-        = L"������(&0)";
+        = L"初期化(&0)";
 
 
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_TIMELINE]
-        = L"���n��(&T)";
+        = L"時系列(&T)";
       menu[IDM_TIMELINE_NEXT]
-        = L"���̎���(&1)\t��";
+        = L"次の時刻(&1)\t↑";
       menu[IDM_TIMELINE_PREV]
-        = L"�O�̎���(&2)\t��";
+        = L"前の時刻(&2)\t↓";
       menu[IDM_TIMELINE_AUTO_RUN]
-        = L"����(&0)";
+        = L"自動(&0)";
       menu[IDM_TIMELINE_STOP]
-        = L"��~(&0)";
+        = L"停止(&0)";
       menu[IDM_TIMELINE_FORWARD_1]
-        = L"1�X�e�b�v/�b(&1)";
+        = L"1ステップ/秒(&1)";
       menu[IDM_TIMELINE_FORWARD_2]
-        = L"2�X�e�b�v/�b(&2)";
+        = L"2ステップ/秒(&2)";
       menu[IDM_TIMELINE_FORWARD_3]
-        = L"5�X�e�b�v/�b(&3)";
+        = L"5ステップ/秒(&3)";
       menu[IDM_TIMELINE_FORWARD_4]
-        = L"10�X�e�b�v/�b(&4)";
+        = L"10ステップ/秒(&4)";
       menu[IDM_TIMELINE_BACKWARD_1]
-        = L"-1�X�e�b�v/�b(&5)";
+        = L"-1ステップ/秒(&5)";
       menu[IDM_TIMELINE_BACKWARD_2]
-        = L"-2�X�e�b�v/�b(&6)";
+        = L"-2ステップ/秒(&6)";
       menu[IDM_TIMELINE_BACKWARD_3]
-        = L"-5�X�e�b�v/�b(&7)";
+        = L"-5ステップ/秒(&7)";
       menu[IDM_TIMELINE_BACKWARD_4]
-        = L"-10�X�e�b�v/�b(&8)";
+        = L"-10ステップ/秒(&8)";
       menu[IDM_TIMELINE_SHOW_SLIDER]
-        = L"���C���[�؂�ւ��X���C�_�[�̕\��(&S)\tS";
+        = L"レイヤー切り替えスライダーの表示(&S)\tS";
     }
 
 
@@ -478,158 +478,158 @@ namespace hashimoto_ut {
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::QUIT]
-        = L"�I�����܂���?";
+        = L"終了しますか?";
       message[Message::IS_NOT_TEXTFILE]
-        = L"�e�L�X�g�t�@�C���ł͂���܂���";
+        = L"テキストファイルではありません";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::CALCULATING_CLOSENESS_CENTRALITY]
-        = L"�������S�����v�Z���Ă��܂�";
+        = L"距離中心性を計算しています";
       message[Message::CALCULATING_MEAN_SHORTEST_PATH_LENGTH]
-        = L"���ύŒZ�o�H�����v�Z���Ă��܂�";
+        = L"平均最短経路長を計算しています";
       message[Message::CALCULATING_CONNECTED_COMPONENTS]
-        = L"��A���������v�Z���Ă��܂�";
+        = L"弱連結成分を計算しています";
       message[Message::CALCULATING_STRONGLY_CONNECTED_COMPONENTS]
-        = L"���A���������v�Z���Ă��܂�";
+        = L"強連結成分を計算しています";
       message[Message::CALCULATING_BETWEENNESS_CENTRALITY]
-        = L"�}��S�����v�Z���Ă��܂�";
+        = L"媒介中心性を計算しています";
       message[Message::CALCULATING_PAGERANK]
-        = L"�y�[�W�����N���v�Z���Ă��܂�";
+        = L"ページランクを計算しています";
       message[Message::CALCULATING_MODULARITY]
-        = L"���W�������e�B���v�Z���Ă��܂�";
+        = L"モジュラリティを計算しています";
       message[Message::CALCULATING_LARGEST_CLIQUES]
-        = L"�ő�N���[�N���v�Z���Ă��܂�";
+        = L"最大クリークを計算しています";
       message[Message::CALCULATING_3_CLIQUE_COMMUNITIES]
-        = L"3-�N���[�N�R�~���j�e�B���v�Z���Ă��܂�";
+        = L"3-クリークコミュニティを計算しています";
       message[Message::CALCULATING_DEGREE_CENTRALITY]
-        = L"�������S�����v�Z���Ă��܂�";
+        = L"次数中心性を計算しています";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::GRAPH_EXTRACTOR_EXTRACTING_NODES]
-        = L"�m�[�h�𒊏o���Ă��܂�";
+        = L"ノードを抽出しています";
       message[Message::GRAPH_EXTRACTOR_EXTRACTING_EDGES]
-        = L"�G�b�W�𒊏o���Ă��܂�";
+        = L"エッジを抽出しています";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::GLEW_FAILED_TO_INITIALIZE]
-        = L"GLEW�̏������Ɏ��s���܂���";
+        = L"GLEWの初期化に失敗しました";
       message[Message::GLEW_MSAA_8]
-        = L"�}���`�T���v�����O�A���`�G���A�V���O(x8)���L���ɂȂ�܂���";
+        = L"マルチサンプリングアンチエリアシング(x8)が有効になりました";
       message[Message::GLEW_MSAA_4]
-        = L"�}���`�T���v�����O�A���`�G���A�V���O(x4)���L���ɂȂ�܂���";
+        = L"マルチサンプリングアンチエリアシング(x4)が有効になりました";
       message[Message::GLEW_MSAA_2]
-        = L"�}���`�T���v�����O�A���`�G���A�V���O(x2)���L���ɂȂ�܂���";
+        = L"マルチサンプリングアンチエリアシング(x2)が有効になりました";
       message[Message::GLEW_FAILED_TO_ENABLE_MSAA]
-        = L"�}���`�T���v�����O�A���`�G���A�V���O�����p�ł��܂���";
+        = L"マルチサンプリングアンチエリアシングが利用できません";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::FAILED_TO_CREATE_TEXTURE]
-        = L"�e�N�X�`���̐����Ɏ��s���܂���";
+        = L"テクスチャの生成に失敗しました";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::REMOVE_ELEMENTS]
-        = L"�I�����ꂽ�v�f���폜���܂��B���ɂ͖߂��܂��񂪂�낵���ł���?";
+        = L"選択された要素を削除します。元には戻せませんがよろしいですか?";
       message[Message::CLEAR_COMMUNITY]
-        =  L"�R�~���j�e�B�����폜���܂��B���ɂ͖߂��܂��񂪂�낵���ł���?";
+        =  L"コミュニティ情報を削除します。元には戻せませんがよろしいですか?";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::GRAPH_IS_LOCKED]
-        = L"�O���t���n��͑��̏����ɂ���ă��b�N����Ă��܂�";
+        = L"グラフ時系列は他の処理によってロックされています";
       message[Message::ANOTHER_THREAD_IS_RUNNING]
-        = L"�ʃX���b�h���N�����Ă��܂��B�I���܂ő҂��L�����Z����Ƀ��g���C���ĉ�����";
+        = L"別スレッドが起動しています。終了まで待つかキャンセル後にリトライして下さい";
       message[Message::CANCEL_RUNNING_THREAD]
-        = L"�N�����̃X���b�h���I�����܂���?";
+        = L"起動中のスレッドを終了しますか?";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::READING_DATA_FILE]
-        = L"�f�[�^��ǂݍ���ł��܂�";
+        = L"データを読み込んでいます";
       message[Message::CHECKING_TEXT_ENCODING]
-        = L"�����R�[�h�𔻕ʂ��Ă��܂�";
-      message[Message::CONVERTING_INTO_SJIS_ENCODING]
-        = L"�����R�[�h��Shift_JIS�ɕϊ����Ă��܂�";
+        = L"文字コードを判別しています";
+      message[Message::CONVERTING_INTO_UTF16_ENCODING]
+        = L"文字コードをUTF-16に変換しています";
       message[Message::UNKNOWN_CHARACTER_ENCODING]
-        = L"�s���ȃe�L�X�g�G���R�[�f�B���O�ł�";
+        = L"不明なテキストエンコーディングです";
       message[Message::PARSING_DATA]
-        = L"�f�[�^����͂��Ă��܂�";
+        = L"データを解析しています";
       message[Message::MAKING_GRAPH_TIME_SERIES]
-        = L"�O���t���n����쐬���Ă��܂�";
+        = L"グラフ時系列を作成しています";
       message[Message::MAKING_GRAPH_SNAPSHOT]
-        = L"�O���t���쐬���Ă��܂�";
+        = L"グラフを作成しています";
       message[Message::MAKING_GRAPH_ATTRIBUTES]
-        = L"�O���t�v�f�̑������쐬���Ă��܂�";
+        = L"グラフ要素の属性を作成しています";
       message[Message::MAKING_NODE_PROPERTIES]
-        = L"�m�[�h�̑������쐬���Ă��܂�";
+        = L"ノードの属性を作成しています";
       message[Message::MAKING_EDGE_PROPERTIES]
-        = L"�G�b�W�̑������쐬���Ă��܂�";
+        = L"エッジの属性を作成しています";
       message[Message::UNSUPPORTED_DATA_FORMAT]
-        = L"�T�|�[�g����Ă��Ȃ��f�[�^�`���ł�";
+        = L"サポートされていないデータ形式です";
       message[Message::FAILED_TO_READ_DATA]
-        = L"�f�[�^�̓ǂݍ��݂Ɏ��s���܂���";
+        = L"データの読み込みに失敗しました";
       message[Message::UNCERTAIN_DELIMITER]
-        = L"�f�[�^�t�@�C���ɋ�؂蕶�����w�肳��Ă��܂���";
+        = L"データファイルに区切り文字が指定されていません";
       message[Message::INVALID_NUMBER_OF_ITEMS]
-        = L"�s�̍��ڐ�������������܂���";
+        = L"行の項目数が正しくありません";
       message[Message::NO_VALID_DATA]
-        = L"�L���ȃf�[�^�����݂��܂���";
+        = L"有効なデータが存在しません";
       message[Message::NODE_IDENTIFIER_DUPLICATION]
-        = L"���ꃌ�C���[�Ɏ��ʎq�̏d������m�[�h�����݂��܂�";
+        = L"同一レイヤーに識別子の重複するノードが存在します";
       message[Message::EDGE_IDENTIFIER_DUPLICATION]
-        = L"���ꃌ�C���[�Ɏ��ʎq�̏d������G�b�W�����݂��܂�";
+        = L"同一レイヤーに識別子の重複するエッジが存在します";
 
 
       /////////////////////////////////////////////////////////////////////////////
+      message[Message::LAYOUTING]
+        = L"選択されたグラフをレイアウトしています";
       message[Message::KAMADA_KAWAI_METHOD]
-        = L"Kamada-Kawai�@";
+        = L"Kamada-Kawai法";
       message[Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH]
-        = L"�O���t��������o�l�W�����v�Z���Ă��܂�";
-      message[Message::KAMADA_KAWAI_METHOD_ITERATING]
-        = L"�C�e���[�V�������s��";
+        = L"Kamada-Kawai法 [バネ係数を計算中]";
       message[Message::HDE]
         = L"High Dimensional Embedding";
       message[Message::HDE_CALCULATING_GRAPH_DISTANCE]
-        = L"��_����̃O���t�������v�Z���Ă��܂�";
+        = L"High Dimensional Embedding [基準点からの距離を計算中]";
       message[Message::HDE_CALCULATING_MATRIX]
-        = L"��_����̃O���t�����ɑ΂��镪�U�E�����U�s����v�Z���Ă��܂�";
+        = L"High Dimensional Embedding [分散・共分散行列を計算中]";
       message[Message::HDE_CALCULATING_PRINCIPAL_COMPONENTS]
-        = L"���U�E�����U�s��̎听�����v�Z���Ă��܂�";
+        = L"High Dimensional Embedding [主成分を計算中]";
       message[Message::HDE_CALCULATING_POSITION]
-        = L"���U�E�����U�s��̎听��������W���v�Z���Ă��܂�";
+        = L"High Dimensional Embedding [座標を計算中]";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::DETECTING_COMMUNITIES]
-        = L"�R�~���j�e�B���o���s���Ă��܂�";
+        = L"コミュニティ検出を行っています";
       message[Message::MAKING_COMMUNITY_TIME_SERIES]
-        = L"�R�~���j�e�B���n����쐬���Ă��܂�";
+        = L"コミュニティ時系列を作成しています";
       message[Message::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD]
-        = L"���W�������e�B�ő剻 [�~����@]";
+        = L"モジュラリティ最大化 [欲張り法]";
       message[Message::MODULARITY_MAXIMIZATION_USING_TEO_METHOD]
-        = L"���W�������e�B�ő剻 [��-EO�@]";
+        = L"モジュラリティ最大化 [τ-EO法]";
       message[Message::BETWEENNESS_CENTRALITY_SEPARATION]
-        = L"�}��S���N���X�^�����O";
+        = L"媒介中心性クラスタリング";
       message[Message::INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping";
 
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::UPDATING_NODE_SIZE]
-        = L"�m�[�h�̑傫�����X�V���Ă��܂�";
+        = L"ノードの大きさを更新しています";
       message[Message::UPDATING_EDGE_WIDTH]
-        = L"�G�b�W�̑������X�V���Ă��܂�";
+        = L"エッジの太さを更新しています";
 
 
       ////////////////////////////////////////////////////////////////////////////////
       message[Message::FTGL_ERROR_CHARMAP]
-        = L"FTFont::CharMap�̌Ăяo���Ɏ��s���܂���";
+        = L"FTFont::CharMapの呼び出しに失敗しました";
       message[Message::FTGL_ERROR_FACESIZE]
-        = L"FTFont::FaceSize�̌Ăяo���Ɏ��s���܂���";
+        = L"FTFont::FaceSizeの呼び出しに失敗しました";
       message[Message::FTGL_ERROR_CREATE]
         = L"Failed to create a font object";
     }

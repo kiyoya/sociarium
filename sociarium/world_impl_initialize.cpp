@@ -34,7 +34,6 @@
 #include <gl/wglew.h>
 #include <FTGL/ftgl.h>
 #include "world_impl.h"
-#include "cvframe.h"
 #include "glew.h"
 #include "common.h"
 #include "language.h"
@@ -49,11 +48,9 @@
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
 #include "../shared/GL/glview.h"
-#include "../shared/GL/gltexture.h"
+#include "../shared/GL/texture.h"
 
 #pragma comment(lib, "glew32.lib")
-
-#include "designtide.h"
 
 namespace hashimoto_ut {
 
@@ -75,8 +72,7 @@ namespace hashimoto_ut {
     // --------------------------------------------------------------------------------
     // Initialize the OpenGL environment.
 
-    bool const glew_is_available
-      = sociarium_project_glew::initialize();
+    bool const glew_is_available = sociarium_project_glew::initialize();
 
     HDC dc = get_device_context();
 
@@ -122,57 +118,42 @@ namespace hashimoto_ut {
         };
 
       // Try to use Multi-Sampling Anti-Aliasing (x8).
-      msaa_is_available = wglChoosePixelFormatARB(
-        dc, iattr, fattr, 1, &pf, &number_of_formats);
+      msaa_is_available
+        = wglChoosePixelFormatARB(dc, iattr, fattr, 1, &pf, &number_of_formats);
 
       if (msaa_is_available && number_of_formats>0) {
-        message_box(
-          get_window_handle(),
-          MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-          APPLICATION_TITLE,
-          get_message(Message::GLEW_MSAA_8));
+        message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+                    get_message(Message::GLEW_MSAA_8));
       } else {
         // Try to use Multi-Sampling Anti-Aliasing (x4).
         iattr[19] = 4;
 
-        msaa_is_available = wglChoosePixelFormatARB(
-          dc, iattr, fattr, 1, &pf, &number_of_formats);
+        msaa_is_available
+          = wglChoosePixelFormatARB(dc, iattr, fattr, 1, &pf, &number_of_formats);
 
         if (msaa_is_available && number_of_formats>0) {
-          message_box(
-            get_window_handle(),
-            MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-            APPLICATION_TITLE,
-            get_message(Message::GLEW_MSAA_4));
+          message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+                      get_message(Message::GLEW_MSAA_4));
         } else {
           // Try to use Multi-Sampling Anti-Aliasing (x2).
           iattr[19] = 2;
 
-          msaa_is_available = wglChoosePixelFormatARB(
-            dc, iattr, fattr, 1, &pf, &number_of_formats);
+          msaa_is_available
+            = wglChoosePixelFormatARB(dc, iattr, fattr, 1, &pf, &number_of_formats);
 
           if (msaa_is_available && number_of_formats>0) {
-            message_box(
-              get_window_handle(),
-              MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-              APPLICATION_TITLE,
-              get_message(Message::GLEW_MSAA_2));
+            message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+                        get_message(Message::GLEW_MSAA_2));
           } else {
-            message_box(
-              get_window_handle(),
-              MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL,
-              APPLICATION_TITLE,
-              get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
+            message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+                        get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
             msaa_is_available = FALSE;
           }
         }
       }
     } else {
-      message_box(
-        get_window_handle(),
-        MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-        APPLICATION_TITLE,
-        get_message(Message::GLEW_FAILED_TO_INITIALIZE));
+      message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                  get_message(Message::GLEW_FAILED_TO_INITIALIZE));
     }
 
     /*
@@ -211,8 +192,7 @@ namespace hashimoto_ut {
       exit(1);
     }
 
-    set_rendering_context(
-      RenderingContext::LOAD_TEXTURES, rc_texture);
+    set_rendering_context(RenderingContext::LOAD_TEXTURES, rc_texture);
 
     // Share textures between both contexts.
     if (wglShareLists(rc_draw, rc_texture)==FALSE) {
@@ -234,8 +214,7 @@ namespace hashimoto_ut {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glAlphaFunc(GL_ALWAYS, 0.0f);
 
-    if (msaa_is_available)
-      glEnable(GL_MULTISAMPLE);
+    if (msaa_is_available) glEnable(GL_MULTISAMPLE);
 
     // --------------------------------------------------------------------------------
     // Initialize view.
@@ -258,10 +237,6 @@ namespace hashimoto_ut {
     sociarium_project_font::initialize();
 
     // --------------------------------------------------------------------------------
-    // Create textures.
-    sociarium_project_texture::set_slider_texture(L"___system_slider.png");
-
-    // --------------------------------------------------------------------------------
     // Create a graph time series object.
     sociarium_project_graph_time_series::initialize();
 
@@ -277,17 +252,13 @@ namespace hashimoto_ut {
       initialize();
 
       shared_ptr<Thread> tf = ForceDirectionThread::create();
-      if (!sociarium_project_force_direction::is_active())
-        tf->suspend();
+      if (!sociarium_project_force_direction::is_active()) tf->suspend();
       invoke(FORCE_DIRECTION, tf);
     }
 
     // --------------------------------------------------------------------------------
     // Initialize FPS counter.
     sociarium_project_fps_manager::start(60);
-
-
-    sociarium_project_designtide::initialize();
   }
 
 
@@ -299,11 +270,6 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     sociarium_project_graph_time_series::finalize();
-
-    // --------------------------------------------------------------------------------
-#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
-    sociarium_project_cvframe::terminate();
-#endif
 
     // --------------------------------------------------------------------------------
     if (wglMakeCurrent(0, 0)==FALSE)
@@ -332,8 +298,8 @@ namespace hashimoto_ut {
     if (wglDeleteContext(rc_textures)==FALSE)
       show_last_error(L"WorldImpl::~World/wglDeleteContext (loading textures)");
     /* In some environments, this block causes the "pure virtual function" error.
-     * It's thought to be causally related to releasing the context that is
-     * activated by another thread, but I don't know how should it be written...
+     * It's thought to be causally related to releasing the context activated by
+     * another thread, however, I have no idea how should it be correctly written...
      */
 #endif
   }

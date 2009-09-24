@@ -40,11 +40,12 @@
 #include "layout.h"
 #include "selection.h"
 #include "texture.h"
+#include "flag_operation.h"
 #include "sociarium_graph.h"
 #include "../shared/vector3.h"
 #include "../shared/math.h"
 #include "../shared/predefined_color.h"
-#include "../shared/gl/gltexture.h"
+#include "../shared/gl/texture.h"
 
 namespace hashimoto_ut {
 
@@ -54,6 +55,8 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_color;
   using namespace sociarium_project_draw;
+  using namespace sociarium_project_font;
+  using namespace sociarium_project_view;
   using namespace sociarium_project_layout;
   using namespace sociarium_project_selection;
 
@@ -229,16 +232,13 @@ namespace hashimoto_ut {
 
       if (is_hidden(dnp)) return;
 
-      StaticNodeProperty* snp = dnp.get_static_property();
+      StaticNodeProperty const* snp = dnp.get_static_property();
       Vector2<float> const& pos = snp->get_position();
       float const radius = 0.5f*get_node_size()*dnp.get_size();
+      set_color(predefined_color[dnp.get_color_id()], dnp.get_flag(), is_selected);
 
       glPushMatrix();
       glTranslatef(pos.x, pos.y, 0.0f);
-      Node const* n = dnp.get_graph_element();
-
-      set_color(predefined_color[dnp.get_color_id()], dnp.get_flag(), is_selected);
-
       glBegin(GL_TRIANGLE_FAN);
       glVertex2f(0.0f, 0.0f);
       for (int i=0; i<360; i+=10)
@@ -254,22 +254,16 @@ namespace hashimoto_ut {
 
       if (is_hidden(dnp)) return;
 
-      StaticNodeProperty* snp = dnp.get_static_property();
+      StaticNodeProperty const* snp = dnp.get_static_property();
       Vector2<float> const& pos = snp->get_position();
       float const radius = 0.5f*get_node_size()*dnp.get_size();
 
       glPushMatrix();
       glTranslatef(pos.x, pos.y, 0.0f);
-
-      Node const* n = dnp.get_graph_element();
-
       glBegin(GL_TRIANGLE_FAN);
-
       glColor4fv(get_color(ColorCategory::BACKGROUND).data());
       glVertex2f(0.0f, 0.0f);
-
       set_color(predefined_color[dnp.get_color_id()], dnp.get_flag(), is_selected);
-
       for (int i=0; i<360; i+=10)
         glVertex2fv((radius*Vector2<float>(COS360[i], SIN360[i])).data);
       glVertex2f(radius, 0.0f);
@@ -277,23 +271,20 @@ namespace hashimoto_ut {
       glPopMatrix();
     }
 
-
     // --------------------------------------------------------------------------------
     void draw_node_with_texture(
       DynamicNodeProperty const& dnp, float angleH, float angleV, bool is_selected) {
 
       if (is_hidden(dnp)) return;
 
-      StaticNodeProperty* snp = dnp.get_static_property();
+      StaticNodeProperty const* snp = dnp.get_static_property();
       Vector2<float> const& pos = snp->get_position();
-      GLTexture const* texture = snp->get_texture();
+      Texture const* texture = snp->get_texture();
       float const aspect = float(texture->width())/texture->height();
       float const size = 0.5f*get_node_size()*dnp.get_size();
 
       Vector2<float> const sz(aspect<1.0f?Vector2<float>(aspect*size, size)
                               :Vector2<float>(size, size/aspect));
-
-      Node const* n = dnp.get_graph_element();
 
       set_color(predefined_color[dnp.get_color_id()], dnp.get_flag(), is_selected);
 
@@ -313,6 +304,7 @@ namespace hashimoto_ut {
       glTexCoord2f(texture->xcoord(), texture->ycoord());
       glVertex3f(+sz.x, +sz.y, 0.0f);
       glEnd();
+      glBindTexture(GL_TEXTURE_2D, 0);
       glDisable(GL_TEXTURE_2D);
       glPopMatrix();
     }
@@ -332,8 +324,8 @@ namespace hashimoto_ut {
       set_color(predefined_color[dep.get_color_id()], dep.get_flag(), is_selected);
 
       float const width = is_selected?3.0f:1.0f;
-
       float const z = loop_edge_height*10.0f;
+
       GLfloat const ctrlpoints[5][3] = {
         { pos.x, pos.y, 0.0f },
         { pos.x+z, pos.y, z },
@@ -346,8 +338,7 @@ namespace hashimoto_ut {
       glMap1f(GL_MAP1_VERTEX_3, 0.0f, 1.0f, 3, 5, &ctrlpoints[0][0]);
       glEnable(GL_MAP1_VERTEX_3);
       glBegin(GL_LINE_STRIP);
-      for (int i=0; i<=20; ++i)
-        glEvalCoord1f(float(i)/20.0f);
+      for (int i=0; i<=20; ++i) glEvalCoord1f(float(i)/20.0f);
       glEnd();
     }
 
@@ -397,8 +388,7 @@ namespace hashimoto_ut {
         u = u.rot(-radian0);
         glLineWidth(width);
         glBegin(GL_LINE_STRIP);
-        for (int i=0; i<=segments; ++i)
-          glVertex2fv((c+r*u.rot(-dr*i).fcast()).data);
+        for (int i=0; i<=segments; ++i) glVertex2fv((c+r*u.rot(-dr*i).fcast()).data);
         glEnd();
       }
     }
@@ -565,9 +555,6 @@ namespace hashimoto_ut {
       DynamicNodeProperty const& dnp,
       float scale, float angleH, float angleV) {
 
-      using namespace sociarium_project_font;
-      using namespace sociarium_project_view;
-
       if (is_hidden(dnp)) return;
 
       StaticNodeProperty const* snp = dnp.get_static_property();
@@ -614,9 +601,6 @@ namespace hashimoto_ut {
       DynamicEdgeProperty const& dep, SociariumGraph const* g,
       float scale, float angleH, float angleV) {
 
-      using namespace sociarium_project_font;
-      using namespace sociarium_project_view;
-
       Edge const* e = dep.get_graph_element();
       DynamicNodeProperty const& dnp = g->property(e->source());
       StaticEdgeProperty const* sep = dep.get_static_property();
@@ -658,9 +642,6 @@ namespace hashimoto_ut {
     void draw_directed_edge_name(
       DynamicEdgeProperty const& dep, SociariumGraph const* g,
       float scale, float angleH, float angleV) {
-
-      using namespace sociarium_project_font;
-      using namespace sociarium_project_view;
 
       if (is_hidden(dep)) return;
 
@@ -717,9 +698,6 @@ namespace hashimoto_ut {
     void draw_undirected_edge_name(
       DynamicEdgeProperty const& dep, SociariumGraph const* g,
       float scale, float angleH, float angleV) {
-
-      using namespace sociarium_project_font;
-      using namespace sociarium_project_view;
 
       if (is_hidden(dep)) return;
 

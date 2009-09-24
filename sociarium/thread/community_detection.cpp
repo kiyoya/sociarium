@@ -36,11 +36,12 @@
 #include <boost/format.hpp>
 #include "community_detection.h"
 #include "../module/community_detection.h"
-#include "../graph_extractor.h"
 #include "../thread.h"
-#include "../algorithm_selector.h"
 #include "../texture.h"
 #include "../color.h"
+#include "../flag_operation.h"
+#include "../algorithm_selector.h"
+#include "../graph_extractor.h"
 #include "../language.h"
 #include "../sociarium_graph_time_series.h"
 #include "../../graph/graphex.h"
@@ -290,8 +291,8 @@ namespace hashimoto_ut {
         bool is_canceled = false;
 
         detect_community(
-          this,
-          &status[1],
+          *this,
+          status[1],
           get_message_object(),
           community,
           is_canceled,

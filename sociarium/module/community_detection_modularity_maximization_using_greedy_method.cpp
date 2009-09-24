@@ -61,9 +61,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
 
-      Thread* parent,
-      wstring* status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<vector<Node*> >& community,
       bool& is_canceled,
       shared_ptr<Graph const> g,
@@ -121,7 +121,7 @@ namespace hashimoto_ut {
       // Calculate initial modularity.
       pair<bool, double> qq
         = sociarium_project_graph_utility::modularity(
-          parent, 0, message, g, community, edge_weight);
+          &parent, 0, &message, g, community, edge_weight);
 
       if (qq.first==false) {
         is_canceled = true;
@@ -133,17 +133,15 @@ namespace hashimoto_ut {
       for (size_t i=0; community.size()>1; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           is_canceled = true;
           return;
         }
 
-        if (status) {
-          *status
-            = (boost::wformat(L"%s: Q=%.3f [%d]")
-               %message->get(Message::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD)
-               %q%community.size()).str();
-        }
+        status
+          = (boost::wformat(L"%s: Q=%.3f [%d]")
+             %message.get(Message::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD)
+             %q%community.size()).str();
 
         ////////////////////////////////////////////////////////////////////////////////
         // Find the edge having the max value of dq.
@@ -152,7 +150,7 @@ namespace hashimoto_ut {
         for (list<Edge const*>::iterator j=e_target.begin(); j!=e_target.end();) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }
@@ -181,12 +179,10 @@ namespace hashimoto_ut {
         q += dq_max.first;
         Edge const* e_max = dq_max.second;
 
-        if (status) {
-          *status
-            = (boost::wformat(L"%s: Q=%.3f [%d]")
-               %message->get(Message::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD)
-               %q%community.size()).str();
-        }
+        status
+          = (boost::wformat(L"%s: Q=%.3f [%d]")
+             %message.get(Message::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD)
+             %q%community.size()).str();
 
         ////////////////////////////////////////////////////////////////////////////////
         // Merge two clusters
@@ -200,7 +196,7 @@ namespace hashimoto_ut {
         for (size_t j=0; j<n; ++j) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }
@@ -211,7 +207,7 @@ namespace hashimoto_ut {
         for (size_t j=0; j<n; ++j) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }
@@ -222,7 +218,7 @@ namespace hashimoto_ut {
         for (size_t j=0; j<n; ++j) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }
@@ -233,7 +229,7 @@ namespace hashimoto_ut {
         for (size_t j=0; j<n; ++j) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }

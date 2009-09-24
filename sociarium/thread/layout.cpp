@@ -36,6 +36,7 @@
 #include "../module/layout.h"
 #include "../graph_extractor.h"
 #include "../thread.h"
+#include "../flag_operation.h"
 #include "../layout.h"
 #include "../language.h"
 #include "../algorithm_selector.h"
@@ -114,6 +115,9 @@ namespace hashimoto_ut {
       }
 
       shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
+
+      status[0] = (boost::wformat(L"%s")
+                   %get_message(Message::LAYOUTING)).str();
 
       // --------------------------------------------------------------------------------
       // Memory the position of extracted nodes.
@@ -198,8 +202,8 @@ namespace hashimoto_ut {
       // --------------------------------------------------------------------------------
       // Execute the module.
 
-      layout(this,
-             status,
+      layout(*this,
+             status[1],
              get_message_object(),
              position_target,
              g_target,

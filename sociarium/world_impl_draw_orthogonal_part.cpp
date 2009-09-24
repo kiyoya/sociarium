@@ -47,7 +47,7 @@
 #include "community_transition_diagram.h"
 #include "../shared/predefined_color.h"
 #include "../shared/GL/glview.h"
-#include "../shared/GL/gltexture.h"
+#include "../shared/GL/texture.h"
 
 namespace hashimoto_ut {
 
@@ -148,7 +148,7 @@ namespace hashimoto_ut {
             // Draw a texture of the selected object.
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             glEnable(GL_TEXTURE_2D);
-            GLTexture const* texture = snp->get_texture();
+            Texture const* texture = snp->get_texture();
             float const texture_aspect = float(texture->width())/texture->height();
 
             Vector2<float> const sz(
@@ -172,6 +172,7 @@ namespace hashimoto_ut {
             glTexCoord2f(texture->xcoord(), 0.0f);
             glVertex2f(right, bottom);
             glEnd();
+            glBindTexture(GL_TEXTURE_2D, 0);
             glDisable(GL_TEXTURE_2D);
           }
 
@@ -298,11 +299,17 @@ namespace hashimoto_ut {
 
       ts->read_lock();
 
+      static float const transparent[] = { 0.0f, 0.0f, 0.0f, 0.0f, };
+
       float const xoff = scale.x*get_slider_offset().x;
       float const yoff = scale.y*get_slider_offset().y;
-      float const x = 1.0f-xoff;
       float const w = 0.5f*xoff;
       float const h = 1.0f-2*yoff;
+      float const x0 = 1.0f-xoff;
+      float const x1 = x0+0.25f*w;
+      float const x2 = x0+0.75f*w;
+      float const x3 = x0+w;
+      float const top = yoff+h;
 
       pair<int, int> const c = (
         is_selected(SelectionCategory::TIME_SLIDER)?
@@ -314,38 +321,38 @@ namespace hashimoto_ut {
       glLoadName(SelectionCategory::TIME_SLIDER);
       glPushName(0);
 
-      glEnable(GL_TEXTURE_2D);
-      GLTexture const* texture = sociarium_project_texture::get_slider_texture();
-      glBindTexture(GL_TEXTURE_2D, texture->get());
-
       if (ts->number_of_layers()>100) {
         size_t const num = ts->number_of_layers()-1;
         float const y = (h*ts->index_of_current_layer())/num+yoff;
 
         // Upper part of the slider.
-        glColor4fv(get_color(c.second).data());
         glBegin(GL_TRIANGLE_STRIP);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(x, yoff);
-        glTexCoord2f(0.0f, texture->ycoord());
-        glVertex2f(x, y);
-        glTexCoord2f(texture->xcoord(), 0.0f);
-        glVertex2f(x+w, yoff);
-        glTexCoord2f(texture->xcoord(), texture->ycoord());
-        glVertex2f(x+w, y);
+        glColor4fv(transparent);
+        glVertex2f(x0, yoff);
+        glVertex2f(x0, y);
+        glColor4fv(get_color(c.second).data());
+        glVertex2f(x1, yoff);
+        glVertex2f(x1, y);
+        glVertex2f(x2, yoff);
+        glVertex2f(x2, y);
+        glColor4fv(transparent);
+        glVertex2f(x3, yoff);
+        glVertex2f(x3, y);
         glEnd();
 
         // Lower part of the slider.
-        glColor4fv(get_color(c.first).data());
         glBegin(GL_TRIANGLE_STRIP);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(x, y);
-        glTexCoord2f(0.0f, texture->ycoord());
-        glVertex2f(x, yoff+h);
-        glTexCoord2f(texture->xcoord(), 0.0f);
-        glVertex2f(x+w, y);
-        glTexCoord2f(texture->xcoord(), texture->ycoord());
-        glVertex2f(x+w, yoff+h);
+        glColor4fv(transparent);
+        glVertex2f(x0, y);
+        glVertex2f(x0, top);
+        glColor4fv(get_color(c.first).data());
+        glVertex2f(x1, y);
+        glVertex2f(x1, top);
+        glVertex2f(x2, y);
+        glVertex2f(x2, top);
+        glColor4fv(transparent);
+        glVertex2f(x3, y);
+        glVertex2f(x3, top);
         glEnd();
       }
 
@@ -358,42 +365,43 @@ namespace hashimoto_ut {
         float const my = interval_scale*dy;
         float yb = yoff;
 
-        glColor4fv(get_color(c.second).data());
-
         for (size_t i=0; i<num_lower; ++i) {
           float yt = yb+dy;
           glBegin(GL_TRIANGLE_STRIP);
-          glTexCoord2f(0.0f, 0.0f);
-          glVertex2f(x, yb);
-          glTexCoord2f(0.0f, texture->ycoord());
-          glVertex2f(x, yt);
-          glTexCoord2f(texture->xcoord(), 0.0f);
-          glVertex2f(x+w, yb);
-          glTexCoord2f(texture->xcoord(), texture->ycoord());
-          glVertex2f(x+w, yt);
+          glColor4fv(transparent);
+          glVertex2f(x0, yb);
+          glVertex2f(x0, yt);
+          glColor4fv(get_color(c.second).data());
+          glVertex2f(x1, yb);
+          glVertex2f(x1, yt);
+          glVertex2f(x2, yb);
+          glVertex2f(x2, yt);
+          glColor4fv(transparent);
+          glVertex2f(x3, yb);
+          glVertex2f(x3, yt);
           glEnd();
           yb = yt+my;
         }
 
-        glColor4fv(get_color(c.first).data());
-
         for (size_t i=num_lower; i<num; ++i) {
           float const yt = yb+dy;
           glBegin(GL_TRIANGLE_STRIP);
-          glTexCoord2f(0.0f, 0.0f);
-          glVertex2f(x, yb);
-          glTexCoord2f(0.0f, texture->ycoord());
-          glVertex2f(x, yt);
-          glTexCoord2f(texture->xcoord(), 0.0f);
-          glVertex2f(x+w, yb);
-          glTexCoord2f(texture->xcoord(), texture->ycoord());
-          glVertex2f(x+w, yt);
+          glColor4fv(transparent);
+          glVertex2f(x0, yb);
+          glVertex2f(x0, yt);
+          glColor4fv(get_color(c.first).data());
+          glVertex2f(x1, yb);
+          glVertex2f(x1, yt);
+          glVertex2f(x2, yb);
+          glVertex2f(x2, yt);
+          glColor4fv(transparent);
+          glVertex2f(x3, yb);
+          glVertex2f(x3, yt);
           glEnd();
           yb = yt+my;
         }
       }
 
-      glDisable(GL_TEXTURE_2D);
       glPopName();
 
       ts->read_unlock();
@@ -435,7 +443,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void draw_thread_message(Vector2<float> const& scale) {
+    void draw_thread_status(Vector2<float> const& scale) {
 
       using namespace sociarium_project_thread;
 
@@ -459,7 +467,9 @@ namespace hashimoto_ut {
       float const interval = scale.y*upper_margin;
 
       for (int i=0; i<NUMBER_OF_THREAD_CATEGORIES; ++i) {
+
         deque<wstring> const& status = get_status(i);
+
         if (status[0]!=L"") {
 
           wstring const text     = status[0];
@@ -666,7 +676,6 @@ namespace hashimoto_ut {
         }
 #endif
       }
-
 
       if (mode==GL_RENDER && !diagram->empty()) {
         if (y_min<y_max) {

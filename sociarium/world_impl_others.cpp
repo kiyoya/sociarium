@@ -48,17 +48,23 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::forward_layer(Vector2<int> const& mpos) {
-    shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
+    shared_ptr<SociariumGraphTimeSeries> ts
+      = sociarium_project_graph_time_series::get();
+
     int const layer_prev = ts->index_of_current_layer();
     ts->move_layer(layer_prev+1);
+
     if (ts->index_of_current_layer()!=layer_prev)
       select(mpos);
   }
 
   void WorldImpl::backward_layer(Vector2<int> const& mpos) {
-    shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
+    shared_ptr<SociariumGraphTimeSeries> ts
+      = sociarium_project_graph_time_series::get();
+
     int const layer_prev = ts->index_of_current_layer();
     ts->move_layer(layer_prev-1);
+
     if (ts->index_of_current_layer()!=layer_prev)
       select(mpos);
   }
@@ -77,24 +83,18 @@ namespace hashimoto_ut {
     }
 
     if (another_thread_is_running) {
-      message_box(
-        get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    if (message_box(
-      get_window_handle(),
-      MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
-      APPLICATION_TITLE,
-      L"%s",
-      get_message(Message::CLEAR_COMMUNITY))==IDCANCEL)
+    if (message_box(get_window_handle(), mb_ok_cancel, APPLICATION_TITLE,
+                    L"%s", get_message(Message::CLEAR_COMMUNITY))==IDCANCEL)
       return;
 
-    shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
+    shared_ptr<SociariumGraphTimeSeries> ts
+      = sociarium_project_graph_time_series::get();
+
     ts->clear_community();
   }
 

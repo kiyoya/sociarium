@@ -96,7 +96,7 @@ namespace hashimoto_ut {
       /////////////////////////////////////////////////////////////////////////////;
       READING_DATA_FILE,
       CHECKING_TEXT_ENCODING,
-      CONVERTING_INTO_SJIS_ENCODING,
+      CONVERTING_INTO_UTF16_ENCODING,
       UNKNOWN_CHARACTER_ENCODING,
       PARSING_DATA,
       MAKING_GRAPH_TIME_SERIES,
@@ -114,9 +114,9 @@ namespace hashimoto_ut {
 
 
       /////////////////////////////////////////////////////////////////////////////;
+      LAYOUTING,
       KAMADA_KAWAI_METHOD,
       KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH,
-      KAMADA_KAWAI_METHOD_ITERATING,
       HDE,
       HDE_CALCULATING_GRAPH_DISTANCE,
       HDE_CALCULATING_MATRIX,
@@ -168,7 +168,7 @@ namespace hashimoto_ut {
   namespace sociarium_project_language {
 
     void initialize(HWND hwnd, wchar_t const* filename);
-    Message const* get_message_object(void);
+    Message const& get_message_object(void);
     wchar_t const* get_message(int message_id);
 
   } // The end of the namespace "sociarium_project_language"

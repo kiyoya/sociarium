@@ -1,4 +1,4 @@
-﻿// gltexture.h
+﻿// fbo.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,51 +29,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#define SOCIAIRUM_PROJECT_USES_OPENCV
-
-#ifndef INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
-#define INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
+#ifndef INCLUDE_GUARD_SHARED_GL_FBO_H
+#define INCLUDE_GUARD_SHARED_GL_FBO_H
 
 #include <memory>
 #include <windows.h>
-#include <GL/gl.h>
-
-#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
-#include <cv.h>
-#endif
+#include <gl/gl.h>
 
 namespace hashimoto_ut {
 
-  class GLTexture {
+  class Texture;
+
+  class FrameBufferObject {
   public:
-    enum {
-      SUCCEEDED,
-      FILE_NOT_FOUND,
-      FAILED_TO_LOAD_IMAGE,
-      UNSUPPORTED_FILE_FORMAT
-    };
-
-  public:
-    virtual ~GLTexture() {}
-
-    virtual int create(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) = 0;
-    virtual int create_mipmap(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) = 0;
-
-#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
-    virtual int create(IplImage* image, GLenum wrap_s, GLenum wrap_t) = 0;
-    virtual int create_mipmap(IplImage* image, GLenum wrap_s, GLenum wrap_t) = 0;
-    virtual int create_subimage(IplImage* image) = 0;
-#endif
-
+    virtual ~FrameBufferObject() {}
     virtual GLuint get(void) const = 0;
-    virtual GLsizei width(void) const = 0;
-    virtual GLsizei height(void) const = 0;
-    virtual GLfloat xcoord(void) const = 0;
-    virtual GLfloat ycoord(void) const = 0;
+    virtual std::tr1::shared_ptr<Texture> get_texture(void) const = 0;
 
-    static std::tr1::shared_ptr<GLTexture> create(void);
+    static std::tr1::shared_ptr<FrameBufferObject>
+      create(GLsizei width, GLsizei height, GLenum wrap_s, GLenum wrap_t);
   };
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SHARED_GL_GLTEXTURE_H
+#endif // INCLUDE_GUARD_SHARED_GL_FBO_H

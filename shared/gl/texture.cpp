@@ -33,7 +33,7 @@
 #include <atlimage.h>
 #include <GL/glu.h>
 #include <GL/glext.h>
-#include "gltexture.h"
+#include "texture.h"
 #include "../win32api.h"
 
 #pragma comment(lib, "glu32.lib")
@@ -49,11 +49,11 @@ namespace hashimoto_ut {
 
   using std::tr1::shared_ptr;
 
-  class GLTextureImpl : public GLTexture {
+  class TextureImpl : public Texture {
   public:
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTextureImpl(void) :
+    TextureImpl(void) :
     width_(0), height_(0), xcoord_(0.0f), ycoord_(0.0f) {
 
       glGenTextures(1, &id_);
@@ -64,15 +64,13 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    ~GLTextureImpl() {
+    ~TextureImpl() {
       glDeleteTextures(1, &id_);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create(
-      wchar_t const* filename,
-      GLenum wrap_s, GLenum wrap_t) {
+    int create(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) {
 
       DWORD dw = GetFileAttributes(filename);
 
@@ -110,37 +108,30 @@ namespace hashimoto_ut {
       switch (bpp) {
       case 24:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGB, w_pot, h_pot, 0,
-          GL_BGR, GL_UNSIGNED_BYTE, 0);
-        glTexSubImage2D(
-          GL_TEXTURE_2D, 0, 0, 0, width_, height_,
-          GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w_pot, h_pot,
+                     0, GL_BGR, GL_UNSIGNED_BYTE, 0);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
+                        GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
         break;
       case 32:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0,
-          GL_BGRA, GL_UNSIGNED_BYTE, 0);
-        glTexSubImage2D(
-          GL_TEXTURE_2D, 0, 0, 0, width_, height_,
-          GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0,
+                     GL_BGRA, GL_UNSIGNED_BYTE, 0);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
+                        GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
         break;
       default:
         glBindTexture(GL_TEXTURE_2D, 0);
         return UNSUPPORTED_FILE_FORMAT;
       }
 
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glBindTexture(GL_TEXTURE_2D, 0);
       return SUCCEEDED;
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create_mipmap(
-      wchar_t const* filename,
-      GLenum wrap_s, GLenum wrap_t) {
+    int create_mipmap(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) {
 
       DWORD dw = GetFileAttributes(filename);
 
@@ -172,22 +163,100 @@ namespace hashimoto_ut {
       switch (bpp) {
       case 24:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        gluBuild2DMipmaps(
-          GL_TEXTURE_2D, GL_RGB, width_, height_,
-          GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width_, height_,
+                          GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
         break;
       case 32:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        gluBuild2DMipmaps(
-          GL_TEXTURE_2D, GL_RGBA, width_, height_,
-          GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width_, height_,
+                          GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
         break;
       default:
         glBindTexture(GL_TEXTURE_2D, 0);
         return UNSUPPORTED_FILE_FORMAT;
       }
 
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+      glBindTexture(GL_TEXTURE_2D, 0);
+      return SUCCEEDED;
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int create_subimage(wchar_t const* filename) {
+
+      DWORD dw = GetFileAttributes(filename);
+
+      if (dw==-1)
+        return FILE_NOT_FOUND;
+
+      CImage image;
+      HRESULT res = image.Load(filename);
+
+      if (res!=S_OK)
+        return FAILED_TO_LOAD_IMAGE;
+
+      GLsizei const w = image.GetWidth();
+      GLsizei const h = image.GetHeight();
+
+      if (w>width_ || h>height_)
+        return FAILED_TO_LOAD_IMAGE;
+
+      xcoord_ = GLfloat(w)/width_;
+      ycoord_ = GLfloat(h)/height_;
+
+      glBindTexture(GL_TEXTURE_2D, id_);
+
+      int const bpp = image.GetBPP();
+      int const pitch = image.GetPitch();
+      char const* pixels = (char*)image.GetBits()+(pitch<0?pitch*(height_-1):0);
+
+      switch (bpp) {
+      case 3:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h,
+                        GL_BGR, GL_UNSIGNED_BYTE, pixels);
+        break;
+      case 4:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h,
+                        GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+        break;
+      default:
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return UNSUPPORTED_FILE_FORMAT;
+      }
+
+      glBindTexture(GL_TEXTURE_2D, 0);
+      return SUCCEEDED;
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int create(GLuint width, GLuint height, GLenum wrap_s, GLenum wrap_t) {
+
+      width_  = width;
+      height_ = height;
+
+      GLsizei w_pot = 1;
+      while (w_pot<width_) w_pot *= 2;
+
+      GLsizei h_pot = 1;
+      while (h_pot<height_) h_pot *= 2;
+
+      xcoord_ = GLfloat(width_)/w_pot;
+      ycoord_ = GLfloat(height_)/h_pot;
+
+      glBindTexture(GL_TEXTURE_2D, id_);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_pot, h_pot, 0,
+                   GL_BGRA, GL_UNSIGNED_BYTE, 0);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
+                      GL_BGRA, GL_UNSIGNED_BYTE, 0);
       glBindTexture(GL_TEXTURE_2D, 0);
       return SUCCEEDED;
     }
@@ -195,9 +264,9 @@ namespace hashimoto_ut {
 
 #ifdef SOCIAIRUM_PROJECT_USES_OPENCV
     ////////////////////////////////////////////////////////////////////////////////
-    int create(
-      IplImage* image,
-      GLenum wrap_s, GLenum wrap_t) {
+    int create(IplImage* image, GLenum wrap_s, GLenum wrap_t) {
+
+      assert(image!=0);
 
       width_  = image->width;
       height_ = image->height;
@@ -218,41 +287,37 @@ namespace hashimoto_ut {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
       int const nChannels = image->nChannels;
+      GLvoid* pixels = (GLvoid*)image->imageData;
 
       switch (nChannels) {
       case 3:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGB, w_pot, h_pot, 0,
-          GL_BGR, GL_UNSIGNED_BYTE, 0);
-        glTexSubImage2D(
-          GL_TEXTURE_2D, 0, 0, 0, width_, height_,
-          GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)image->imageData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w_pot, h_pot, 0,
+                     GL_BGR, GL_UNSIGNED_BYTE, 0);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
+                        GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;
       case 4:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGBA, w_pot, h_pot, 0,
-          GL_BGRA, GL_UNSIGNED_BYTE, 0);
-        glTexSubImage2D(
-          GL_TEXTURE_2D, 0, 0, 0, width_, height_,
-          GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)image->imageData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_pot, h_pot, 0,
+                     GL_BGRA, GL_UNSIGNED_BYTE, 0);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
+                        GL_BGRA, GL_UNSIGNED_BYTE, pixels);
         break;
       default:
         glBindTexture(GL_TEXTURE_2D, 0);
         return UNSUPPORTED_FILE_FORMAT;
       }
 
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glBindTexture(GL_TEXTURE_2D, 0);
       return SUCCEEDED;
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int create_mipmap(
-      IplImage* image,
-      GLenum wrap_s, GLenum wrap_t) {
+    int create_mipmap(IplImage* image, GLenum wrap_s, GLenum wrap_t) {
+
+      assert(image!=0);
 
       width_  = image->width;
       height_ = image->height;
@@ -267,26 +332,24 @@ namespace hashimoto_ut {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
       int const nChannels = image->nChannels;
+      GLvoid* pixels = (GLvoid*)image->imageData;
 
       switch (nChannels) {
       case 3:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        gluBuild2DMipmaps(
-          GL_TEXTURE_2D, GL_RGB, width_, height_,
-          GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)image->imageData);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width_, height_,
+                          GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;
       case 4:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        gluBuild2DMipmaps(
-          GL_TEXTURE_2D, GL_RGBA, width_, height_,
-          GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)image->imageData);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width_, height_,
+                          GL_BGRA, GL_UNSIGNED_BYTE, pixels);
         break;
       default:
         glBindTexture(GL_TEXTURE_2D, 0);
         return UNSUPPORTED_FILE_FORMAT;
       }
 
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glBindTexture(GL_TEXTURE_2D, 0);
       return SUCCEEDED;
     }
@@ -295,35 +358,38 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     int create_subimage(IplImage* image) {
 
-      if (image==0)
-        return UNSUPPORTED_FILE_FORMAT;
+      assert(image!=0);
 
-      if (image->width>width_ || image->height>height_)
+      GLsizei const w = image->width;
+      GLsizei const h = image->height;
+
+      if (w>width_ || h>height_)
         return FAILED_TO_LOAD_IMAGE;
+
+      xcoord_ = GLfloat(w)/width_;
+      ycoord_ = GLfloat(h)/height_;
 
       glBindTexture(GL_TEXTURE_2D, id_);
 
       int const nChannels = image->nChannels;
+      GLvoid* pixels = (GLvoid*)image->imageData;
 
       switch (nChannels) {
       case 3:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexSubImage2D(
-          GL_TEXTURE_2D, 0, 0, 0, image->width, image->height,
-          GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)image->imageData);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h,
+                        GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;
       case 4:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexSubImage2D(
-          GL_TEXTURE_2D, 0, 0, 0, image->width, image->height,
-          GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)image->imageData);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h,
+                        GL_BGRA, GL_UNSIGNED_BYTE, pixels);
         break;
       default:
         glBindTexture(GL_TEXTURE_2D, 0);
         return UNSUPPORTED_FILE_FORMAT;
       }
 
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glBindTexture(GL_TEXTURE_2D, 0);
       return SUCCEEDED;
     }
@@ -361,9 +427,9 @@ namespace hashimoto_ut {
 
 
   ////////////////////////////////////////////////////////////////////////////////
-  // Factory function of GLTexture.
-  shared_ptr<GLTexture> GLTexture::create(void) {
-    return shared_ptr<GLTexture>(new GLTextureImpl);
+  // Factory function of Texture.
+  shared_ptr<Texture> Texture::create(void) {
+    return shared_ptr<Texture>(new TextureImpl);
   }
 
 } // The end of the namespace "hashimoto_ut"

@@ -53,11 +53,15 @@ namespace hashimoto_ut {
   using std::make_pair;
   using std::tr1::shared_ptr;
 
-  typedef SociariumGraph::node_property_iterator node_property_iterator;
-  typedef SociariumGraph::edge_property_iterator edge_property_iterator;
-
   using namespace sociarium_project_draw;
   using namespace sociarium_project_view;
+  using namespace sociarium_project_layout;
+  using namespace sociarium_project_algorithm_selector;
+
+  typedef SociariumGraph::NodePropertyMap NodePropertyMap;
+  typedef SociariumGraph::EdgePropertyMap EdgePropertyMap;
+  typedef SociariumGraph::node_property_iterator node_property_iterator;
+  typedef SociariumGraph::edge_property_iterator edge_property_iterator;
 
   namespace {
 
@@ -72,14 +76,14 @@ namespace hashimoto_ut {
     Vector2<double> mpos_world_prev;
 
     ////////////////////////////////////////////////////////////////////////////////
-    int const ALL_MARKED =
-      ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED;
+    int const ALL_MARKED
+      = ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED;
 
-    int const HIGHLIGHT_AND_CAPTURED =
-      ElementFlag::CAPTURED|ElementFlag::HIGHLIGHT;
+    int const HIGHLIGHT_AND_CAPTURED
+      = ElementFlag::CAPTURED|ElementFlag::HIGHLIGHT;
 
-    int const HIGHLIGHT_AND_MARKED =
-      ElementFlag::MARKED|ElementFlag::HIGHLIGHT;
+    int const HIGHLIGHT_AND_MARKED
+      = ElementFlag::MARKED|ElementFlag::HIGHLIGHT;
 
     ////////////////////////////////////////////////////////////////////////////////
     // Angles of viewpoint.
@@ -90,14 +94,14 @@ namespace hashimoto_ut {
     // Marking by mouse dragging.
     struct UpdateMark {
       template <typename T>
-      void operator()(T& pp) const {
+      void operator()(T& p) const {
         typedef typename T::second_type DynamicProperty;
-        DynamicProperty& p = pp.second;
-        if (is_visible(p)) {
-          if (is_temporary_marked(p))
-            p.set_flag((p.get_flag()|ElementFlag::MARKED)&~ElementFlag::TEMPORARY_MARKED);
-          else if (is_temporary_unmarked(p))
-            p.set_flag(p.get_flag()&~(ElementFlag::MARKED|ElementFlag::TEMPORARY_UNMARKED));
+        DynamicProperty& dp = p.second;
+        if (is_visible(dp)) {
+          if (is_temporary_marked(dp))
+            dp.set_flag((dp.get_flag()|ElementFlag::MARKED)&~ElementFlag::TEMPORARY_MARKED);
+          else if (is_temporary_unmarked(dp))
+            dp.set_flag(dp.get_flag()&~ALL_MARKED);
         }
       }
     };
@@ -105,22 +109,12 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     // Move elements by mouse dragging.
     struct MoveNode {
-      void operator()(node_property_iterator::value_type& pp,
+      void operator()(NodePropertyMap::value_type& p,
                       unsigned int flag, Vector2<double> const& diff) const {
-        DynamicNodeProperty& dnp = pp.second;
+        DynamicNodeProperty& dnp = p.second;
         if (is_visible(dnp) && (dnp.get_flag()&flag))
           dnp.get_static_property()->set_position(
             dnp.get_static_property()->get_position()+diff);
-      }
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////
-    struct ActivateFlagIfMarked {
-      void operator()(node_property_iterator::value_type& pp,
-                      unsigned int flag) const {
-        DynamicNodeProperty& dnp = pp.second;
-        if (is_visible(dnp) && dnp.get_flag()&HIGHLIGHT_AND_MARKED)
-          dnp.set_flag(dnp.get_flag()|flag);
       }
     };
 
@@ -139,11 +133,11 @@ namespace hashimoto_ut {
      * Don't forget to call read_unlock().
      */
 
-    shared_ptr<SociariumGraph const> g0 =
-      ts->get_graph(0, ts->index_of_current_layer());
+    shared_ptr<SociariumGraph const> g0
+      = ts->get_graph(0, ts->index_of_current_layer());
 
-    shared_ptr<SociariumGraph const> g1 =
-      ts->get_graph(1, ts->index_of_current_layer());
+    shared_ptr<SociariumGraph const> g1
+      = ts->get_graph(1, ts->index_of_current_layer());
 
     view_->scr2world_z0(mpos_world, mpos);
 
@@ -255,7 +249,6 @@ namespace hashimoto_ut {
       }
 
       else if (!(wp&MK_CONTROL)) {
-        using namespace sociarium_project_layout;
         // --------------------------------------------------------------------------------
         // Move the layout frame.
         if (is_selected(SelectionCategory::LAYOUT_FRAME)) {
@@ -403,7 +396,6 @@ namespace hashimoto_ut {
         set_drag_status(false);
       }
 
-      using namespace sociarium_project_layout;
       set_layout_frame_previous_position(get_layout_frame_position());
       set_layout_frame_previous_size(get_layout_frame_size());
       set_update_layout_frame(false);
@@ -432,13 +424,28 @@ namespace hashimoto_ut {
             = static_cast<DynamicNodeProperty*>(get_selected_dynamic_object());
           assert(dnp!=0);
 
+          // Clicked node.
           dnp->set_flag(dnp->get_flag()|HIGHLIGHT_AND_MARKED);
 
-          for_each(n->obegin(), n->oend(),
-                   boost::bind<void>(ActivateDynamicFlag(), _1, HIGHLIGHT_AND_MARKED, g0, +1));
+          // Connecting edges with the clicked node.
+          vector<DynamicEdgeProperty*> edges(n->degree());
+          transform(n->begin(), n->end(), edges.begin(),
+                    boost::bind<DynamicEdgeProperty*>(GetDynamicProperty(), _1, g0));
+          for_each(edges.begin(), edges.end(),
+                   boost::bind<void>(ActivateFlag(), _1, HIGHLIGHT_AND_MARKED));
 
-          for_each(n->ibegin(), n->iend(),
-                   boost::bind<void>(ActivateDynamicFlag(), _1, HIGHLIGHT_AND_MARKED, g0, -1));
+          // Adjacent nodes with the clicked node.
+          vector<Node*> adjacent_nodes(n->degree());
+          transform(n->obegin(), n->oend(), adjacent_nodes.begin(),
+                    boost::bind<Node* const&>(&Edge::target, _1));
+          transform(n->ibegin(), n->iend(), adjacent_nodes.begin()+n->odegree(),
+                    boost::bind<Node* const&>(&Edge::source, _1));
+
+          vector<DynamicNodeProperty*> nodes(adjacent_nodes.size());
+          transform(adjacent_nodes.begin(), adjacent_nodes.end(), nodes.begin(),
+                    boost::bind<DynamicNodeProperty*>(GetDynamicProperty(), _1, g0));
+          for_each(nodes.begin(), nodes.end(),
+                   boost::bind<void>(ActivateFlag(), _1, HIGHLIGHT_AND_MARKED));
         }
 
         // --------------------------------------------------------------------------------
@@ -483,8 +490,6 @@ namespace hashimoto_ut {
         // Move all marked elements.
         else if (get_captured_object()) {
 
-          using namespace sociarium_project_algorithm_selector;
-
           Vector2<double> const diff = mpos_world-mpos_world_prev;
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(MoveNode(), _1, HIGHLIGHT_AND_CAPTURED, diff));
@@ -492,7 +497,7 @@ namespace hashimoto_ut {
           if (get_force_direction_algorithm()!=RealTimeForceDirectionAlgorithm::COMMUNITY_ORIENTED)
             for_each(g1->node_property_begin(), g1->node_property_end(),
                      boost::bind<void>(
-                       sociarium_project_layout::reset_position,
+                       reset_position,
                        boost::bind<DynamicNodeProperty&>(
                          &SociariumGraph::NodePropertyMap::value_type::second, _1)));
           else
@@ -620,9 +625,6 @@ namespace hashimoto_ut {
         // Move the layout frame.
         else if (is_selected(SelectionCategory::LAYOUT_FRAME)) {
 
-          using namespace sociarium_project_layout;
-          using namespace sociarium_project_algorithm_selector;
-
           Vector2<float> diff((mpos_world-mpos_world_LBUTTONDOWN).fcast());
           set_layout_frame_position(get_layout_frame_previous_position()+diff);
 
@@ -634,9 +636,6 @@ namespace hashimoto_ut {
         // --------------------------------------------------------------------------------
         // Resize the layout frame.
         else if (is_selected(SelectionCategory::LAYOUT_FRAME_BORDER)) {
-
-          using namespace sociarium_project_layout;
-          using namespace sociarium_project_algorithm_selector;
 
           float const dx = fabs(float(mpos_world.x)-center_.x-get_layout_frame_position().x);
           float const dy = fabs(float(mpos_world.y)-center_.y-get_layout_frame_position().y);
@@ -726,15 +725,22 @@ namespace hashimoto_ut {
         shared_ptr<CircumventHiddenElements> cond(new CircumventHiddenElements(g0));
         shared_ptr<BFSTraverser> t = BFSTraverser::create<bidirectional_tag>(g0);
         t->set_condition(cond);
-        vector<Node*> cn
+        // Get a connected component.
+        vector<Node*> nodes
           = sociarium_project_graph_utility::connected_component(0, 0, 0, t, n).second;
-        vector<Edge*> ce = induced_edges(cn.begin(), cn.end());
+        vector<Edge*> edges = induced_edges(nodes.begin(), nodes.end());
         // Mark nodes in the connected component.
-        for_each(cn.begin(), cn.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1, ElementFlag::MARKED, g0));
+        vector<DynamicNodeProperty*> dnp(nodes.size());
+        transform(nodes.begin(), nodes.end(), dnp.begin(),
+                  boost::bind<DynamicNodeProperty*>(GetDynamicProperty(), _1, g0));
+        for_each(dnp.begin(), dnp.end(),
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
         // Mark edges in the connected component.
-        for_each(ce.begin(), ce.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1, ElementFlag::MARKED, g0));
+        vector<DynamicEdgeProperty*> dep(edges.size());
+        transform(edges.begin(), edges.end(), dep.begin(),
+                  boost::bind<DynamicEdgeProperty*>(GetDynamicProperty(), _1, g0));
+        for_each(dep.begin(), dep.end(),
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
 
       // --------------------------------------------------------------------------------
@@ -752,7 +758,6 @@ namespace hashimoto_ut {
     ///////////////////////////////////////////////////////////////////////////////
     // Wheel click.
     else if (action==MouseAction::MBUTTON_DOWN) {
-      using namespace sociarium_project_layout;
       initialize_view();
       if (wp&MK_CONTROL) set_layout_frame_size(get_layout_frame_default_size());
     }

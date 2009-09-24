@@ -44,7 +44,7 @@
 namespace hashimoto_ut {
 
   namespace {
-    int const DEGREE_RESOLUTION = 10; // 角度1度の分割数
+    int const DEGREE_RESOLUTION = 10; // The division number of 1 degree.
     int const DEGREEH_MAX = 360*DEGREE_RESOLUTION;
     int const DEGREEV_MAX =  90*DEGREE_RESOLUTION;
   }
@@ -59,7 +59,7 @@ namespace hashimoto_ut {
     void push_matrix(void) const;
     void pop_matrix(void) const;
     void set_perspective_matrix(void) const;
-    void set_orthogonal_matrix(void) const; // 視点は規定値に固定
+    void set_orthogonal_matrix(void) const; // The eye point is fixed.
 
     void set_angleH(int degree);
     void set_angleV(int degree);
@@ -91,20 +91,20 @@ namespace hashimoto_ut {
     void set_eye(void);
 
   private:
-    // ※ワールド座標（z軸手前が正，奥が負）
-    int angleH_;       // xy平面上の視線の角度（0≦angle<360*DEGREE_RESOLUTION）
-    int angleV_;       // xy平面に対する視線の角度（0≦angle<360*DEGREE_RESOLUTION）
-    double distance_;  // 視点から参照点までの距離
-    double fov_;       // 視野角
-    double znear_;     // 視体積手前までの距離
-    double zfar_;      // 視体積奥までの距離
-    Vector3<double> eye_; // 視点の位置
-    Vector3<double> top_; // 頭頂の向き
+    // World coordinates. (z-near is greater than z-far)
+    int angleH_;      // The angle of eyepoint projected on xy-plane (0<=angle<360*DEGREE_RESOLUTION)
+    int angleV_;      // The angle between eyepoint and xy-plane (0<=angle<360*DEGREE_RESOLUTION)
+    double distance_; // The distance between eyepoint and reference point.
+    double fov_;
+    double znear_;
+    double zfar_;
+    Vector3<double> eye_; // Eyepoint.
+    Vector3<double> top_;
 
-    // ※スクリーン座標
-    Vector2<int> viewport_origin_; // ビューポート原点
-    Vector2<int> viewport_size_;   // ビューポートサイズ
-    double viewport_aspect_;       // ビューポートサイズのアスペクト比
+    // Screen coordinates.
+    Vector2<int> viewport_origin_;
+    Vector2<int> viewport_size_;
+    double viewport_aspect_; // viewport_size_.x/viewport_size_.y
   };
 
 } // The end of the namespace "hashimoto_ut"

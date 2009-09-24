@@ -37,6 +37,7 @@
 #include "../graph_extractor.h"
 #include "../thread.h"
 #include "../algorithm_selector.h"
+#include "../flag_operation.h"
 #include "../graph_utility.h"
 #include "../language.h"
 #include "../sociarium_graph_time_series.h"
@@ -236,7 +237,7 @@ namespace hashimoto_ut {
 
             pair<bool, pair<vector<double>, vector<double> > > bc =
               sociarium_project_graph_utility::betweenness_centrality(
-                this, &status[1], get_message_object(), t);
+                this, &status[1], &get_message_object(), t);
 
             if (bc.first) {
               assert(bc.second.second.size()==tesz);

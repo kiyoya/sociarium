@@ -129,6 +129,21 @@ namespace hashimoto_ut {
   }
 
   ////////////////////////////////////////////////////////////////////////////////
+  void trim(wstring& text) {
+    if (text.empty()) return;
+    size_t pos = 0;
+    while (text[pos]==L' ') ++pos; // Delete left spaces.
+    text = text.substr(pos);
+    if (text.empty()) return;
+    pos = text.find(L'\r'); // Delete a carriage return.
+    text = text.substr(0, pos);
+    if (text.empty()) return;
+    pos = text.size()-1;
+    while (text[pos]==L' ') --pos; // Delete right spaces.
+    text = text.substr(0, pos+1);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
   vector<double> floating_number_series(char const* filename) {
     vector<double> retval;
     ifstream ifs(filename);
@@ -279,10 +294,10 @@ namespace hashimoto_ut {
     vector<double>::const_iterator last) {
 
     size_t const size = last-first;
-    double const mean = accumulate(first, last, 0.0)/size; // 時系列データの平均値
-    double const var = dsqrsum(first, last)/size-mean*mean; // 時系列データの標本分散
+    double const mean = accumulate(first, last, 0.0)/size;
+    double const var = dsqrsum(first, last)/size-mean*mean;
 
-    // 時系列の長さに対して1/10のタイムラグまで求めます．
+    // Calculate autocorrelation for the lag shorter than 1/10 of whole data length.
     size_t const lag_max = size/10;
     vector<double> retval(lag_max);
 
@@ -292,8 +307,8 @@ namespace hashimoto_ut {
       for (size_t i=lag; i<size; ++i)
         covar += (*(first+i)-mean)*(*(first+i-lag)-mean);
 
-      covar /= size-lag; // 共分散
-      retval[lag] = covar/var; // 共分散を全体の分散で規格化
+      covar /= size-lag;
+      retval[lag] = covar/var; // Normalize co-variance by variance.
     }
 
     return retval;
@@ -309,16 +324,15 @@ namespace hashimoto_ut {
 
       size_t const size = last-first;
 
-      // サンプリング区間ごとのヒストグラムを求めます．
       map<long, long> histogram;
 
       for (; first!=last; ++first) {
-        long value = (long)((*first)/interval+0.5); // 値の属する区間
+        long value = (long)((*first)/interval+0.5);
         if ((*first)/interval<-0.5) value -= 1;
         ++histogram[value];
       }
 
-      // 3(=区間中心値，確率，累積確率)×区間数の行列を作成します．
+      // 0:value, 1:probability, 2:cumulative probability.
       vector<vector<double> > retval(histogram.size(), vector<double>(3, 0.0));
       map<long, long>::const_iterator pos = histogram.begin();
       map<long, long>::const_iterator end = histogram.end();

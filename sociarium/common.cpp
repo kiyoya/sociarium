@@ -48,8 +48,8 @@ namespace hashimoto_ut {
       HWND window_handle = NULL;
       HINSTANCE instance_handle = NULL;
       HDC device_context = NULL;
-      vector<HGLRC> rendering_context(RenderingContext::NUMBER_OF_CATEGORIES, NULL);
-      }
+      vector<HGLRC> rendering_context(RenderingContext::NUMBER_OF_THREAD_CATEGORIES, NULL);
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -77,29 +77,28 @@ namespace hashimoto_ut {
       return window_handle;
     }
 
-    void set_window_handle(HWND hwnd) {
-      window_handle = hwnd;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
     HDC get_device_context(void) {
       return device_context;
     }
 
-    void set_device_context(HDC dc) {
-      device_context = dc;
+    void set_main_window(HWND hwnd) {
+      window_handle = hwnd;
+      device_context = GetDC(window_handle);
+      if (device_context==NULL) {
+        show_last_error(L"sociarium_project_common::set_main_window/GetDC");
+        exit(1);
+      }
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
     HGLRC get_rendering_context(int thread_id) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
+      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
       return rendering_context[thread_id];
     }
 
     void set_rendering_context(int thread_id, HGLRC rc) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
+      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
       rendering_context[thread_id] = rc;
     }
 
@@ -113,9 +112,7 @@ namespace hashimoto_ut {
                     NULL, GetLastError(),
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                     (LPTSTR)&buf, 0, NULL);
-      message_box(get_window_handle(),
-                  MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-                  APPLICATION_TITLE,
+      message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
                   L"%s%s", (wchar_t*)buf, text);
       LocalFree(buf);
     }

@@ -113,34 +113,24 @@ namespace hashimoto_ut {
               if (f->CharMap(ft_encoding_unicode)) break; // Successfully finished.
               else if (i==NUMBER_OF_FONT_OPTIONS-1) {
                 // No option available any more.
-                message_box(
-                  get_window_handle(),
-                  MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-                  APPLICATION_TITLE,
-                  L"%s: %s [ft_encoding_unicode]",
-                  get_message(Message::FTGL_ERROR_CHARMAP),
-                  filename.c_str());
+                message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                            L"%s: %s [ft_encoding_unicode]",
+                            get_message(Message::FTGL_ERROR_CHARMAP),
+                            filename.c_str());
                 exit(1);
               } else continue; // Try the next option.
             } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
               // No option available any more.
-              message_box(
-                get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-                APPLICATION_TITLE,
-                L"%s: %s [%d]",
-                get_message(Message::FTGL_ERROR_FACESIZE),
-                filename.c_str(), default_face_size);
+              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                          L"%s: %s [%d]",
+                          get_message(Message::FTGL_ERROR_FACESIZE),
+                          filename.c_str(), default_face_size);
               exit(1);
             } else continue; // Try the next option.
           } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
             // No option available any more.
-            message_box(
-              get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-              APPLICATION_TITLE,
-              L"%s",
-              get_message(Message::FTGL_ERROR_CREATE));
+            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                        L"%s", get_message(Message::FTGL_ERROR_CREATE));
             exit(1);
           } else continue; // Try the next option.
         }

@@ -38,7 +38,6 @@
 #include "../language.h"
 #include "../../shared/thread.h"
 #include "../../shared/general.h"
-#include "../../shared/win32api.h"
 #include "../../shared/msgbox.h"
 #include "../../graph/graph.h"
 
@@ -60,21 +59,21 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_language;
+  using namespace sociarium_project_module_graph_creation;
 
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
 
-      Thread* parent,
+      Thread& parent,
       deque<wstring>& status,
-      Message const* message,
+      Message const& message,
       vector<shared_ptr<Graph> >& graph,
       vector<vector<NodeProperty> >& node_property,
       vector<vector<EdgeProperty> >& edge_property,
       vector<wstring>& layer_name,
-      unordered_map<string, pair<string, int> > const& params,
-      vector<pair<string, int> > const& data,
+      unordered_map<wstring, pair<wstring, int> > const& params,
+      vector<pair<wstring, int> > const& data,
       wstring const& filename) {
 
       assert(graph.empty());
@@ -88,28 +87,25 @@ namespace hashimoto_ut {
       // Read parameters.
 
       bool directed = false;
-      char delimiter = '\0';
+      wchar_t delimiter = L'\0';
       wstring title;
 
-      unordered_map<string, pair<string, int> >::const_iterator pos;
+      unordered_map<wstring, pair<wstring, int> >::const_iterator pos;
 
-      if ((pos=params.find("directed"))!=params.end())
+      if ((pos=params.find(L"directed"))!=params.end())
         directed = true;
 
-      if ((pos=params.find("title"))!=params.end() && !pos->second.first.empty())
-        title = mbcs2wcs(pos->second.first.c_str(), pos->second.first.size());
+      if ((pos=params.find(L"title"))!=params.end() && !pos->second.first.empty())
+        title = pos->second.first;
 
-      if ((pos=params.find("delimiter"))!=params.end() && !pos->second.first.empty())
+      if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
         delimiter = pos->second.first[0];
 
-      if (delimiter=='\0') {
-        message_box(
-          get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-          APPLICATION_TITLE,
-          L"%s: %s",
-          message->get(Message::UNCERTAIN_DELIMITER),
-          filename.c_str());
+      if (delimiter==L'\0') {
+        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                    L"%s: %s",
+                    message.get(Message::UNCERTAIN_DELIMITER),
+                    filename.c_str());
         return;
       }
 
@@ -122,12 +118,12 @@ namespace hashimoto_ut {
 
       struct EdgeProp {
         size_t index;
-        string name;
+        wstring name;
         float weight;
       };
 
-      unordered_map<string, Node*> identifier2node;
-      unordered_map<string, Edge*> identifier2edge;
+      unordered_map<wstring, Node*> identifier2node;
+      unordered_map<wstring, Edge*> identifier2edge;
 
       node_property.resize(1);
       edge_property.resize(1);
@@ -135,7 +131,7 @@ namespace hashimoto_ut {
       for (size_t count=0; count<data.size(); ++count) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
@@ -143,24 +139,25 @@ namespace hashimoto_ut {
         if (!status.empty()) {
           status[0]
             = (boost::wformat(L"%s: %d%%")
-               %message->get(Message::MAKING_GRAPH_SNAPSHOT)
+               %message.get(Message::MAKING_GRAPH_SNAPSHOT)
                %int(100.0*(count+1)/data.size())).str();
         }
 
-        vector<string> tok = tokenize(data[count].first, delimiter);
+        vector<wstring> tok = tokenize(data[count].first, delimiter);
 
         Node* n0 = 0;
 
         for (size_t i=0; i<tok.size(); ++i) {
           trim(tok[i]);
-          string const& node_identifier = tok[i];
-          unordered_map<string, Node*>::iterator j = identifier2node.find(node_identifier);
+          wstring const& node_identifier = tok[i];
+          unordered_map<wstring, Node*>::iterator j
+            = identifier2node.find(node_identifier);
           Node* n1 = 0;
 
           if (j==identifier2node.end()) {
             n1 = g->add_node();
             NodeProperty np;
-            np.identifier = mbcs2wcs(node_identifier.c_str(), node_identifier.size());
+            np.identifier = node_identifier;
             np.name = np.identifier;
             np.weight = 0.0f;
             node_property[0].push_back(np);
@@ -172,20 +169,20 @@ namespace hashimoto_ut {
           if (n0==0)
             n0 = n1;
           else {
-            string const& source = tok[0];
-            string const& target = tok[i];
+            wstring const& source = tok[0];
+            wstring const& target = tok[i];
 
-            string const edge_identifier
+            wstring const edge_identifier
               = (directed||source<target)?source+delimiter+target:target+delimiter+source;
 
-            unordered_map<string, Edge*>::iterator j = identifier2edge.find(edge_identifier);
+            unordered_map<wstring, Edge*>::iterator j
+              = identifier2edge.find(edge_identifier);
 
             if (j==identifier2edge.end()) {
               Edge* e = g->add_edge(n0, n1);
               EdgeProperty ep;
-              ep.identifier = mbcs2wcs(edge_identifier.c_str(), edge_identifier.size());
-              string const name = (directed||source<target)?source+'~'+target:target+'~'+source;
-              ep.name = mbcs2wcs(name.c_str(), name.size());
+              ep.identifier = edge_identifier;
+              ep.name = (directed||source<target)?source+L'~'+target:target+L'~'+source;
               ep.weight = 1.0f;
               edge_property[0].push_back(ep);
               identifier2edge.insert(make_pair(edge_identifier, e));

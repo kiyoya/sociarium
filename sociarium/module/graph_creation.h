@@ -69,15 +69,15 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     typedef __declspec(dllimport)
       void (__cdecl* FuncCreateGraphTimeSeries)(
-        Thread* parent,
+        Thread& parent,
         std::deque<std::wstring>& status,
-        Message const* message,
+        Message const& message,
         std::vector<std::tr1::shared_ptr<Graph> >& graph,
         std::vector<std::vector<NodeProperty> >& node_property,
         std::vector<std::vector<EdgeProperty> >& edge_property,
         std::vector<std::wstring>& layer_name,
-        std::tr1::unordered_map<std::string, std::pair<std::string, int> > const& params,
-        std::vector<std::pair<std::string, int> > const& data,
+        std::tr1::unordered_map<std::wstring, std::pair<std::wstring, int> > const& params,
+        std::vector<std::pair<std::wstring, int> > const& data,
         std::wstring const& filename);
 
     ////////////////////////////////////////////////////////////////////////////////

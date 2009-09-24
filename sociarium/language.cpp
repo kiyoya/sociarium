@@ -1615,7 +1615,7 @@ namespace hashimoto_ut {
             mii.wID = IDM_LAYOUT_FORCE_DIRECTION_LATTICE_GAS_METHOD;
             mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
             InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
-
+#if 0
             ZeroMemory(&mii, sizeof(mii));
             mii.cbSize = sizeof(mii);
             mii.fMask = MIIM_TYPE|MIIM_ID;
@@ -1623,6 +1623,7 @@ namespace hashimoto_ut {
             mii.wID = IDM_LAYOUT_FORCE_DIRECTION_DESIGNTIDE;
             mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
             InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+#endif
           }
 
           ZeroMemory(&mii, sizeof(mii));
@@ -2074,8 +2075,9 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    Message const* get_message_object(void) {
-      return message_object.get();
+    Message const& get_message_object(void) {
+      assert(message_object!=0);
+      return *message_object;
     }
 
     ////////////////////////////////////////////////////////////////////////////////

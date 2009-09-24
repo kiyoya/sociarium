@@ -32,6 +32,7 @@
 #include <vector>
 #include <memory>
 #include "layout.h"
+#include "flag_operation.h"
 #include "sociarium_graph.h"
 
 namespace hashimoto_ut {

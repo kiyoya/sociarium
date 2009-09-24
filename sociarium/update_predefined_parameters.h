@@ -39,10 +39,10 @@
 namespace hashimoto_ut {
 
   void update_texture_parameters(
-    std::tr1::unordered_map<std::string, std::pair<std::string, int> > const& params);
+    std::tr1::unordered_map<std::wstring, std::pair<std::wstring, int> > const& params);
 
   void update_predefined_parameters(
-    std::tr1::unordered_map<std::string, std::pair<std::string, int> > const& params);
+    std::tr1::unordered_map<std::wstring, std::pair<std::wstring, int> > const& params);
 
 }
 

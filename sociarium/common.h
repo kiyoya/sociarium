@@ -42,13 +42,19 @@ namespace hashimoto_ut {
 
     namespace {
       wchar_t const* APPLICATION_TITLE = L"s.o.c.i.a.r.i.u.m";
+
+      int const mb_notice = MB_OK|MB_ICONEXCLAMATION;
+      int const mb_info   = MB_OK|MB_ICONASTERISK;
+      int const mb_error  = MB_OK|MB_ICONERROR;
+      int const mb_ok_cancel = MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1;
+      int const mb_ok_cancel_error = MB_OKCANCEL|MB_ICONERROR;
     }
 
     namespace RenderingContext {
       enum {
         DRAW = 0,
         LOAD_TEXTURES,
-        NUMBER_OF_CATEGORIES
+        NUMBER_OF_THREAD_CATEGORIES
       };
     }
 
@@ -63,14 +69,10 @@ namespace hashimoto_ut {
     void set_instance_handle(HINSTANCE hinst);
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the main window.
+    // Get a window handle and a device context of the main window.
     HWND get_window_handle(void);
-    void set_window_handle(HWND hwnd);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the device context.
     HDC get_device_context(void);
-    void set_device_context(HDC dc);
+    void set_main_window(HWND hwnd);
 
     ////////////////////////////////////////////////////////////////////////////////
     // Handle of the rendering context.

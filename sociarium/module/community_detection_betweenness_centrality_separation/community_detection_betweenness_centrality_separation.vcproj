@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="community_detection_betweenness_centrality_clustering"
+	Name="community_detection_betweenness_centrality_separation"
 	ProjectGUID="{72AB6078-6490-4C9A-B2E7-35943A37BFC6}"
 	RootNamespace="kamada_kawai_method"
 	Keyword="Win32Proj"

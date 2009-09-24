@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: draw.cpp
+﻿// fbo.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,82 +29,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
 #include <windows.h>
-#include "draw.h"
+#include <gl/glew.h>
+#include "fbo.h"
+#include "texture.h"
 
 namespace hashimoto_ut {
 
-  namespace sociarium_project_draw {
+  using std::tr1::shared_ptr;
 
-    namespace {
-
-      Vector2<float> const slider_offset(10.0f, 40.0f); // pixel (viewport coordinates)
-      Vector2<float> const selection_frame_offset(10.0f, 10.0f); // pixel (viewport coordinates)
-
-      float default_node_size = 2.0f;
-      float default_edge_width = 0.05f;
-      float node_size = default_node_size;
-      float edge_width = default_edge_width;
-      float coordinates_size = 3.0f;
-
-    } // The end of the anonymous namespace
-
+  class FrameBufferObjectImpl : public FrameBufferObject {
+  public:
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vector2<float> const& get_slider_offset(void) {
-      return slider_offset;
-    }
+    FrameBufferObjectImpl(GLsizei width, GLsizei height, GLenum wrap_s, GLenum wrap_t) {
 
-    Vector2<float> const& get_frame_offset(void) {
-      return selection_frame_offset;
+      // Create a texture.
+      texture_ = Texture::create();
+      int const err = texture_->create(width, height, wrap_s, wrap_t);
+      assert(err==Texture::SUCCEEDED);
+
+      // Bind the texture to FBO.
+      glGenFramebuffersEXT(1, &id_);
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, id_);
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                                GL_TEXTURE_2D, texture_->get(), 0);
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_default_node_size(void) {
-      return default_node_size;
-    }
-
-    void set_default_node_size(float size) {
-      default_node_size = size;
-    }
-
-    float get_default_edge_width(void) {
-      return default_edge_width;
-    }
-
-    void set_default_edge_width(float width) {
-      default_edge_width = width;
+    ~FrameBufferObjectImpl() {
+      glDeleteFramebuffersEXT(1, &id_);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_node_size(void) {
-      return node_size;
-    }
-
-    void set_node_size(float size) {
-      node_size = size;
-    }
-
-    float get_edge_width(void) {
-      return edge_width;
-    }
-
-    void set_edge_width(float width) {
-      edge_width = width;
+    GLuint get(void) const {
+      return id_;
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    float get_coordinates_size(void) {
-      return coordinates_size;
+    shared_ptr<Texture> get_texture(void) const {
+      return texture_;
     }
 
-    void set_coordinates_size(float size) {
-      coordinates_size = size;
-    }
+  private:
+    GLuint id_;
+    shared_ptr<Texture> texture_;
+  };
 
-  } // The end of the namespace "sociarium_project_draw"
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Factory function of FrameBufferObject.
+  shared_ptr<FrameBufferObject>
+    FrameBufferObject::create(GLsizei width, GLsizei height, GLenum wrap_s, GLenum wrap_t) {
+      return shared_ptr<FrameBufferObject>(
+        new FrameBufferObjectImpl(width, height, wrap_s, wrap_t));
+    }
 
 } // The end of the namespace "hashimoto_ut"

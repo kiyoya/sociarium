@@ -62,9 +62,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl layout(
 
-      Thread* parent,
-      deque<wstring>& status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<Vector2<double> >& position,
       shared_ptr<Graph const> graph,
       vector<double> const& hint) {
@@ -78,9 +78,9 @@ namespace hashimoto_ut {
 
       assert(hint.size()==1 && hint[0]>0.0);
 
-      status[0]
+      status
         = (boost::wformat(L"%s")
-           %message->get(Message::KAMADA_KAWAI_METHOD)).str();
+           %message.get(Message::KAMADA_KAWAI_METHOD)).str();
 
       time_t tm;
       boost::mt19937 generator((unsigned long)time(&tm));
@@ -88,14 +88,12 @@ namespace hashimoto_ut {
       boost::variate_generator<boost::mt19937, boost::uniform_real<> >
         rand(generator, distribution);
 
-      // 連結成分を求める
-      pair<bool, vector<vector<Node*> > > result =
-        sociarium_project_graph_utility::connected_components(
-          parent, &status[0], message, BFSTraverser::create<bidirectional_tag>(graph), 1);
+      pair<bool, vector<vector<Node*> > > result
+        = sociarium_project_graph_utility::connected_components(
+          &parent, 0, &message, BFSTraverser::create<bidirectional_tag>(graph), 1);
 
       if (!result.first) return;
 
-      // 最大連結成分を求める
       size_t max_index = 0;
       size_t max_size = 0;
       for (size_t i=0; i<result.second.size(); ++i) {
@@ -121,16 +119,16 @@ namespace hashimoto_ut {
       for (size_t i=0; i<position.size(); ++i)
         position[i] += Vector2<double>(rand()-0.5, rand()-0.5);
 
-      // Layout each component individually.
+      // Layout each connected component individually.
       for (size_t cid=0; cid<cc.size(); ++cid) {
 
-        status[0]
-          = (boost::wformat(L"%s: %d/%d")
-             %message->get(Message::KAMADA_KAWAI_METHOD)
+        status
+          = (boost::wformat(L"%s: 0%% (%d/%d)")
+             %message.get(Message::KAMADA_KAWAI_METHOD)
              %(cid+1)%cc.size()).str();
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) return;
+        if (parent.cancel_check()) return;
 
         // Calculate spring coefficients from geodesic distance.
         vector<Node*> const& c = cc[cid];
@@ -143,13 +141,14 @@ namespace hashimoto_ut {
 
         for (size_t i=0; i<isz; ++i) {
 
-          status[1]
-            = (boost::wformat(L"%s: %d%%")
-               %message->get(Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH)
+          status
+            = (boost::wformat(L"%s: %d%% (%d/%d)")
+               %message.get(Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH)
+               %(cid+1)%cc.size()
                %int(100.0*(i+1.0)/isz)).str();
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) return;
+          if (parent.cancel_check()) return;
 
           vector<double> dst(c.size(), 0.0);
           t->reset();
@@ -182,7 +181,7 @@ namespace hashimoto_ut {
         for (size_t i=0; i<isz; ++i) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) return;
+          if (parent.cancel_check()) return;
 
           size_t const jsz = isz-i;
           for (size_t j=0; j<jsz; ++j)
@@ -197,14 +196,14 @@ namespace hashimoto_ut {
         for (int count=0; count<max_iteration; ++count) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) return;
+          if (parent.cancel_check()) return;
 
           if (count==0) {
             // First step of iteration (O[N^2])
             for (size_t i=0; i<isz; ++i) {
 
               // **********  Catch a termination signal  **********
-              if (parent->cancel_check()) return;
+              if (parent.cancel_check()) return;
 
               size_t const ii = c[i]->index();
               for (size_t j=0, jsz=isz-i; j<jsz; ++j) {
@@ -229,7 +228,7 @@ namespace hashimoto_ut {
             for (size_t i=0; i<csz; ++i) {
 
               // **********  Catch a termination signal  **********
-              if (parent->cancel_check()) return;
+              if (parent.cancel_check()) return;
 
               if (i==m) continue;
               size_t const ii = c[i]->index();
@@ -270,7 +269,7 @@ namespace hashimoto_ut {
           for (size_t i=0; i<csz; ++i) {
 
             // **********  Catch a termination signal  **********
-            if (parent->cancel_check()) return;
+            if (parent.cancel_check()) return;
 
             double const value = rhoErho[i].norm();
             de.insert(make_pair(value, i));
@@ -282,12 +281,13 @@ namespace hashimoto_ut {
           if (de.begin()->first<threshold) break;
           assert(de.begin()->first>0.0);
 
-          status[1]
-            = (boost::wformat(L"%s: %d%% [%.2f/%.2f]")
-               %message->get(Message::KAMADA_KAWAI_METHOD_ITERATING)
+          status
+            = (boost::wformat(L"%s: %d%% [%.2f/%.2f] (%d/%d)")
+               %message.get(Message::KAMADA_KAWAI_METHOD)
                %int(100.0*(count+1)/max_iteration)
                %de.begin()->first
                %threshold
+               %(cid+1)%cc.size()
                ).str();
 
           m = de.begin()->second; // Move the node of max @de.
@@ -299,7 +299,7 @@ namespace hashimoto_ut {
           for (size_t i=0; i<csz; ++i) {
 
             // **********  Catch a termination signal  **********
-            if (parent->cancel_check()) return;
+            if (parent.cancel_check()) return;
 
             if (m==i) continue;
             size_t const ii = c[i]->index();

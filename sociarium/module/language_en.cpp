@@ -326,13 +326,13 @@ namespace hashimoto_ut {
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
         = L"Remove elements identical to selected edges on the current layer(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"Remove elements identical to selected nodes+edges on the current layer(&A)\tDel";
+        = L"Remove elements identical to selected nodes+edges on the current layer(&A)";
       menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
         = L"Remove elements identical to selected nodes on each layer(&N)";
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
         = L"Remove elements identical to selected edges on each layer(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"Remove elements identical to selected nodes+edges on each layer(&A)\tCtrl+Del";
+        = L"Remove elements identical to selected nodes+edges on each layer(&A)";
 
 
       /////////////////////////////////////////////////////////////////////////////
@@ -552,8 +552,8 @@ namespace hashimoto_ut {
         =  L"Reading data";
       message[Message::CHECKING_TEXT_ENCODING]
         = L"Checking text encoing";
-      message[Message::CONVERTING_INTO_SJIS_ENCODING]
-        = L"Converting text into Shift_JIS";
+      message[Message::CONVERTING_INTO_UTF16_ENCODING]
+        = L"Converting text into UTF-16";
       message[Message::UNKNOWN_CHARACTER_ENCODING]
         = L"Unknown text encoding";
       message[Message::PARSING_DATA]
@@ -585,22 +585,22 @@ namespace hashimoto_ut {
 
 
       /////////////////////////////////////////////////////////////////////////////
+      message[Message::LAYOUTING]
+        = L"Layouting the target graph";
       message[Message::KAMADA_KAWAI_METHOD]
         = L"Kamada-Kawai Method";
       message[Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH]
-        = L"Calculating spring coefficients from geodesic distances";
-      message[Message::KAMADA_KAWAI_METHOD_ITERATING]
-        = L"Iterating";
+        = L"Kamada-Kawai Method [Calculating spring coefficients]";
       message[Message::HDE]
         = L"High Dimensional Embedding";
       message[Message::HDE_CALCULATING_GRAPH_DISTANCE]
-        = L"Calculating geodesic distances of all nodes from reference points";
+        = L"High Dimensional Embedding [Calculating base distances]";
       message[Message::HDE_CALCULATING_MATRIX]
-        = L"Calculating variance-covariance matrix on geodesic distance";
+        = L"High Dimensional Embedding [Calculating variance-covariance matrix]";
       message[Message::HDE_CALCULATING_PRINCIPAL_COMPONENTS]
-        = L"Calculating the principal components of the matrix";
+        = L"High Dimensional Embedding [Calculating the principal components]";
       message[Message::HDE_CALCULATING_POSITION]
-        = L"Calculating positions by accumulating the component's weight";
+        = L"High Dimensional Embedding [Calculating positions]";
 
 
       /////////////////////////////////////////////////////////////////////////////

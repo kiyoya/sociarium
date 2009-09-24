@@ -45,8 +45,8 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
 
-      Thread* parent,
-      wstring* status,
+      Thread& parent,
+      wstring& status,
       vector<vector<Node*> >& community,
       bool& is_canceled,
       shared_ptr<Graph const> g,

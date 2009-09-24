@@ -46,9 +46,9 @@ namespace hashimoto_ut {
     // Read a given file and store parsed data in @params and @data.
     // If reading were canceled, returns false.
     bool read_file(
-      Thread* parent, char const* filename,
-      std::tr1::unordered_map<std::string, std::pair<std::string, int> >& params,
-      std::vector<std::pair<std::string, int> >& data);
+      Thread* parent, wchar_t const* filename,
+      std::tr1::unordered_map<std::wstring, std::pair<std::wstring, int> >& params,
+      std::vector<std::pair<std::wstring, int> >& data);
 
   } // The end of the namespace "sociarium_project_thread_detail_read_file"
 

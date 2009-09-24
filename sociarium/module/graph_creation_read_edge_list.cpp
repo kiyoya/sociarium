@@ -39,7 +39,6 @@
 #include "../../shared/thread.h"
 #include "../../shared/general.h"
 #include "../../shared/msgbox.h"
-#include "../../shared/win32api.h"
 #include "../../graph/graph.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
@@ -59,21 +58,21 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_language;
+  using namespace sociarium_project_module_graph_creation;
 
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
 
-      Thread* parent,
+      Thread& parent,
       deque<wstring>& status,
-      Message const* message,
+      Message const& message,
       vector<shared_ptr<Graph> >& graph,
       vector<vector<NodeProperty> >& node_property,
       vector<vector<EdgeProperty> >& edge_property,
       vector<wstring>& layer_name,
-      unordered_map<string, pair<string, int> > const& params,
-      vector<pair<string, int> > const& data,
+      unordered_map<wstring, pair<wstring, int> > const& params,
+      vector<pair<wstring, int> > const& data,
       wstring const& filename) {
 
       assert(graph.empty());
@@ -87,42 +86,35 @@ namespace hashimoto_ut {
       // Read parameters.
 
       bool directed = false;
-      char delimiter = '\0';
+      wchar_t delimiter = L'\0';
       wstring title;
       float threshold = 0.0f;
 
-      unordered_map<string, pair<string, int> >::const_iterator pos;
+      unordered_map<wstring, pair<wstring, int> >::const_iterator pos;
 
-      if ((pos=params.find("directed"))!=params.end())
+      if ((pos=params.find(L"directed"))!=params.end())
         directed = true;
 
-      if ((pos=params.find("title"))!=params.end() && !pos->second.first.empty())
-        title = mbcs2wcs(pos->second.first.c_str(), pos->second.first.size());
+      if ((pos=params.find(L"title"))!=params.end())
+        title = pos->second.first;
 
-      if ((pos=params.find("delimiter"))!=params.end() && !pos->second.first.empty())
+      if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
         delimiter = pos->second.first[0];
 
-      if ((pos=params.find("threshold"))!=params.end()) {
+      if ((pos=params.find(L"threshold"))!=params.end()) {
         try {
           threshold = boost::lexical_cast<float>(pos->second.first);
         } catch (...) {
-          message_box(
-            get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-            APPLICATION_TITLE,
-            L"bad data: %s [line=%d]",
-            filename.c_str(), pos->second.second);
+          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                      L"bad data: %s [line=%d]",
+                      filename.c_str(), pos->second.second);
         }
       }
 
-      if (delimiter=='\0') {
-        message_box(
-          get_window_handle(),
-          MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-          APPLICATION_TITLE,
-          L"%s: %s",
-          message->get(Message::UNCERTAIN_DELIMITER),
-          filename.c_str());
+      if (delimiter==L'\0') {
+        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                    L"%s: %s", message.get(Message::UNCERTAIN_DELIMITER),
+                    filename.c_str());
         return;
       }
 
@@ -133,23 +125,23 @@ namespace hashimoto_ut {
       size_t weight_column = 2;
       size_t name_column = -1; // Unavailable in a default setting.
 
-      if ((pos=params.find("columns"))!=params.end()) {
-        vector<string> row = tokenize(pos->second.first, delimiter);
+      if ((pos=params.find(L"columns"))!=params.end()) {
+        vector<wstring> row = tokenize(pos->second.first, delimiter);
 
         for (size_t i=0; i<row.size(); ++i)
           trim(row[i]);
 
         for (size_t i=0; i<row.size(); ++i) {
-          if (row[i]=="source") {
+          if (row[i]==L"source") {
             source_column = i;
             ++number_of_columns;
-          } else if (row[i]=="target") {
+          } else if (row[i]==L"target") {
             target_column = i;
             ++number_of_columns;
-          } else if (row[i]=="weight") {
+          } else if (row[i]==L"weight") {
             weight_column = i;
             ++number_of_columns;
-          } else if (row[i]=="name") {
+          } else if (row[i]==L"name") {
             name_column = i;
             ++number_of_columns;
           } else {
@@ -163,82 +155,68 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // Parse data.
 
-      unordered_map<string, pair<string, float> > id2property;
+      unordered_map<wstring, pair<wstring, float> > id2property;
 
       for (size_t count=0; count<data.size(); ++count) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check())
+        if (parent.cancel_check())
           return;
 
         status[0]
           = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::PARSING_DATA)
+             %message.get(Message::PARSING_DATA)
              %int(100.0*(count+1)/data.size())).str();
 
-        vector<string> tok = tokenize(data[count].first, delimiter);
+        vector<wstring> tok = tokenize(data[count].first, delimiter);
 
         // Get a name of a node.
         if ((number_of_columns==0 && tok.size()<2) || (tok.size()<number_of_columns)) {
-          message_box(
-            get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-            APPLICATION_TITLE,
-            L"%s: %s [line=%d]",
-            message->get(Message::INVALID_NUMBER_OF_ITEMS),
-            filename.c_str(), data[count].second);
+          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                      L"%s: %s [line=%d]",  message.get(Message::INVALID_NUMBER_OF_ITEMS),
+                      filename.c_str(), data[count].second);
           return;
         }
 
         trim(tok[source_column]);
         trim(tok[target_column]);
 
-        string const source = tok[source_column]; // The name of the source node.
-        string const target = tok[target_column]; // The name of the target node.
+        wstring const source = tok[source_column]; // The name of the source node.
+        wstring const target = tok[target_column]; // The name of the target node.
 
         if (source.empty() || target.empty()) {
-          message_box(
-            get_window_handle(),
-            MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-            APPLICATION_TITLE,
-            L"bad data: %s [line=%d]",
-            filename.c_str(), data[count].second);
+          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                      L"bad data: %s [line=%d]", filename.c_str(), data[count].second);
           return;
         }
 
         // If the graph is undirected, the direction of the edge is ignored.
-        string const identifier
+        wstring const identifier
           = (directed||source<target)?(source+delimiter+target):(target+delimiter+source);
 
-        pair<string, float>& ep = id2property[identifier];
+        pair<wstring, float>& ep = id2property[identifier];
 
         { // Get a name of an edge.
           // If the name column is not specified, the name of the edge
           // is made from the names of nodes.
           if (number_of_columns==0 || name_column==-1)
-            ep.first = (directed||source<target)?(source+'~'+target):(target+'~'+source);
+            ep.first = (directed||source<target)?(source+L'~'+target):(target+L'~'+source);
 
           else {
             if (tok.size()<number_of_columns) {
-              message_box(
-                get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-                APPLICATION_TITLE,
-                L"%s: %s [line=%d]",
-                message->get(Message::INVALID_NUMBER_OF_ITEMS),
-                filename.c_str(), data[count].second);
+              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                          L"%s: %s [line=%d]",
+                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
+                          filename.c_str(), data[count].second);
               return;
             }
 
             trim(tok[name_column]);
 
             if (!ep.first.empty() && ep.first!=tok[name_column]) {
-              message_box(
-                get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-                APPLICATION_TITLE,
-                L"name confliction: %s [line=%d]",
-                filename.c_str(), data[count].second);
+              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                          L"name confliction: %s [line=%d]",
+                          filename.c_str(), data[count].second);
             }
 
             ep.first = tok[name_column];
@@ -246,7 +224,7 @@ namespace hashimoto_ut {
         }
 
         { // Get weight of an edge.
-          string w;
+          wstring w;
 
           // If the weight column is not specified, the default column is used.
           // If the number of columns is less than the value of the default column,
@@ -257,19 +235,16 @@ namespace hashimoto_ut {
               w = tok[weight_column];
             } else
               // The default weight column is invalid.
-              w = "1.0";
+              w = L"1.0";
           else if (weight_column==-1)
             // The weight column is not specified.
-            w = "1.0";
+            w = L"1.0";
           else {
             if (tok.size()<number_of_columns) {
-              message_box(
-                get_window_handle(),
-                MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-                APPLICATION_TITLE,
-                L"%s: %s [line=%d]",
-                message->get(Message::INVALID_NUMBER_OF_ITEMS),
-                filename.c_str(), data[count].second);
+              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                          L"%s: %s [line=%d]",
+                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
+                          filename.c_str(), data[count].second);
               return;
             }
 
@@ -280,12 +255,9 @@ namespace hashimoto_ut {
           try {
             ep.second += boost::lexical_cast<float>(w);
           } catch (...) {
-            message_box(
-              get_window_handle(),
-              MB_OK|MB_ICONERROR|MB_SYSTEMMODAL,
-              APPLICATION_TITLE,
-              L"bad data: %s [line=%d]",
-              filename.c_str(), data[count].second);
+            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+                        L"bad data: %s [line=%d]",
+                        filename.c_str(), data[count].second);
             return;
           }
         }
@@ -301,53 +273,54 @@ namespace hashimoto_ut {
       node_property.resize(1);
       edge_property.resize(1);
 
-      unordered_map<string, Node*> name2node;
+      unordered_map<wstring, Node*> name2node;
 
-      unordered_map<string, pair<string, float> >::const_iterator i = id2property.begin();
-      unordered_map<string, pair<string, float> >::const_iterator end = id2property.end();
+      unordered_map<wstring, pair<wstring, float> >::const_iterator i = id2property.begin();
+      unordered_map<wstring, pair<wstring, float> >::const_iterator end = id2property.end();
 
       for (int count=0; i!=end; ++i, ++count) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
 
         status[0]
           = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::MAKING_GRAPH_SNAPSHOT)
+             %message.get(Message::MAKING_GRAPH_SNAPSHOT)
              %int(100.0*count/data.size())).str();
 
-        string const& identifier = i->first;
+        wstring const& identifier = i->first;
         float const w = i->second.second;
 
         if (w>threshold) {
           Node* n[2];
-          vector<string> const tok = tokenize(identifier, delimiter);
+          vector<wstring> const tok = tokenize(identifier, delimiter);
 
           for (int j=0; j<2; ++j) {
-            unordered_map<string, Node*>::const_iterator k = name2node.find(tok[j]);
+
+            unordered_map<wstring, Node*>::const_iterator k = name2node.find(tok[j]);
+
             if (k==name2node.end()) {
               n[j] = g->add_node();
               name2node.insert(make_pair(tok[j], n[j]));
               NodeProperty np;
-              np.identifier = mbcs2wcs(tok[j].c_str(), tok[j].size());
+              np.identifier = tok[j];
               np.name = np.identifier;
               np.weight = w;
               node_property[0].push_back(np);
             } else {
               n[j] = k->second;
-              NodeProperty& np
-                = node_property[0][n[j]->index()];
+              NodeProperty& np = node_property[0][n[j]->index()];
               np.weight += w;
             }
           }
 
           Edge* e = g->add_edge(n[0], n[1]);
           EdgeProperty ep;
-          ep.identifier = mbcs2wcs(identifier.c_str(), identifier.size());
-          ep.name = mbcs2wcs(i->second.first.c_str(), i->second.first.size());
+          ep.identifier = identifier;
+          ep.name = i->second.first;
           ep.weight = w;
           edge_property[0].push_back(ep);
         }

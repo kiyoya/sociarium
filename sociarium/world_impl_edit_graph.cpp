@@ -44,7 +44,6 @@
 #include "community_transition_diagram.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
-#include "../shared/predefined_color.h"
 
 namespace hashimoto_ut {
 
@@ -70,11 +69,11 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    unsigned int const hide_mask =
-      ~(ElementFlag::VISIBLE|ElementFlag::MARKED|ElementFlag::HIGHLIGHT);
+    unsigned int const hide_mask
+      = ~(ElementFlag::VISIBLE|ElementFlag::MARKED|ElementFlag::HIGHLIGHT);
 
-    unsigned int const show_mask =
-      ElementFlag::VISIBLE|ElementFlag::MARKED;
+    unsigned int const show_mask
+      = ElementFlag::VISIBLE|ElementFlag::MARKED;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -161,63 +160,67 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    vector<Node const*> inner_community_nodes(shared_ptr<SociariumGraph const> g) {
+    vector<DynamicNodeProperty*>
+      inner_community_nodes(shared_ptr<SociariumGraph const> g) {
 
-      vector<Node const*> retval;
-      node_property_iterator first = g->node_property_begin();
-      node_property_iterator last  = g->node_property_end();
+        vector<DynamicNodeProperty*> retval;
+        node_property_iterator first = g->node_property_begin();
+        node_property_iterator last  = g->node_property_end();
 
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()>0)
-          retval.push_back(first->first);
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()>0)
+            retval.push_back(&first->second);
 
-      return retval;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    vector<Node const*> outer_community_nodes(shared_ptr<SociariumGraph const> g) {
-
-      vector<Node const*> retval;
-      node_property_iterator first = g->node_property_begin();
-      node_property_iterator last  = g->node_property_end();
-
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()==0)
-          retval.push_back(first->first);
-
-      return retval;
-    }
+        return retval;
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    vector<Edge const*> inner_community_edges(shared_ptr<SociariumGraph const> g) {
+    vector<DynamicNodeProperty*>
+      outer_community_nodes(shared_ptr<SociariumGraph const> g) {
 
-      vector<Edge const*> retval;
-      edge_property_iterator first = g->edge_property_begin();
-      edge_property_iterator last  = g->edge_property_end();
+        vector<DynamicNodeProperty*> retval;
+        node_property_iterator first = g->node_property_begin();
+        node_property_iterator last  = g->node_property_end();
 
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()>0)
-          retval.push_back(first->first);
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()==0)
+            retval.push_back(&first->second);
 
-      return retval;
-    }
+        return retval;
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    vector<Edge const*> outer_community_edges(shared_ptr<SociariumGraph const> g) {
+    vector<DynamicEdgeProperty*>
+      inner_community_edges(shared_ptr<SociariumGraph const> g) {
 
-      vector<Edge const*> retval;
-      edge_property_iterator first = g->edge_property_begin();
-      edge_property_iterator last  = g->edge_property_end();
+        vector<DynamicEdgeProperty*> retval;
+        edge_property_iterator first = g->edge_property_begin();
+        edge_property_iterator last  = g->edge_property_end();
 
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()==0)
-          retval.push_back(first->first);
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()>0)
+            retval.push_back(&first->second);
 
-      return retval;
-    }
+        return retval;
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    vector<DynamicEdgeProperty*>
+      outer_community_edges(shared_ptr<SociariumGraph const> g) {
+
+        vector<DynamicEdgeProperty*> retval;
+        edge_property_iterator first = g->edge_property_begin();
+        edge_property_iterator last  = g->edge_property_end();
+
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()==0)
+            retval.push_back(&first->second);
+
+        return retval;
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -567,17 +570,8 @@ namespace hashimoto_ut {
         vector<DynamicNodeProperty*>::const_iterator first = recolored_nodes.begin();
         vector<DynamicNodeProperty*>::const_iterator last  = recolored_nodes.end();
 
-        for (; first!=last; ++first) {
-          if ((*first)->number_of_upper_nodes()==0)
-            // Isolated.
-            assert(0 && "never reach");
-          else if ((*first)->number_of_upper_nodes()==1)
-            // Belong to one community.
-            (*first)->set_color_id((*(*first)->upper_nbegin())->get_color_id());
-          else
-            // Belong to multiple communities.
-            (*first)->set_color_id(get_default_node_color_id());
-        }
+        for (; first!=last; ++first)
+          sociarium_project_color::update_color_under_community_information(**first);
       }
 
       {
@@ -585,17 +579,8 @@ namespace hashimoto_ut {
         vector<DynamicEdgeProperty*>::const_iterator first = recolored_edges.begin();
         vector<DynamicEdgeProperty*>::const_iterator last  = recolored_edges.begin();
 
-        for (; first!=last; ++first) {
-          if ((*first)->number_of_upper_nodes()==0)
-            // Isolated.
-            assert(0 && "never reach");
-          else if ((*first)->number_of_upper_nodes()==1)
-            // Belong to one community.
-            (*first)->set_color_id((*(*first)->upper_nbegin())->get_color_id());
-          else
-            // Belong to multiple communities.
-            (*first)->set_color_id(get_default_edge_color_id());
-        }
+        for (; first!=last; ++first)
+          sociarium_project_color::update_color_under_community_information(**first);
       }
     }
 
@@ -660,60 +645,52 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = inner_community_nodes(g0_current);
+      vector<DynamicNodeProperty*> const nodes = inner_community_nodes(g0_current);
       // Mark all inner community nodes in the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Edge const*> const edges = inner_community_edges(g0_current);
+      vector<DynamicEdgeProperty*> const edges = inner_community_edges(g0_current);
       // Mark all inner community edges in the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = inner_community_nodes(g0_current);
-      vector<Edge const*> const edges = inner_community_edges(g0_current);
+      vector<DynamicNodeProperty*> const nodes = inner_community_nodes(g0_current);
+      vector<DynamicEdgeProperty*> const edges = inner_community_edges(g0_current);
       // Mark all inner community nodes and edges in the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = outer_community_nodes(g0_current);
+      vector<DynamicNodeProperty*> const nodes = outer_community_nodes(g0_current);
       // Mark all outer community nodes in the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Edge const*> const edges = outer_community_edges(g0_current);
+      vector<DynamicEdgeProperty*> const edges = outer_community_edges(g0_current);
       // Mark all outer community edges in the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = outer_community_nodes(g0_current);
-      vector<Edge const*> const edges = outer_community_edges(g0_current);
+      vector<DynamicNodeProperty*> const nodes = outer_community_nodes(g0_current);
+      vector<DynamicEdgeProperty*> const edges = outer_community_edges(g0_current);
       // Mark all outer community nodes and edges in the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
@@ -775,36 +752,32 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = inner_community_nodes(g0);
+        vector<DynamicNodeProperty*> nodes = inner_community_nodes(g0);
         // Mark all inner community nodes in all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
 
     else if (menu==IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Edge const*> edges = inner_community_edges(g0);
+        vector<DynamicEdgeProperty*> edges = inner_community_edges(g0);
         // Mark all inner community edges in all layers.
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = inner_community_nodes(g0);
-        vector<Edge const*> edges = inner_community_edges(g0);
+        vector<DynamicNodeProperty*> nodes = inner_community_nodes(g0);
+        vector<DynamicEdgeProperty*> edges = inner_community_edges(g0);
         // Mark all inner community nodes and edges in all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -812,37 +785,33 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = outer_community_nodes(g0);
+        vector<DynamicNodeProperty*> nodes = outer_community_nodes(g0);
         // Mark all outer community nodes in all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Edge const*> edges = outer_community_edges(g0);
+        vector<DynamicEdgeProperty*> edges = outer_community_edges(g0);
         // Mark all outer community edges in all layers.
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = outer_community_nodes(g0);
-        vector<Edge const*> edges = outer_community_edges(g0);
+        vector<DynamicNodeProperty*> nodes = outer_community_nodes(g0);
+        vector<DynamicEdgeProperty*> edges = outer_community_edges(g0);
         // Mark all outer community nodes and edges in all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -1113,21 +1082,13 @@ namespace hashimoto_ut {
     }
 
     if (another_thread_is_running) {
-      message_box(
-        get_window_handle(),
-        MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    if (message_box(
-      get_window_handle(),
-      MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1,
-      APPLICATION_TITLE,
-      L"%s",
-      get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
+    if (message_box(get_window_handle(), mb_ok_cancel, APPLICATION_TITLE,
+                    L"%s", get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
       return;
 
     // --------------------------------------------------------------------------------
