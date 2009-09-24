@@ -60,6 +60,143 @@ namespace hashimoto_ut {
 
 
       /////////////////////////////////////////////////////////////////////////////
+      menu[IDM_EDIT]
+        = L"編集(&E)";
+      menu[IDM_EDIT_MARK_ON_CURRENT_LAYER]
+        = L"現在のレイヤーから選択(&1)";
+      menu[IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER]
+        = L"全てのノードを選択(&1)";
+      menu[IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER]
+        = L"全てのエッジを選択(&2)";
+      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"コミュニティに所属するノードを選択(&3)";
+      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"コミュニティに所属するエッジを選択(&4)";
+      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"コミュニティに所属するノードとエッジを選択(&5)";
+      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"コミュニティに所属しないノードを選択(&6)";
+      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"コミュニティに所属しないエッジを選択(&7)";
+      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"コミュニティに所属しないノードとエッジを選択(&8)";
+      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"選択されたコミュニティに所属するノードを選択(&9)";
+      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"選択されたコミュニティに所属するエッジを選択(&9)";
+      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"選択されたコミュニティに所属するノードとエッジを選択(&9)";
+      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
+        = L"全てを選択(&A)\tCtrl+A";
+      menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
+        = L"選択を反転(&I)\tCtrl+I";
+
+      menu[IDM_EDIT_MARK_ON_EACH_LAYER]
+        = L"全てのレイヤーから選択(&2)";
+      menu[IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER]
+        = L"全てのノードを選択(&1)";
+      menu[IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER]
+        = L"全てのエッジを選択(&2)";
+      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"コミュニティに所属するノードを選択(&3)";
+      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"コミュニティに所属するエッジを選択(&4)";
+      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"コミュニティに所属するノードとエッジを選択(&5)";
+      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"コミュニティに所属しないノードを選択(&6)";
+      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"コミュニティに所属しないエッジを選択(&7)";
+      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"コミュニティに所属しないノードとエッジを選択(&8)";
+      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"選択されたコミュニティ連続体に所属するノードを選択(&9)";
+      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"選択されたコミュニティ連続体に所属するエッジを選択(&9)";
+      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"選択されたコミュニティ連続体に所属するノードとエッジを選択(&9)";
+      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
+        = L"全てを選択(&A)\tShift+Ctrl+A";
+      menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
+        = L"選択を反転(&I)\tShift+Ctrl+I";
+
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS]
+        = L"選択された要素を隠す(&3)",
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)\tCtrl+H";
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER]
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER]
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER]
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)\tShift+Ctrl+H";
+
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL]
+        = L"選択された要素の同一要素を全てのレイヤーから隠す(&4)";
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)";
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL]
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL]
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)";
+
+      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS]
+        = L"隠れた要素を表示(&5)";
+      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの隠れたノードを対象(&N)";
+      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの隠れたエッジを対象(&E)";
+      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの隠れたノードとエッジを対象(&A)\tCtrl+U";
+      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER]
+        = L"全てのレイヤーの隠れたノードを対象(&N)";
+      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER]
+        = L"全てのレイヤーの隠れたエッジを対象(&E)";
+      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER]
+        = L"全てのレイヤーの隠れたノードとエッジを対象(&A)\tShift+Ctrl+U";
+
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS]
+        = L"選択された要素を削除(&6)";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)\tDel";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER]
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER]
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER]
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)\tCtrl+Del";
+
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL]
+        = L"選択された要素の同一要素を全てのレイヤーから削除(&7)";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
+        = L"現在のレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
+        = L"現在のレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
+        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
+        = L"全てのレイヤーの選択されたノードを対象(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
+        = L"全てのレイヤーの選択されたエッジを対象(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
+        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)";
+
+
+      /////////////////////////////////////////////////////////////////////////////
       menu[IDM_VIEW]
         = L"描画(&V)";
       menu[IDM_VIEW_SHOW_NODE]
@@ -208,131 +345,6 @@ namespace hashimoto_ut {
         = L"FPSを表示(&F)\tCtrl+F";
       menu[IDM_STRING_SHOW_LAYER_NAME]
         = L"レイヤーの名前を表示(&L)\tL";
-
-
-      /////////////////////////////////////////////////////////////////////////////
-      menu[IDM_EDIT]
-        = L"編集(&E)";
-      menu[IDM_EDIT_MARK_ON_CURRENT_LAYER]
-        = L"現在のレイヤーから選択(&1)";
-      menu[IDM_EDIT_MARK_NODES_ON_CURRENT_LAYER]
-        = L"ノードを選択(&1)";
-      menu[IDM_EDIT_MARK_EDGES_ON_CURRENT_LAYER]
-        = L"エッジを選択(&2)";
-      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"コミュニティに所属するノードを選択(&3)";
-      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"コミュニティに所属するエッジを選択(&4)";
-      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"コミュニティに所属するノードとエッジを選択(&5)";
-      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"コミュニティに所属しないノードを選択(&6)";
-      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"コミュニティに所属しないエッジを選択(&7)";
-      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"コミュニティに所属しないノードとエッジを選択(&8)";
-      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
-        = L"全てを選択(&A)\tCtrl+A";
-      menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
-        = L"選択を反転(&I)\tCtrl+I";
-
-      menu[IDM_EDIT_MARK_ON_EACH_LAYER]
-        = L"全てのレイヤーから選択(&2)";
-      menu[IDM_EDIT_MARK_NODES_ON_EACH_LAYER]
-        = L"ノードを選択(&1)";
-      menu[IDM_EDIT_MARK_EDGES_ON_EACH_LAYER]
-        = L"エッジを選択(&2)";
-      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"コミュニティに所属するノードを選択(&3)";
-      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"コミュニティに所属するエッジを選択(&4)";
-      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"コミュニティに所属するノードとエッジを選択(&5)";
-      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"コミュニティに所属しないノードを選択(&6)";
-      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"コミュニティに所属しないエッジを選択(&7)";
-      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"コミュニティに所属しないノードとエッジを選択(&8)";
-      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
-        = L"全てを選択(&A)\tShift+Ctrl+A";
-      menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
-        = L"選択を反転(&I)\tShift+Ctrl+I";
-
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS]
-        = L"選択された要素を隠す(&3)",
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)\tCtrl+H";
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER]
-        = L"全てのレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER]
-        = L"全てのレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER]
-        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)\tShift+Ctrl+H";
-
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL]
-        = L"選択された要素の同一要素を全てのレイヤーから隠す(&4)";
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
-        = L"現在のレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
-        = L"現在のレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)";
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL]
-        = L"全てのレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL]
-        = L"全てのレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)";
-
-      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS]
-        = L"隠れた要素を表示(&5)";
-      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの隠れたノードを対象(&N)";
-      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの隠れたエッジを対象(&E)";
-      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの隠れたノードとエッジを対象(&A)\tCtrl+U";
-      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER]
-        = L"全てのレイヤーの隠れたノードを対象(&N)";
-      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER]
-        = L"全てのレイヤーの隠れたエッジを対象(&E)";
-      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER]
-        = L"全てのレイヤーの隠れたノードとエッジを対象(&A)\tShift+Ctrl+U";
-
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS]
-        = L"選択された要素を削除(&6)";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
-        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)\tDel";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER]
-        = L"全てのレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER]
-        = L"全てのレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER]
-        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)\tCtrl+Del";
-
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL]
-        = L"選択された要素の同一要素を全てのレイヤーから削除(&7)";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
-        = L"現在のレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
-        = L"現在のレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"現在のレイヤーの選択されたノードとエッジを対象(&A)";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
-        = L"全てのレイヤーの選択されたノードを対象(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
-        = L"全てのレイヤーの選択されたエッジを対象(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"全てのレイヤーの選択されたノードとエッジを対象(&A)";
 
 
       /////////////////////////////////////////////////////////////////////////////

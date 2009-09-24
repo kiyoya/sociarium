@@ -36,6 +36,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <windows.h>
 
 namespace hashimoto_ut {
 
@@ -158,7 +159,9 @@ namespace hashimoto_ut {
 
   namespace sociarium_project_menu_and_message {
 
-    void initialize(wchar_t const* filename);
+    void set_menu(HWND hwnd, wchar_t const* filename);
+
+    void set_message(wchar_t const* filename);
     Message const& get_message_object(void);
     wchar_t const* get_message(int message_id);
 

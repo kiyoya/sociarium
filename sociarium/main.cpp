@@ -36,27 +36,27 @@
 #include <commctrl.h>
 #include <zmouse.h>
 #include <GL/gl.h>
-#include "main.h"
-#include "resource.h"
-#include "common.h"
-#include "language.h"
-#include "view.h"
-#include "draw.h"
-#include "layout.h"
-#include "font.h"
-#include "thread.h"
 #include "algorithm_selector.h"
-#include "selection.h"
-#include "timeline.h"
-#include "sociarium_graph_time_series.h"
+#include "common.h"
 #include "community_transition_diagram.h"
+#include "draw.h"
+#include "font.h"
+#include "layout.h"
+#include "main.h"
+#include "menu_and_message.h"
+#include "resource.h"
+#include "selection.h"
+#include "sociarium_graph_time_series.h"
+#include "thread.h"
+#include "timeline.h"
+#include "view.h"
 #include "world.h"
 #include "thread/force_direction.h"
-#include "../shared/general.h"
-#include "../shared/win32api.h"
+#include "../shared/msgbox.h"
 #include "../shared/thread.h"
 #include "../shared/timer.h"
-#include "../shared/msgbox.h"
+#include "../shared/util.h"
+#include "../shared/win32api.h"
 
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "opengl32.lib")
@@ -74,7 +74,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_timeline;
   using namespace sociarium_project_layout;
   using namespace sociarium_project_algorithm_selector;
@@ -94,6 +94,9 @@ namespace hashimoto_ut {
       SetCurrentDirectory(get_module_path().c_str());
     }
 
+    // Set a window handle and a device context.
+    set_main_window(hwnd);
+
     unordered_map<wstring, wstring> data_ini;
 
     { // Read *.ini file.
@@ -108,22 +111,31 @@ namespace hashimoto_ut {
         if (tok2.size()>1) data_ini.insert(make_pair(tok2[0], tok2[1]));
       }
     }
-    { // Set language.
-      unordered_map<wstring, wstring>::const_iterator m
-        = data_ini.find(L"language");
 
-      if (m!=data_ini.end())
-        sociarium_project_language::initialize(hwnd, m->second.c_str());
-      else // Default language is English.
-        sociarium_project_language::initialize(hwnd, L"language_en.dll");
-    }
+    // Set message.
+    unordered_map<wstring, wstring>::const_iterator m
+      = data_ini.find(L"language");
 
-    // Set a window handle and a device context.
-    set_main_window(hwnd);
+    if (m!=data_ini.end())
+      sociarium_project_menu_and_message::set_message(m->second.c_str());
+    else // Default language is English.
+      sociarium_project_menu_and_message::set_message(L"language_en.dll");
 
     // Create the OpenGL world.
     world_ = World::create();
 
+    // Set menu.
+    if (m!=data_ini.end())
+      sociarium_project_menu_and_message::set_menu(hwnd, m->second.c_str());
+    else // Default language is English.
+      sociarium_project_menu_and_message::set_menu(hwnd, L"language_en.dll");
+
+    /* 'SetMenu()' will cause the WM_SIZE command, and window sizing requires
+     * the world instance. So, 'SetMenu()' should be called after 'World::create()'.
+     * In 'World::create()', some messages may be shown depending on the PC environment.
+     * So, the message object should be created before 'World::create()'.
+     */
+    
     // Create and start the timer.
     timer_.reset(new Timer(hwnd));
     timer_->add(ID_TIMER_DRAW, 1);
@@ -148,11 +160,6 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmCommand(HWND hwnd, WPARAM wp, LPARAM lp) {
     switch (LOWORD(wp)) {
-
-    case IDM_KEY_Q:
-      //sociarium_project_designtide::update();
-      break;
-
 
     case IDM_KEY_ESCAPE: {
       using namespace sociarium_project_thread;
@@ -423,29 +430,31 @@ namespace hashimoto_ut {
       // EDIT
 
       // MARK
-    case IDM_EDIT_MARK_NODES_ON_CURRENT_LAYER:
-    case IDM_EDIT_MARK_EDGES_ON_CURRENT_LAYER:
-    case IDM_EDIT_MARK_COMMUNITIES_ON_CURRENT_LAYER:
-    case IDM_EDIT_MARK_COMMUNITY_EDGES_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER:
     case IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER:
     case IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER:
     case IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER:
     case IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER:
     case IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER:
     case IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER:
+    case IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER:
       world_->mark_elements(LOWORD(wp));
       break;
 
-    case IDM_EDIT_MARK_NODES_ON_EACH_LAYER:
-    case IDM_EDIT_MARK_EDGES_ON_EACH_LAYER:
-    case IDM_EDIT_MARK_COMMUNITIES_ON_EACH_LAYER:
-    case IDM_EDIT_MARK_COMMUNITY_EDGES_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER:
     case IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER:
     case IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER:
     case IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER:
     case IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER:
     case IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER:
     case IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER:
+    case IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER:
       world_->mark_elements(LOWORD(wp));
       break;
 
@@ -831,6 +840,11 @@ namespace hashimoto_ut {
 
     case IDM_LAYOUT_RANDOM:
       set_layout_algorithm(LayoutAlgorithm::RANDOM);
+      world_->layout();
+      break;
+
+    case IDM_LAYOUT_CARTOGRAMS:
+      set_layout_algorithm(LayoutAlgorithm::CARTOGRAMS);
       world_->layout();
       break;
 
@@ -1450,6 +1464,11 @@ namespace hashimoto_ut {
         mii.fState = get_layout_algorithm()==RANDOM
           ?MFS_CHECKED:MFS_UNCHECKED;
         SetMenuItemInfo(hmenu, IDM_LAYOUT_RANDOM, FALSE, &mii);
+      }{
+        MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
+        mii.fState = get_layout_algorithm()==CARTOGRAMS
+          ?MFS_CHECKED:MFS_UNCHECKED;
+        SetMenuItemInfo(hmenu, IDM_LAYOUT_CARTOGRAMS, FALSE, &mii);
       }
     }
 

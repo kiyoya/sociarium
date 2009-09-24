@@ -60,7 +60,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libfftw_s.lib"
 				OutputFile="$(OutDir)\dll\$(ProjectName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
