@@ -29,9 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _MSC_VER
 #pragma warning(disable:4503) // about the name decoration.
-#endif
 
 #include <cassert>
 #ifdef _MSC_VER
@@ -44,8 +42,6 @@
 #include "win32api.h"
 #endif
 #include "layout.h"
-#include "../common.h"
-#include "../language.h"
 #include "../algorithm_selector.h"
 
 namespace hashimoto_ut {
@@ -55,17 +51,17 @@ namespace hashimoto_ut {
   using std::pair;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
-
   namespace sociarium_project_module_layout {
 
     namespace {
 
       ////////////////////////////////////////////////////////////////////////////////
       // The module function should have the following name.
+#ifdef __APPLE__
+      CFStringRef const function_name = CFSTR("layout");
+#else
       string const function_name = "layout";
-
+#endif
 
       ////////////////////////////////////////////////////////////////////////////////
       class LayoutModuleManager {
@@ -74,18 +70,20 @@ namespace hashimoto_ut {
         typedef unordered_map<CFURLRef, pair<CFBundleRef, FuncLayout> > ModuleMap;
 #elif _MSC_VER
         typedef unordered_map<wstring, pair<HMODULE, FuncLayout> > ModuleMap;
+#else
+#error Not implemented
 #endif
-        
         LayoutModuleManager(void) {}
 
         ~LayoutModuleManager() {
-          for (ModuleMap::iterator i=module_.begin(); i!=module_.end(); ++i)
-          {
+          for (ModuleMap::iterator i=module_.begin(); i!=module_.end(); ++i) {
 #ifdef __APPLE__
             if (i->first) CFRelease(i->first);
             if (i->second.first) CFRelease(i->second.first);
 #elif _MSC_VER
             if (i->second.first) FreeLibrary(i->second.first);
+#else
+#error Not implemented
 #endif
           }
         }
@@ -99,20 +97,22 @@ namespace hashimoto_ut {
           CFBundleRef mainBundle = CFBundleGetMainBundle();
           CFURLRef pluginURL = CFBundleCopyBuiltInPlugInsURL(mainBundle);
           CFURLRef path;
-          if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::KAMADA_KAWAI_METHOD)
+          if (method==LayoutAlgorithm::KAMADA_KAWAI_METHOD)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutKamadaKawaiMethod.plugin"), FALSE);
           else if (method==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2
                    || method==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3
                    || method==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutHighDimensionalEmbedding.plugin"), FALSE);
-          else if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE)
+          else if (method==LayoutAlgorithm::CIRCLE)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutCircle.plugin"), FALSE);
-          else if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER)
+          else if (method==LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutCircleInSizeOrder.plugin"), FALSE);
-          else if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::RANDOM)
-            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutRandom.plugin"), FALSE);
-          else if (method==sociarium_project_algorithm_selector::LayoutAlgorithm::LATTICE)
+          else if (method==LayoutAlgorithm::LATTICE)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutLattice.plugin"), FALSE);
+          else if (method==LayoutAlgorithm::RANDOM)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutRandom.plugin"), FALSE);
+          else if (method==LayoutAlgorithm::CARTOGRAMS)
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("LayoutCartograms.plugin"), FALSE);
           else assert(0 && "never reach");
           CFRelease(pluginURL);
 #elif _MSC_VER
@@ -128,25 +128,31 @@ namespace hashimoto_ut {
             path += L"layout_circle.dll";
           else if (method==LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER)
             path += L"layout_circle_in_size_order.dll";
-          else if (method==LayoutAlgorithm::RANDOM)
-            path += L"layout_random.dll";
           else if (method==LayoutAlgorithm::LATTICE)
             path += L"layout_lattice.dll";
+          else if (method==LayoutAlgorithm::RANDOM)
+            path += L"layout_random.dll";
+          else if (method==LayoutAlgorithm::CARTOGRAMS)
+            path += L"layout_cartograms.dll";
           else assert(0 && "never reach");
+#else
+#error Not implemented
 #endif
-          
+
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {
             // Not yet loaded.
 #ifdef __APPLE__
-            if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL) {
-              show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
+#warning Who delete path?
+            if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL)
+              throw CFStringGetWString(CFURLGetString(path)).c_str();
 #elif _MSC_VER
-            if ((handle=LoadLibrary(path.c_str()))==0) {
-              show_last_error(path.c_str());
+            if ((handle=LoadLibrary(path.c_str()))==0)
+              throw path.c_str();
+#else
+#error Not implemented
 #endif
-              return 0;
-            }
+
             module_[path].first = handle;
           }
 
@@ -155,23 +161,21 @@ namespace hashimoto_ut {
 
           // Find an appropriate function in DLL.
 #ifdef __APPLE__
+#warning Who delete path?
           pair<CFBundleRef, FuncLayout>& p = module_[path];
-          CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, function_name.c_str(), kCFStringEncodingUTF8);
-          p.second = (FuncLayout)CFBundleGetFunctionPointerForName(p.first, str);
-          CFRelease(str);
+          p.second = (FuncLayout)CFBundleGetFunctionPointerForName(p.first, function_name);
+          
+          if (p.second == NULL)
+            throw CFStringGetWString(CFURLGetString(path)).c_str();
 #elif _MSC_VER
           pair<HMODULE, FuncLayout>& p = module_[path];
           p.second = (FuncLayout)GetProcAddress(p.first, function_name.c_str());
-#endif
 
-          if (p.second==0) {
-#ifdef __APPLE__
-            show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
-#elif _MSC_VER
-            show_last_error(path.c_str());
+          if (p.second==0)
+            throw path.c_str();
+#else
+#error Not implemented
 #endif
-            return 0;
-          }
 
           return p.second;
         }

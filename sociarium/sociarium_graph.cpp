@@ -307,12 +307,12 @@ namespace hashimoto_ut {
   }
 
   template <typename DynamicProperty>
-  GLTexture const* StaticPropertyBase<DynamicProperty>::get_texture(void) const {
+  Texture const* StaticPropertyBase<DynamicProperty>::get_texture(void) const {
     return texture_;
   }
 
   template <typename DynamicProperty>
-  void StaticPropertyBase<DynamicProperty>::set_texture(GLTexture const* texture) {
+  void StaticPropertyBase<DynamicProperty>::set_texture(Texture const* texture) {
     texture_ = texture;
   }
 
@@ -342,7 +342,7 @@ namespace hashimoto_ut {
   template <typename DynamicProperty>
   void StaticPropertyBase<DynamicProperty>::unregister_dynamic_property(
     DynamicProperty* dp) {
-    typename unordered_map<DynamicProperty*, size_t>::iterator i = dynamic_property_.find(dp);
+    typename DynamicPropertyMap::iterator i = dynamic_property_.find(dp);
     assert(i!=dynamic_property_.end());
     dynamic_property_.erase(i);
   }
@@ -366,7 +366,7 @@ namespace hashimoto_ut {
   /* no implementation.
    */
 
-  
+
   // Explicit instantiation of template specialization.
   template class DynamicPropertyBase<Node, StaticNodeProperty>;
   template class DynamicPropertyBase<Edge, StaticEdgeProperty>;

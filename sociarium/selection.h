@@ -54,11 +54,11 @@ namespace hashimoto_ut {
       LBUTTON_UP = 0,
       LBUTTON_DOWN,
       LBUTTON_DBL,
-			LBUTTON_DRAG,
+      LBUTTON_DRAG,
       RBUTTON_UP,
       RBUTTON_DOWN,
       RBUTTON_DBL,
-			RBUTTON_DRAG,
+      RBUTTON_DRAG,
       MBUTTON_UP,
       MBUTTON_DOWN,
       WHEEL,
@@ -67,14 +67,14 @@ namespace hashimoto_ut {
     };
   }
 
-	namespace MouseModifier {
-		enum {
-			NONE = 0,
-			CONTROL,
-			SHIFT,
-		};
-	}
-
+  namespace MouseModifier {
+    enum {
+      NONE = 0,
+      CONTROL = 1 << 0,
+      SHIFT = 1 << 1,
+    };
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////
   namespace SelectionCategory {
     enum {
@@ -143,7 +143,7 @@ namespace hashimoto_ut {
     bool is_selected(int category);
 
     bool is_selected(Node const* n);
-    bool is_selected( Edge const* e);
+    bool is_selected(Edge const* e);
 
     bool is_selected(DynamicNodeProperty const* dnp);
     bool is_selected(DynamicEdgeProperty const* dep);

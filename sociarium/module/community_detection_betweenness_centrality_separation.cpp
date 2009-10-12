@@ -33,7 +33,7 @@
 #include <boost/format.hpp>
 #include "community_detection.h"
 #include "../graph_utility.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"
 #include "../../graph/util/traverser.h"
@@ -52,14 +52,14 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_community_detection;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
 
-      Thread* parent,
-      wstring* status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<vector<Node*> >& community,
       bool& is_canceled,
       shared_ptr<Graph const> g,
@@ -82,7 +82,7 @@ namespace hashimoto_ut {
       t->set_condition(cond);
 
       pair<bool, vector<vector<Node*> > > c
-        = sociarium_project_graph_utility::connected_components(parent, 0, message, t);
+        = sociarium_project_graph_utility::connected_components(&parent, 0, &message, t);
 
       size_t number_of_communities = 0;
 
@@ -100,21 +100,20 @@ namespace hashimoto_ut {
       for (; count<esz; ++count) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           is_canceled = true;
           return;
         }
 
-        if (status)
-          *status
-            = (boost::wformat(L"%s: %d/%d")
-               %message->get(Message::BETWEENNESS_CENTRALITY_SEPARATION)
-               %(count+1)%esz).str();
+        status
+          = (boost::wformat(L"%s: %d/%d")
+             %message.get(Message::BETWEENNESS_CENTRALITY_SEPARATION)
+             %(count+1)%esz).str();
 
         t->reset();
 
         pair<bool, pair<vector<double>, vector<double> > > bc
-          = sociarium_project_graph_utility::betweenness_centrality(parent, 0, message, t);
+          = sociarium_project_graph_utility::betweenness_centrality(&parent, 0, &message, t);
 
         if (bc.first==false) {
           // **********  Catch a termination signal  **********
@@ -130,7 +129,7 @@ namespace hashimoto_ut {
         cond->flag_[bc2edge.begin()->second->index()] = ConditionalPass::CLOSED;
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           is_canceled = true;
           return;
         }
@@ -138,7 +137,7 @@ namespace hashimoto_ut {
         t->reset();
 
         pair<bool, vector<vector<Node*> > > c
-          = sociarium_project_graph_utility::connected_components(parent, 0, message, t);
+          = sociarium_project_graph_utility::connected_components(&parent, 0, &message, t);
 
         if (c.first==false) {
           // **********  Catch a termination signal  **********

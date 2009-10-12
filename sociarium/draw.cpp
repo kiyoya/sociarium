@@ -48,7 +48,6 @@ namespace hashimoto_ut {
       float node_size = default_node_size;
       float edge_width = default_edge_width;
       float coordinates_size = 3.0f;
-      bool background_color = true;
 
     } // The end of the anonymous namespace
 
@@ -62,6 +61,8 @@ namespace hashimoto_ut {
       return selection_frame_offset;
     }
 
+
+    ////////////////////////////////////////////////////////////////////////////////
     float get_default_node_size(void) {
       return default_node_size;
     }
@@ -78,6 +79,8 @@ namespace hashimoto_ut {
       default_edge_width = width;
     }
 
+
+    ////////////////////////////////////////////////////////////////////////////////
     float get_node_size(void) {
       return node_size;
     }
@@ -94,6 +97,8 @@ namespace hashimoto_ut {
       edge_width = width;
     }
 
+
+    ////////////////////////////////////////////////////////////////////////////////
     float get_coordinates_size(void) {
       return coordinates_size;
     }

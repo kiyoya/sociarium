@@ -33,95 +33,74 @@
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_FLAG_OPERATION_H
 
 #include "sociarium_graph.h"
+#include "../graph/util/traverser.h"
 
 namespace hashimoto_ut {
+
+  ////////////////////////////////////////////////////////////////////////////////
+  struct ElementFlag {
+    enum _ {
+      VISIBLE            = 0x01,
+      CAPTURED           = 0x02,
+      MARKED             = 0x04,
+      TEMPORARY_MARKED   = 0x08,
+      TEMPORARY_UNMARKED = 0x10,
+      HIGHLIGHT          = 0x20,
+      MASK               = 0x3f,
+      // Other.
+      TEXTURE_IS_SPECIFIED = 0x40
+    };
+  };
 
   namespace {
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GetDynamicProperty {
-      DynamicNodeProperty&
-        operator()(Node* n, std::tr1::shared_ptr<SociariumGraph> const& g) const {
-          return g->property(n);
-        }
+    template <typename T>
+    bool is_active(T const& p, int flag) {
+      return (p.get_flag()&flag)!=0;
+    }
 
-      DynamicEdgeProperty&
-        operator()(Edge* e, std::tr1::shared_ptr<SociariumGraph> const& g) const {
-          return g->property(e);
-        }
-    };
+    template <typename T>
+    bool is_visible(T const& p) {
+      return (p.get_flag()&ElementFlag::VISIBLE)!=0;
+    }
 
+    template <typename T>
+    bool is_hidden(T const& p) {
+      return (p.get_flag()&ElementFlag::VISIBLE)==0;
+    }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    struct GetStaticProperty {
-      StaticNodeProperty*
-        operator()(std::pair<Node*, DynamicNodeProperty> const& pp) const {
-          return pp.second.get_static_property();
-        }
+    template <typename T>
+    bool is_marked(T const& p) {
+      return (p.get_flag()&ElementFlag::MARKED)!=0;
+    }
 
-      StaticEdgeProperty*
-        operator()(std::pair<Edge*, DynamicEdgeProperty> const& pp) const {
-          return pp.second.get_static_property();
-        }
+    template <typename T>
+    bool is_temporary_marked(T const& p) {
+      return (p.get_flag()&ElementFlag::TEMPORARY_MARKED)!=0;
+    }
 
-      StaticNodeProperty*
-        operator()(DynamicNodeProperty* dp) const {
-          return dp->get_static_property();
-        }
-
-      StaticEdgeProperty*
-        operator()(DynamicEdgeProperty* dp) const {
-          return dp->get_static_property();
-        }
-    };
-
+    template <typename T>
+    bool is_temporary_unmarked(T const& p) {
+      return (p.get_flag()&ElementFlag::TEMPORARY_UNMARKED)!=0;
+    }
 
     /*
      * Following operations should be performed only on "visible" elements.
      */
 
-
     ////////////////////////////////////////////////////////////////////////////////
     struct ActivateFlag {
       template <typename T>
       void operator()(T* p, unsigned int flag) const {
-        if (is_visible(*p))
-          p->set_flag(p->get_flag()|flag);
+        if (is_visible(*p)) p->set_flag(p->get_flag()|flag);
       }
 
       template <typename T>
-      void operator()(T& pp, unsigned int flag) const {
-        typename T::second_type& p = pp.second;
-        if (is_visible(p))
-          p.set_flag(p.get_flag()|flag);
+      void operator()(T& p, unsigned int flag) const {
+        typename T::second_type& value = p.second;
+        if (is_visible(value)) value.set_flag(value.get_flag()|flag);
       }
-    };
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    struct ActivateDynamicFlag {
-      template <typename T>
-      void operator()(
-        T const* p, unsigned int flag,
-        std::tr1::shared_ptr<SociariumGraph const> const& g) const {
-          typename DynamicProperty<T>::type& dp = g->property(p);
-          if (is_visible(dp))
-            dp.set_flag(dp.get_flag()|flag);
-        }
-
-      void operator()(
-        Edge const* e, unsigned int flag,
-        std::tr1::shared_ptr<SociariumGraph const> const& g, int dir) const {
-
-          DynamicEdgeProperty& dep = g->property(e);
-          DynamicNodeProperty& dnp = g->property(dir>0?e->target():e->source());
-
-          if (is_visible(dep)) {
-            dep.set_flag(dep.get_flag()|flag);
-            if (is_visible(dnp))
-              dnp.set_flag(dnp.get_flag()|flag);
-          }
-        }
     };
 
 
@@ -129,15 +108,24 @@ namespace hashimoto_ut {
     struct DeactivateFlag {
       template <typename T>
       void operator()(T* p, unsigned int flag) const {
-        if (is_visible(*p))
-          p->set_flag(p->get_flag()&~flag);
+        if (is_visible(*p)) p->set_flag(p->get_flag()&~flag);
       }
 
       template <typename T>
-      void operator()(T& pp, unsigned int flag) const {
-        typename T::second_type& p = pp.second;
-        if (is_visible(p))
-          p.set_flag(p.get_flag()&~flag);
+      void operator()(T& p, unsigned int flag) const {
+        typename T::second_type& value = p.second;
+        if (is_visible(value)) value.set_flag(value.get_flag()&~flag);
+      }
+    };
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    struct ActivateFlagIfMarked {
+      template <typename T>
+      void operator()(T& p, unsigned int flag) const {
+        typename T::second_type& value = p.second;
+        if (is_visible(value) && value.get_flag()&(ElementFlag::MARKED|ElementFlag::HIGHLIGHT))
+          value.set_flag(value.get_flag()|flag);
       }
     };
 
@@ -145,13 +133,47 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     struct ToggleFlag {
       template <typename T>
-      void operator()(T& pp, unsigned int flag) const {
-        typename T::second_type& p = pp.second;
-        if (is_visible(p))
-          p.set_flag((p.get_flag()^flag)&ElementFlag::MASK);
+      void operator()(T& p, unsigned int flag) const {
+        typename T::second_type& value = p.second;
+        if (is_visible(value))
+          value.set_flag((value.get_flag()^flag)&ElementFlag::MASK);
       }
     };
 
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Traversing condition.
+    struct CircumventHiddenElements : ConditionalPass {
+      typedef SociariumGraph::node_property_iterator node_property_iterator;
+      typedef SociariumGraph::edge_property_iterator edge_property_iterator;
+
+      CircumventHiddenElements(std::tr1::shared_ptr<SociariumGraph const> g) :
+      nflag_(g->nsize(), PASS), eflag_(g->esize(), PASS) {
+
+        {
+          // Set closed nodes.
+          node_property_iterator i   = g->node_property_begin();
+          node_property_iterator end = g->node_property_end();
+
+          for (; i!=end; ++i)
+            if (is_hidden(i->second)) nflag_[i->first->index()] = CLOSED;
+        }{
+          // Set closed edges.
+          edge_property_iterator i   = g->edge_property_begin();
+          edge_property_iterator end = g->edge_property_end();
+
+          for (; i!=end; ++i)
+            if (is_hidden(i->second)) eflag_[i->first->index()] = CLOSED;
+        }
+      }
+
+      int operator()(Edge const* e, Node const* n) const {
+        return (nflag_[n->index()]==PASS && eflag_[e->index()]==PASS)?PASS:CLOSED;
+      }
+
+      std::vector<int> nflag_;
+      std::vector<int> eflag_;
+    };
   } // The end of the anonymous namespace
 }
 

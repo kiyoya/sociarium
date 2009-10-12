@@ -69,6 +69,8 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   class Node {
   public:
+    virtual ~Node() {}
+
     virtual size_t index(void) const = 0;
     virtual size_t degree(void) const = 0;
     virtual size_t odegree(void) const = 0;
@@ -89,30 +91,25 @@ namespace hashimoto_ut {
     virtual adjacency_list_iterator find(
       adjacency_list_iterator first,
       adjacency_list_iterator last, Node const* n) const = 0;
-
-  protected:
-    Node(void) {}
-    virtual ~Node() {}
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   class Edge {
   public:
+    virtual ~Edge() {}
+
     virtual size_t index(void) const = 0;
     virtual Node* const& source(void) const = 0;
     virtual Node* const& target(void) const = 0;
-
-  protected:
-    Edge(void) {}
-    virtual ~Edge() {}
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   class Graph {
   public:
-    Graph& operator=(const Graph& rhs){ return *this; }
+    virtual ~Graph() {}
+
     virtual bool is_directed(void) const = 0;
     virtual void set_directed(bool directed) = 0;
 
@@ -191,10 +188,6 @@ namespace hashimoto_ut {
     virtual std::tr1::shared_ptr<Graph> clone(void) const = 0;
 
     static std::tr1::shared_ptr<Graph> create(bool directed=false);
-
-  protected:
-    Graph(void) {}
-    virtual ~Graph() {}
   };
 
   Node* get_pair(Node const* n, adjacency_list_iterator c);

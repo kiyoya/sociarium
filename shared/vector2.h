@@ -50,7 +50,7 @@ namespace hashimoto_ut {
       T data[2];
     };
 
-    // コンストラクタ
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2(void) : x(T(0)), y(T(0)) {}
 
     template <typename U> Vector2(U const* ptr)
@@ -62,10 +62,10 @@ namespace hashimoto_ut {
     template <typename U> Vector2(U vx, U vy)
          : x(T(vx)), y(T(vy)) {}
 
-    // デストラクタ
+    ////////////////////////////////////////////////////////////////////////////////
     ~Vector2() {}
 
-    // 配列風参照
+    ////////////////////////////////////////////////////////////////////////////////
     T& operator[](size_t index) {
       assert(index<2);
       return data[index];
@@ -76,7 +76,7 @@ namespace hashimoto_ut {
       return data[index];
     }
 
-    // 符号
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2 operator+(void) const {
       return *this;
     }
@@ -85,7 +85,7 @@ namespace hashimoto_ut {
       return Vector2(-x, -y);
     }
 
-    // 代入
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2& operator=(Vector2 const& v) {
       x = v.x;
       y = v.y;
@@ -117,7 +117,7 @@ namespace hashimoto_ut {
       return *this;
     }
 
-    // 初期化
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2& set(T const vx, T const vy) {
       x = vx;
       y = vy;
@@ -130,7 +130,7 @@ namespace hashimoto_ut {
       return *this;
     }
 
-    // ベクトル同士の和差
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2 operator+(Vector2 const& v) const {
       return Vector2(x+v.x, y+v.y);
     }
@@ -139,7 +139,7 @@ namespace hashimoto_ut {
       return Vector2(x-v.x, y-v.y);
     }
 
-    // 固有演算
+    ////////////////////////////////////////////////////////////////////////////////
     T operator*(Vector2 const& v) const {
       return x*v.x+y*v.y;
     }
@@ -148,7 +148,7 @@ namespace hashimoto_ut {
       return x*v.y-y*v.x;
     }
 
-    // 論理演算
+    ////////////////////////////////////////////////////////////////////////////////
     bool operator==(Vector2 const& v) const {
       return (x==v.x)&&(y==v.y);
     }
@@ -173,7 +173,7 @@ namespace hashimoto_ut {
       return norm2()>=v.norm2();
     }
 
-    // キャスト演算
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2<double> dcast(void) const {
       return Vector2<double>(double(x), double(y));
     }
@@ -190,7 +190,7 @@ namespace hashimoto_ut {
       return Vector2<int>(int(x), int(y));
     }
 
-    // 暗黙のキャスト
+    ////////////////////////////////////////////////////////////////////////////////
     operator Vector2<double>(void) const {
       return Vector2<double>(double(x), double(y));
     }
@@ -207,7 +207,7 @@ namespace hashimoto_ut {
       return Vector2<int>(int(x), int(y));
     }
 
-    // ノルム演算
+    ////////////////////////////////////////////////////////////////////////////////
     double norm(void) const {
       return sqrt(norm2());
     }
@@ -216,14 +216,14 @@ namespace hashimoto_ut {
       return x*x+y*y;
     }
 
-    // 正規化
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2<double> normalized_vector(void) const {
       double n = norm();
       if (n>0.0) return Vector2<double>(x/n, y/n);
       return Vector2<double>(0);
     }
 
-    // 回転
+    ////////////////////////////////////////////////////////////////////////////////
     Vector2<double> rot(double radian) const {
       double const c = cos(radian);
       double const s = sin(radian);
@@ -243,6 +243,7 @@ namespace hashimoto_ut {
       return theta;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void dump(void) const {
       std::cout << "(x, y) = (" << x << ", " << y << ")" << std::endl;
     }
@@ -300,8 +301,8 @@ namespace hashimoto_ut {
     Vector2<T> const p[3] = { t[3], t[1], t[2] };
     return point_is_in_triangle(pt, t) || point_is_in_triangle(pt, p);
   }
-  /* returns true, if @pt is inside of the trapezoid bounded by @t[0] (top left), @t[1] (top right),
-   * @t[2] (bottom left), @t[3] (bottom right).
+  /* returns true, if @pt is inside of the trapezoid bounded by @t[0] (top left),
+   * @t[1] (top right), @t[2] (bottom left), @t[3] (bottom right).
    */
 
 } // The end of the namespace "hashimoto_ut"

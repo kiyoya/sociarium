@@ -109,10 +109,9 @@ namespace hashimoto_ut {
     }
 
     int mousemodifier(WPARAM wp) const {
-			return (wp&MK_CONTROL) ? MouseModifier::CONTROL
-			                       : (wp&MK_SHIFT) ? MouseModifier::SHIFT
-														                 : MouseModifier::NONE;
-		}
+      return (wp&MK_CONTROL) ? MouseModifier::CONTROL
+                             : (wp&MK_SHIFT) ? MouseModifier::SHIFT : MouseModifier::NONE;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Get a position of the mouse pointer (in window coordinates)

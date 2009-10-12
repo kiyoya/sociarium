@@ -40,9 +40,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHs"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;READ_ADJACENCY_MATRIX_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;"
 				MinimalRebuild="true"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -113,9 +115,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHs"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;READ_ADJACENCY_MATRIX_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;"
+				ExceptionHandling="0"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -173,19 +177,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\common.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\general.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\graph\graph.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\graph_creation.cpp"
 				>
 			</File>
 			<File
@@ -193,15 +185,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\msgbox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\win32api.cpp"
+				RelativePath="..\..\..\shared\util.cpp"
 				>
 			</File>
 		</Filter>
@@ -211,14 +195,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\common.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\general.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\graph\graph.h"
 				>
 			</File>
@@ -227,19 +203,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.h"
+				RelativePath="..\..\menu_and_message.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\message.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\msgbox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\win32api.h"
+				RelativePath="..\..\..\shared\util.h"
 				>
 			</File>
 		</Filter>

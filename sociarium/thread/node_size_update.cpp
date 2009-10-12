@@ -38,12 +38,13 @@
 #endif
 #include <boost/format.hpp>
 #include "node_size_update.h"
-#include "../graph_extractor.h"
-#include "../thread.h"
 #include "../algorithm_selector.h"
+#include "../flag_operation.h"
+#include "../graph_extractor.h"
 #include "../graph_utility.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../sociarium_graph_time_series.h"
+#include "../thread.h"
 #include "../../graph/util/traverser.h"
 
 namespace hashimoto_ut {
@@ -58,7 +59,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_thread;
   using namespace sociarium_project_algorithm_selector;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   typedef SociariumGraph::node_property_iterator node_property_iterator;
   typedef SociariumGraph::edge_property_iterator edge_property_iterator;
@@ -308,7 +309,7 @@ namespace hashimoto_ut {
 
             pair<bool, vector<double> > cc
               = sociarium_project_graph_utility::closeness_centrality(
-                this, &status[1], get_message_object(), t);
+                this, &status[1], &get_message_object(), t);
 
             if (cc.first) {
               assert(cc.second.size()==tnsz);
@@ -340,7 +341,7 @@ namespace hashimoto_ut {
 
             pair<bool, pair<vector<double>, vector<double> > > bc
               = sociarium_project_graph_utility::betweenness_centrality(
-                this, &status[1], get_message_object(), t);
+                this, &status[1], &get_message_object(), t);
 
             if (bc.first) {
               assert(bc.second.first.size()==tnsz);
@@ -367,7 +368,7 @@ namespace hashimoto_ut {
 
             pair<bool, vector<double> > pr
               = sociarium_project_graph_utility::pagerank(
-                this, &status[1], get_message_object(), g_target, 0.85, 1e-2);
+                this, &status[1], &get_message_object(), g_target, 0.85, 1e-2);
 
             if (pr.first) {
               assert(pr.second.size()==tnsz);
@@ -453,4 +454,4 @@ namespace hashimoto_ut {
     return shared_ptr<NodeSizeUpdateThread>(new NodeSizeUpdateThreadImpl);
   }
 
-} // The endof the namespace "hashimoto_ut"
+} // The end of the namespace "hashimoto_ut"

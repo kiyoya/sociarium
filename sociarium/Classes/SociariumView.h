@@ -15,7 +15,7 @@
   
   NSTimer * redrawTimer;
   
-  hashimoto_ut::World * world_;
+  hashimoto_ut::World *world_;
 }
 
 - (void) timerDidFireRedraw:(NSTimer *)timer;

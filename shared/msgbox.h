@@ -34,29 +34,24 @@
 
 namespace hashimoto_ut {
 
-  namespace MessageType {
-    enum {
-      CRITICAL = 0,
-      ALERT,
-      INFO,
-      QUESTION,
-    };
-  }
-
   ////////////////////////////////////////////////////////////////////////////////
   // char
 #ifdef __APPLE__
-  bool message_box(void * window, int type, char const* title, char const* fmt, ...);
+  bool message_box(void* window, int type, char const* title, char const* fmt, ...);
 #elif _MSC_VER
   bool message_box(HWND hwnd, int type, char const* title, char const* fmt, ...);
+#else
+#error Not implemented
 #endif
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
 #ifdef __APPLE__
-  bool message_box(void * hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...);
+  bool message_box(void* window, int type, wchar_t const* title, wchar_t const* fmt, ...);
 #elif _MSC_VER
   bool message_box(HWND hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...);
+#else
+#error Not implemented
 #endif
 
 } // The end of the namespace "hashimoto_ut"

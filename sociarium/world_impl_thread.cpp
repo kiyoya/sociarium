@@ -29,16 +29,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
-#endif
-#include "world_impl.h"
 #include "common.h"
-#include "language.h"
-#include "thread.h"
+#include "menu_and_message.h"
 #include "sociarium_graph_time_series.h"
+#include "thread.h"
+#include "world_impl.h"
 #include "thread/graph_creation.h"
+#if 0
 #include "thread/graph_retouch.h"
+#endif
 #include "thread/layout.h"
 #include "thread/community_detection.h"
 #include "thread/node_size_update.h"
@@ -52,22 +51,17 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_thread;
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::create_graph(wchar_t const* filename) const {
 
-    if (joinable(GRAPH_CREATION)
-        || joinable(GRAPH_RETOUCH)) {
+    if (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::GRAPH_IS_LOCKED));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     }
 
@@ -78,33 +72,24 @@ namespace hashimoto_ut {
       /* During other threads are running,
        * the graph creation thread can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(GRAPH_CREATION, GraphCreationThread::create(filename));
+    invoke(GRAPH_CREATION, GraphCreationThread::create(this, filename));
   }
 
-
+#if 0
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::retouch_graph(wchar_t const* filename) const {
 
-    if (joinable(GRAPH_CREATION)
-        || joinable(GRAPH_RETOUCH)) {
+    if (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::GRAPH_IS_LOCKED));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     }
 
@@ -115,105 +100,74 @@ namespace hashimoto_ut {
       /* During other threads are running,
        * the graph creation thread can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(GRAPH_RETOUCH, GraphRetouchThread::create(filename));
+    invoke(GRAPH_RETOUCH, GraphRetouchThread::create(this, filename));
   }
-
+#endif
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::layout(void) const {
 
-    if (joinable(GRAPH_CREATION)
-        || joinable(GRAPH_RETOUCH)) {
+    if (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::GRAPH_IS_LOCKED));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(LAYOUT)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(LAYOUT, LayoutThread::create());
+    invoke(LAYOUT, LayoutThread::create(this));
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::detect_community(void) const {
 
-    if (joinable(GRAPH_CREATION)
-        || joinable(GRAPH_RETOUCH)) {
+    if (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::GRAPH_IS_LOCKED));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(COMMUNITY_DETECTION)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(COMMUNITY_DETECTION, CommunityDetectionThread::create());
+    invoke(COMMUNITY_DETECTION, CommunityDetectionThread::create(this));
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::update_node_size(void) const {
 
-    if (joinable(GRAPH_CREATION)
-        || joinable(GRAPH_RETOUCH)) {
+    if (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::GRAPH_IS_LOCKED));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(NODE_SIZE_UPDATE)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
@@ -224,28 +178,18 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::update_edge_width(void) const {
 
-    if (joinable(GRAPH_CREATION)
-        || joinable(GRAPH_RETOUCH)) {
+    if (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH)) {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::GRAPH_IS_LOCKED));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(EDGE_WIDTH_UPDATE)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(
-        get_window_handle(),
-        MessageType::ALERT,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
-      return;
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
     }
 
     invoke(EDGE_WIDTH_UPDATE, EdgeWidthUpdateThread::create());

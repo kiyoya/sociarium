@@ -28,9 +28,11 @@ using namespace hashimoto_ut;
 - (void)prepareOpenGL
 {
   [super prepareOpenGL];
+
+  if (world_)
+    World::destroy(world_);
   
-  World::destroy(world_);
-  world_ = World::create(static_cast<CGLContextObj>([[self openGLContext] CGLContextObj]));
+  world_ = World::create([self window], static_cast<CGLContextObj>([[self openGLContext] CGLContextObj]));
   
   if (redrawTimer)
   {

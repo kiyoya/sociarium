@@ -31,19 +31,15 @@
 
 #include <vector>
 #include <map>
-#ifdef _MSC_VER
 #include <windows.h>
-#endif
 #include "layout.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"
 #include "../../shared/math.h"
 
-#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
-#endif
 
 namespace hashimoto_ut {
 
@@ -56,16 +52,12 @@ namespace hashimoto_ut {
   using std::greater;
   using std::tr1::shared_ptr;
 
-#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl layout(
-#else
-  extern "C" void layout(
-#endif
 
-      Thread* parent,
-      deque<wstring>& status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<Vector2<double> >& position,
       shared_ptr<Graph const> graph,
       vector<double> const& hint) {

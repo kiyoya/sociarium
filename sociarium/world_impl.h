@@ -32,6 +32,7 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_WORLD_IMPL_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_WORLD_IMPL_H
 
+#include <vector>
 #include "world.h"
 
 namespace hashimoto_ut {
@@ -42,11 +43,25 @@ namespace hashimoto_ut {
   public:
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
-    WorldImpl(CGLContextObj context);
+    WorldImpl(void* window, CGLContextObj context);
+#elif _MSC_VER
+    WorldImpl(HWND hwnd);
 #else
-    WorldImpl(void);
+#error Not implemented
 #endif
     ~WorldImpl();
+
+    ////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+    void* get_window_handle(void) const;
+    CGLContextObj get_rendering_context(int thread_id) const;
+#elif _MSC_VER
+    HWND get_window_handle(void) const;
+    HDC get_device_context(void) const;
+    HGLRC get_rendering_context(int thread_id) const;
+#else
+#error Not implemented
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
     void draw(void) const;
@@ -85,6 +100,16 @@ namespace hashimoto_ut {
     void remove_marked_elements(int menu) const;
 
   private:
+#ifdef __APPLE__
+    void* hwnd_;
+    std::vector<CGLContextObj> rc_;
+#elif _MSC_VER
+    HWND hwnd_;
+    HDC dc_;
+    std::vector<HGLRC> rc_;
+#else
+#error Not implemented
+#endif
     Vector2<float> center_;
     std::tr1::shared_ptr<GLView> view_;
   };

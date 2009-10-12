@@ -36,8 +36,8 @@
 #include <string>
 #ifdef _MSC_VER
 #include <memory>
-#include <windows.h>
 #include <unordered_set>
+#include <windows.h>
 #else
 #include <tr1/memory>
 #include <tr1/unordered_set>
@@ -108,11 +108,19 @@ namespace hashimoto_ut {
     virtual void remove_empty_static_edges(size_t level) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual StaticNodePropertySet::iterator
+      find_static_node(size_t level, std::wstring const& name) = 0;
+    virtual StaticEdgePropertySet::iterator
+      find_static_edge(size_t level, std::wstring const& name) = 0;
     virtual StaticNodePropertySet::const_iterator
       find_static_node(size_t level, std::wstring const& name) const = 0;
     virtual StaticEdgePropertySet::const_iterator
       find_static_edge(size_t level, std::wstring const& name) const = 0;
 
+    virtual StaticNodePropertySet::iterator
+      find_static_node(size_t level, size_t id) = 0;
+    virtual StaticEdgePropertySet::iterator
+      find_static_edge(size_t level, size_t id) = 0;
     virtual StaticNodePropertySet::const_iterator
       find_static_node(size_t level, size_t id) const = 0;
     virtual StaticEdgePropertySet::const_iterator

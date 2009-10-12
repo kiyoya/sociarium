@@ -44,7 +44,7 @@
 
 namespace hashimoto_ut {
 
-  class GLTexture;
+  class Texture;
 
   namespace sociarium_project_texture {
 
@@ -62,44 +62,36 @@ namespace hashimoto_ut {
     void set_texture_parameter_wrap_t(GLint wrap);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_texture_by_name(std::wstring const& name);
-    GLTexture const* get_texture(std::wstring const& filename);
+    Texture const* get_texture_by_name(std::wstring const& name);
+    Texture const* get_texture(std::wstring const& filename);
 
     ////////////////////////////////////////////////////////////////////////////////
     // Make temporary assigned default textures fix.
     void update_default_textures(void);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_node_texture(void);
-    GLTexture const* get_default_node_texture_tmp(void);
+    Texture const* get_default_node_texture(void);
+    Texture const* get_default_node_texture_tmp(void);
     void set_default_node_texture(std::wstring const& filename);
     void set_default_node_texture_tmp(std::wstring const& filename);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_edge_texture(void);
-    GLTexture const* get_default_edge_texture_tmp(void);
+    Texture const* get_default_edge_texture(void);
+    Texture const* get_default_edge_texture_tmp(void);
     void set_default_edge_texture(std::wstring const& filename);
     void set_default_edge_texture_tmp(std::wstring const& filename);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_community_texture(void);
-    GLTexture const* get_default_community_texture_tmp(void);
+    Texture const* get_default_community_texture(void);
+    Texture const* get_default_community_texture_tmp(void);
     void set_default_community_texture(std::wstring const& filename);
     void set_default_community_texture_tmp(std::wstring const& filename);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_community_edge_texture(void);
-    GLTexture const* get_default_community_edge_texture_tmp(void);
+    Texture const* get_default_community_edge_texture(void);
+    Texture const* get_default_community_edge_texture_tmp(void);
     void set_default_community_edge_texture(std::wstring const& filename);
     void set_default_community_edge_texture_tmp(std::wstring const& filename);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_slider_texture(void);
-    void set_slider_texture(std::wstring const& filename);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_thread_indicator_texture(void);
-    void set_thread_indicator_texture(std::wstring const& filename);
 
   } // The end of the namespace "sociarium_project_texture"
 

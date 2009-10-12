@@ -35,7 +35,6 @@
 #include <cassert>
 #ifdef __APPLE__
 #include <CoreFoundation/CFDate.h>
-#include <iostream>
 #elif _MSC_VER
 #include <windows.h>
 #endif
@@ -54,6 +53,8 @@ namespace hashimoto_ut {
     FPSCounter(void) : fps_(0.0), count_(0), last_(CFAbsoluteTimeGetCurrent()) {}
 #elif _MSC_VER
     FPSCounter(void) : fps_(0.0), count_(0), last_(timeGetTime()) {}
+#else
+#error Not implemented
 #endif
 
     ~FPSCounter() {}
@@ -69,14 +70,17 @@ namespace hashimoto_ut {
 
     void operator()(void) {
       for (;;) {
+        // update every 1000 msec
 #ifdef __APPLE__
         usleep(1000000);
-        fps_ = count_/(CFAbsoluteTimeGetCurrent()-last_);
+        fps_ = count_ / (CFAbsoluteTimeGetCurrent()-last_);
         last_ = CFAbsoluteTimeGetCurrent();
 #elif _MSC_VER
-        Sleep(1000); // update every 1000 msec
+        Sleep(1000);
         fps_ = 1000.0*count_/(timeGetTime()-last_);
         last_ = timeGetTime();
+#else
+#error Not implemented
 #endif
         count_ = 0;
         if (cancel_check()) break;
@@ -88,8 +92,10 @@ namespace hashimoto_ut {
     int count_;
 #ifdef __APPLE__
     CFAbsoluteTime last_;
-#else
+#elif _MSC_VER
     unsigned long last_;
+#else
+#error Not implemented
 #endif
   };
 
@@ -98,9 +104,11 @@ namespace hashimoto_ut {
   class FPSKeeper {
   public:
 #ifdef __APPLE__
-    FPSKeeper(unsigned long fps=1) : frame_time_(1.0), last_(0), fps_(fps) {
+    FPSKeeper(unsigned long fps=1) : frame_time_(1000), last_(0), fps_(fps) {
 #elif _MSC_VER
     FPSKeeper(unsigned long fps=1) : frame_time_(1000), last_(0), err_(0), fps_(fps) {
+#else
+#error Not implemented
 #endif
       if (fps_<1) fps_ = 1;
     }
@@ -120,42 +128,52 @@ namespace hashimoto_ut {
       CFTimeInterval const diff = now-last_;
 #elif _MSC_VER
       unsigned long now = timeGetTime()*fps_;
-      
+
       if (last_>now){
         now += ULONG_MAX-last_;
         last_ = 0;
       }
-
-      unsigned long const diff = now-last_;
+#else
+#error Not implemented
 #endif
 
 #ifdef __APPLE__
-      // [TODO]
-      if (0 && frame_time_>diff && last_ != 0){
+#warning Not implemented
+#if 0
+      if (frame_time_>diff && last_ != 0) {
         CFTimeInterval wait_time = frame_time_-diff;
         usleep(wait_time * 1000);
+        last_ = now+wait_time;
+      }
+      else
+#endif
+      last_ = now;
 #elif _MSC_VER
+      unsigned long const diff = now-last_;
+      last_ = now;
+
       if (frame_time_+err_>diff){
         unsigned long wait_time = frame_time_+err_-diff;
         err_ = wait_time%fps_;
         wait_time -= err_;
         Sleep(wait_time/fps_);
+        last_ += wait_time;
+      }
+#else
+#error Not implemented
 #endif
-        last_ = now+wait_time;
-      }
-      else{
-        last_ = now;
-      }
     }
 
   private:
 #ifdef __APPLE__
-    CFTimeInterval const frame_time_;
-    CFAbsoluteTime last_;
+      CFTimeInterval const frame_time_;
+      CFAbsoluteTime last_;
 #elif _MSC_VER
     unsigned long const frame_time_;
     unsigned long last_;
     unsigned long err_;
+#else
+#error Not implemented
 #endif
     unsigned long fps_;
   };

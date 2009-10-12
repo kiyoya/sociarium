@@ -41,13 +41,15 @@
 
 namespace hashimoto_ut {
 
+  class World;
+
   ////////////////////////////////////////////////////////////////////////////////
   class GraphCreationThread : public Thread {
   public:
     virtual ~GraphCreationThread() {}
 
     static std::tr1::shared_ptr<GraphCreationThread>
-      create(wchar_t const* filename);
+      create(World const* world, wchar_t const* filename);
   };
 
 } // The end of the namespace "hashimoto_ut"

@@ -47,6 +47,7 @@ namespace hashimoto_ut {
         CIRCLE_IN_SIZE_ORDER,
         RANDOM,
         LATTICE,
+        CARTOGRAMS,
         NUMBER_OF_ALGORITHMS
       };
     }
@@ -57,6 +58,7 @@ namespace hashimoto_ut {
         KAMADA_KAWAI_METHOD = 0,
         KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION,
         COMMUNITY_ORIENTED,
+        SIMPLE_SPRING, // for refinement of HDE in the lattice structure.
         SPRING_AND_REPULSIVE_FORCE,
         LATTICE_GAS_METHOD,
         DESIGNTIDE,

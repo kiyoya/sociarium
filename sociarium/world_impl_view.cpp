@@ -29,11 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
-#endif
-#include "world_impl.h"
 #include "view.h"
+#include "world_impl.h"
 #include "../shared/gl/glview.h"
 
 namespace hashimoto_ut {

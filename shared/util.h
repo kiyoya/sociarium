@@ -1,4 +1,4 @@
-﻿// general.h
+﻿// util.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SHARED_GENERAL_H
-#define INCLUDE_GUARD_SHARED_GENERAL_H
+#ifndef INCLUDE_GUARD_SHARED_UTIL_H
+#define INCLUDE_GUARD_SHARED_UTIL_H
 
 #include <vector>
 #include <string>
@@ -44,6 +44,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   // テキストファイルの行数を返します．
   int number_of_lines(char const* filename);
+  int number_of_lines(wchar_t const* filename);
 
   ////////////////////////////////////////////////////////////////////////////////
   // 文字列をトークン分割します．
@@ -57,6 +58,7 @@ namespace hashimoto_ut {
   // [retval] なし
   // [args]   @text=入力文字列
   void trim(std::string& text);
+  void trim(std::wstring& text);
 
   ////////////////////////////////////////////////////////////////////////////////
   // ファイルから改行で区切られた浮動小数点数の列を読み込みます．
@@ -152,4 +154,4 @@ namespace hashimoto_ut {
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SHARED_GENERAL_H
+#endif // INCLUDE_GUARD_SHARED_UTIL_H

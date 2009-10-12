@@ -34,10 +34,10 @@
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
+#include <boost/format.hpp>
 #include <FTGL/ftgl.h>
 #include "font.h"
-#include "common.h"
-#include "language.h"
+#include "menu_and_message.h"
 #include "../shared/msgbox.h"
 #include "../shared/win32api.h"
 
@@ -46,28 +46,28 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::tr1::shared_ptr;
 
-  using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_font {
 
     namespace {
       ////////////////////////////////////////////////////////////////////////////////
+      // Priority sequence of default used fonts.
 #ifdef __APPLE__
-			// [TODO]
+#warning Not implemented: MAX_PATH
       char const FONT_OPTION[][255] = {
-        // Priority sequence of default used fonts.
         "/Library/Fonts/ヒラギノ丸ゴ ProN W4.otf",
         "/Library/Fonts/Verdana.ttf",
         "/Library/Fonts/Arial.ttf"
-        };
+      };
 #elif _MSC_VER
       char const FONT_OPTION[][_MAX_PATH] = {
-        // Priority sequence of default used fonts.
         "C:\\Windows\\Fonts\\meiryo.ttc",
         "C:\\Windows\\Fonts\\msgothic.ttc",
         "C:\\Windows\\Fonts\\arial.ttf"
         };
+#else
+#error Not implemented
 #endif
 
       size_t const NUMBER_OF_FONT_OPTIONS
@@ -75,6 +75,8 @@ namespace hashimoto_ut {
         = sizeof(FONT_OPTION)/sizeof(char[255]);
 #elif _MSC_VER
         = sizeof(FONT_OPTION)/sizeof(char[_MAX_PATH]);
+#else
+#error Not implemented
 #endif
 
 
@@ -129,35 +131,21 @@ namespace hashimoto_ut {
               if (f->CharMap(ft_encoding_unicode)) break; // Successfully finished.
               else if (i==NUMBER_OF_FONT_OPTIONS-1) {
                 // No option available any more.
-                message_box(
-                  get_window_handle(),
-                  MessageType::CRITICAL,
-                  APPLICATION_TITLE,
-                  L"%s: %s [ft_encoding_unicode]",
-                  get_message(Message::FTGL_ERROR_CHARMAP),
-                  filename.c_str());
-                exit(1);
+                throw (boost::wformat(L"%s: %s [ft_encoding_unicode]")
+                       %get_message(Message::FTGL_ERROR_CHARMAP)
+                       %filename.c_str()).str().c_str();
               } else continue; // Try the next option.
             } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
               // No option available any more.
-              message_box(
-                get_window_handle(),
-                MessageType::CRITICAL,
-                APPLICATION_TITLE,
-                L"%s: %s [%d]",
-                get_message(Message::FTGL_ERROR_FACESIZE),
-                filename.c_str(), default_face_size);
-              exit(1);
+                throw (boost::wformat(L"%s: %s [%d]")
+                       %get_message(Message::FTGL_ERROR_FACESIZE)
+                       %filename.c_str()
+                       %default_face_size).str().c_str();
             } else continue; // Try the next option.
           } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
             // No option available any more.
-            message_box(
-              get_window_handle(),
-              MessageType::CRITICAL,
-              APPLICATION_TITLE,
-              L"%s",
-              get_message(Message::FTGL_ERROR_CREATE));
-            exit(1);
+            throw (boost::wformat(L"%s")
+                   %get_message(Message::FTGL_ERROR_CREATE)).str().c_str();
           } else continue; // Try the next option.
         }
       }

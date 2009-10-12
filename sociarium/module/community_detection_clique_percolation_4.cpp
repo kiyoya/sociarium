@@ -75,9 +75,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
 
-      Thread* parent,
-      wstring* status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<vector<Node*> >& community,
       bool& is_canceled,
       shared_ptr<Graph const> g,
@@ -90,7 +90,7 @@ namespace hashimoto_ut {
       // Extract 3 clique communities.
       pair<bool, vector<vector<Node*> > >
         cc3 = sociarium_project_graph_utility::clique_communities_3(
-          parent, status, message, g);
+          &parent, &status, &message, g);
 
       if (cc3.first==false) {
         is_canceled = true;
@@ -116,7 +116,7 @@ namespace hashimoto_ut {
       // Extract the largest cliques.
       pair<bool, vector<vector<Node*> > >
         cc_tmp = sociarium_project_graph_utility::largest_cliques(
-          parent, status, message, g_tmp);
+          &parent, &status, &message, g_tmp);
 
       if (cc_tmp.first==false) {
         is_canceled = true;

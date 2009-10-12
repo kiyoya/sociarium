@@ -32,9 +32,6 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_WORLD_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_WORLD_H
 
-#include <vector>
-#include <map>
-#include <string>
 #ifdef _MSC_VER
 #include <memory>
 #include <windows.h>
@@ -44,7 +41,7 @@
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
 #else
-#include <GL/gl.h>
+#include <gl/gl.h>
 #endif
 #include "../shared/vector2.h"
 
@@ -52,18 +49,21 @@ namespace hashimoto_ut {
 
   class ThreadManager;
 
-	namespace RenderingContext {
-		enum {
-			DRAW = 0,
-			LOAD_TEXTURES,
-			NUMBER_OF_CATEGORIES
-		};
-	}
-
   ////////////////////////////////////////////////////////////////////////////////
   class World {
   public:
     virtual ~World() {}
+
+#ifdef __APPLE__
+    virtual void * get_window_handle(void) const = 0;
+    virtual CGLContextObj get_rendering_context(int thread_id) const = 0;
+#elif _MSC_VER
+    virtual HWND get_window_handle(void) const = 0;
+    virtual HDC get_device_context(void) const = 0;
+    virtual HGLRC get_rendering_context(int thread_id) const = 0;
+#else
+#error Not implemented
+#endif
 
     virtual void draw(void) const = 0;
     virtual void select(Vector2<int> const& mpos) const = 0;
@@ -90,59 +90,14 @@ namespace hashimoto_ut {
     virtual void show_elements(int menu) const = 0;
     virtual void remove_marked_elements(int menu) const = 0;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // Absolute path of the module.
-    std::wstring const& get_module_path(void);
-    void set_module_path(std::wstring const& path);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Application instance.
-#ifdef _MSC_VER
-    HINSTANCE get_instance_handle(void);
-    void set_instance_handle(HINSTANCE hinst);
-#endif
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the main window.
-#ifdef _MSC_VER
-    HWND get_window_handle(void);
-    void set_window_handle(HWND hwnd);
-#endif
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the device context.
-#ifdef _MSC_VER
-    HDC get_device_context(void);
-    void set_device_context(HDC dc);
-#endif
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the rendering context.
 #ifdef __APPLE__
-    CGLContextObj get_rendering_context(int thread_id);
-    void set_rendering_context(int thread_id, CGLContextObj context);
+    static World* create(void* window, CGLContextObj context);
+    static void destroy(World* world);
 #elif _MSC_VER
-    HGLRC get_rendering_context(int thread_id);
-    void set_rendering_context(int thread_id, HGLRC rc);
-#endif
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text=L"");
-
-    ////////////////////////////////////////////////////////////////////////////////
-#ifdef DEBUG
-    void dump_error_log(wchar_t const* fmt, ...);
-#endif
-
-#ifdef __APPLE__
-    static World * create(CGLContextObj context);
-		static void destroy(World * world);
+    static std::tr1::shared_ptr<World> create(HWND hwnd);
 #else
-    static std::tr1::shared_ptr<World> create(void);
+#error Not implemented
 #endif
-
-  protected:
-    World(void) {}
   };
 
 } // The end of the namespace "hashimoto_ut"

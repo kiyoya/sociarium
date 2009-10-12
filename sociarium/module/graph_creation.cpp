@@ -29,23 +29,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _MSC_VER
 #pragma warning(disable:4503) // about the name decoration.
-#endif
 
 #include <cassert>
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include "win32api.h"
+#endif
 #ifdef _MSC_VER
 #include <unordered_map>
 #else
 #include <tr1/unordered_map>
 #endif
-#ifdef __APPLE__
-#include <CoreFoundation/CoreFoundation.h>
-#include "win32api.h"
-#endif
 #include "graph_creation.h"
-#include "../common.h"
-#include "../language.h"
 
 namespace hashimoto_ut {
 
@@ -54,17 +50,17 @@ namespace hashimoto_ut {
   using std::pair;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
-
   namespace sociarium_project_module_graph_creation {
 
     namespace {
 
       ////////////////////////////////////////////////////////////////////////////////
       // The module function should have the following name.
+#ifdef __APPLE__
+      CFStringRef const function_name = CFSTR("create_graph_time_series");
+#else
       string const function_name = "create_graph_time_series";
-
+#endif
 
       ////////////////////////////////////////////////////////////////////////////////
       class GraphCreationModuleManager {
@@ -73,21 +69,24 @@ namespace hashimoto_ut {
         typedef unordered_map<CFURLRef, pair<CFBundleRef, FuncCreateGraphTimeSeries> >
 #elif _MSC_VER
         typedef unordered_map<wstring, pair<HMODULE, FuncCreateGraphTimeSeries> >
+#else
+#error Not implemented
 #endif
           ModuleMap;
 
         GraphCreationModuleManager(void) {}
 
         ~GraphCreationModuleManager() {
-          for (ModuleMap::const_iterator i=module_.begin(); i!=module_.end(); ++i)
-					{
+          for (ModuleMap::const_iterator i=module_.begin(); i!=module_.end(); ++i) {
 #ifdef __APPLE__
             if (i->first) CFRelease(i->first);
             if (i->second.first) CFRelease(i->second.first);
-#elif
+#elif _MSC_VER
             if (i->second.first) FreeLibrary(i->second.first);
+#else
+#error Not implemented
 #endif
-					}
+          }
         }
 
         FuncCreateGraphTimeSeries get(int data_format, wchar_t const* module_filename) {
@@ -104,7 +103,7 @@ namespace hashimoto_ut {
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("GraphCreationReadEdgeList.plugin"), FALSE);
           else if (data_format==DataFormat::USER_DEFINED_MODULE)
           {
-            CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, wcs2mbcs(module_filename, wcslen(module_filename)).c_str(), kCFStringEncodingUTF8);
+            CFStringRef str = CFStringCreateWithWString(NULL, module_filename, kCFStringEncodingUTF8);
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, str, FALSE);
             CFRelease(str);
           }
@@ -122,20 +121,22 @@ namespace hashimoto_ut {
           else if (data_format==DataFormat::USER_DEFINED_MODULE)
             path += module_filename;
           else assert(0 && "never reach");
+#else
+#error Not implemented
 #endif
-          
+
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {
             // Not yet loaded.
 #ifdef __APPLE__
-            if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL) {
-              show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
+            if ((handle=CFBundleCreate(kCFAllocatorSystemDefault, path))==NULL)
+              throw module_filename;
 #elif _MSC_VER
-            if ((handle=LoadLibrary(path.c_str()))==0) {
-              show_last_error(path.c_str());
+            if ((handle=LoadLibrary(path.c_str()))==0)
+              throw path.c_str();
+#else
+#error Not implemented
 #endif
-              return 0;
-            }
 
             module_[path].first = handle;
           }
@@ -146,22 +147,19 @@ namespace hashimoto_ut {
           // Find an appropriate function in DLL.
 #ifdef __APPLE__
           pair<CFBundleRef, FuncCreateGraphTimeSeries>& p = module_[path];
-          CFStringRef str = CFStringCreateWithCString(kCFAllocatorDefault, function_name.c_str(), kCFStringEncodingUTF8);
-          p.second = (FuncCreateGraphTimeSeries)CFBundleGetFunctionPointerForName(p.first, str);
-          CFRelease(str);
+          p.second = (FuncCreateGraphTimeSeries)CFBundleGetFunctionPointerForName(p.first, function_name);
+          
+          if (p.second==0)
+            throw module_filename;
 #elif _MSC_VER
           pair<HMODULE, FuncCreateGraphTimeSeries>& p = module_[path];
           p.second = (FuncCreateGraphTimeSeries)GetProcAddress(p.first, function_name.c_str());
-#endif
 
-          if (p.second==0) {
-#ifdef __APPLE__
-            show_last_error(CFStringGetWString(CFURLGetString(path)).c_str());
-#elif _MSC_VER
-            show_last_error(path.c_str());
+          if (p.second==0)
+            throw path.c_str();
+#else
+#error Not implemented
 #endif
-            return 0;
-          }
 
           return p.second;
         }

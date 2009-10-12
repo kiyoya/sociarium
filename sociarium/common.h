@@ -48,7 +48,59 @@ namespace hashimoto_ut {
 
     namespace {
       wchar_t const* APPLICATION_TITLE = L"s.o.c.i.a.r.i.u.m";
+
+#ifdef _MSC_VER
+      int const mb_notice = MB_OK|MB_ICONEXCLAMATION;
+      int const mb_info   = MB_OK|MB_ICONASTERISK;
+      int const mb_error  = MB_OK|MB_ICONERROR;
+      int const mb_ok_cancel = MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1;
+      int const mb_ok_cancel_error = MB_OKCANCEL|MB_ICONERROR;
+#else
+      int const mb_notice = 0;
+      int const mb_info   = 1;
+      int const mb_error  = 2;
+      int const mb_ok_cancel = 3;
+      int const mb_ok_cancel_error = 4;
+#endif
     }
+
+    namespace RenderingContext {
+      enum {
+        DRAW = 0, // The ID of drawing context should be 0.
+        LOAD_TEXTURES,
+        CVFRAME,
+        NUMBER_OF_THREAD_CATEGORIES
+      };
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Absolute path of the module.
+    std::wstring const& get_module_path(void);
+    void set_module_path(std::wstring const& path);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Application instance.
+#ifdef __APPLE__
+#elif _MSC_VER
+    HINSTANCE get_instance_handle(void);
+    void set_instance_handle(HINSTANCE hinst);
+#else
+#error Not implemented
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+    void show_last_error(void* window, wchar_t const* text=L"");
+#elif _MSC_VER
+    void show_last_error(HWND hwnd, wchar_t const* text=L"");
+#else
+#error Not implemented
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+#ifdef DEBUG
+    void dump_error_log(wchar_t const* fmt, ...);
+#endif
 
   } // The end of the namespace "sociarium_project_common"
 

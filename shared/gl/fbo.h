@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m - thread/graph_retouch.h
+﻿// fbo.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,26 +29,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+#ifndef INCLUDE_GUARD_SHARED_GL_FBO_H
+#define INCLUDE_GUARD_SHARED_GL_FBO_H
 
 #ifdef _MSC_VER
 #include <memory>
+#include <windows.h>
 #else
 #include <tr1/memory>
 #endif
-#include "../../shared/thread.h"
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <gl/gl.h>
+#endif
 
 namespace hashimoto_ut {
 
-  ////////////////////////////////////////////////////////////////////////////////
-  class GraphRetouchThread : public Thread {
+  class Texture;
+
+  class FrameBufferObject {
   public:
-    virtual ~GraphRetouchThread() {}
-    static std::tr1::shared_ptr<GraphRetouchThread>
-      create(wchar_t const* filename);
+    virtual ~FrameBufferObject() {}
+    virtual GLuint get(void) const = 0;
+    virtual std::tr1::shared_ptr<Texture> get_texture(void) const = 0;
+
+    static std::tr1::shared_ptr<FrameBufferObject>
+      create(GLsizei width, GLsizei height, GLenum wrap_s, GLenum wrap_t);
   };
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+#endif // INCLUDE_GUARD_SHARED_GL_FBO_H

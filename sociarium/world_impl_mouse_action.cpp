@@ -29,9 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
-#elif _MSC_VER
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
 #include <boost/bind.hpp>
@@ -50,6 +48,11 @@
 #include "../graph/graphex.h"
 #include "../graph/util/traverser.h"
 
+#if 0
+#include <fstream>
+std::ofstream logfile("pos.csv");
+#endif
+
 namespace hashimoto_ut {
 
   using std::vector;
@@ -57,11 +60,15 @@ namespace hashimoto_ut {
   using std::make_pair;
   using std::tr1::shared_ptr;
 
-  typedef SociariumGraph::node_property_iterator node_property_iterator;
-  typedef SociariumGraph::edge_property_iterator edge_property_iterator;
-
   using namespace sociarium_project_draw;
   using namespace sociarium_project_view;
+  using namespace sociarium_project_layout;
+  using namespace sociarium_project_algorithm_selector;
+
+  typedef SociariumGraph::NodePropertyMap NodePropertyMap;
+  typedef SociariumGraph::EdgePropertyMap EdgePropertyMap;
+  typedef SociariumGraph::node_property_iterator node_property_iterator;
+  typedef SociariumGraph::edge_property_iterator edge_property_iterator;
 
   namespace {
 
@@ -76,14 +83,14 @@ namespace hashimoto_ut {
     Vector2<double> mpos_world_prev;
 
     ////////////////////////////////////////////////////////////////////////////////
-    int const ALL_MARKED =
-      ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED;
+    int const ALL_MARKED
+      = ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED;
 
-    int const HIGHLIGHT_AND_CAPTURED =
-      ElementFlag::CAPTURED|ElementFlag::HIGHLIGHT;
+    int const HIGHLIGHT_AND_CAPTURED
+      = ElementFlag::CAPTURED|ElementFlag::HIGHLIGHT;
 
-    int const HIGHLIGHT_AND_MARKED =
-      ElementFlag::MARKED|ElementFlag::HIGHLIGHT;
+    int const HIGHLIGHT_AND_MARKED
+      = ElementFlag::MARKED|ElementFlag::HIGHLIGHT;
 
     ////////////////////////////////////////////////////////////////////////////////
     // Angles of viewpoint.
@@ -94,14 +101,14 @@ namespace hashimoto_ut {
     // Marking by mouse dragging.
     struct UpdateMark {
       template <typename T>
-      void operator()(T& pp) const {
+      void operator()(T& p) const {
         typedef typename T::second_type DynamicProperty;
-        DynamicProperty& p = pp.second;
-        if (is_visible(p)) {
-          if (is_temporary_marked(p))
-            p.set_flag((p.get_flag()|ElementFlag::MARKED)&~ElementFlag::TEMPORARY_MARKED);
-          else if (is_temporary_unmarked(p))
-            p.set_flag(p.get_flag()&~(ElementFlag::MARKED|ElementFlag::TEMPORARY_UNMARKED));
+        DynamicProperty& dp = p.second;
+        if (is_visible(dp)) {
+          if (is_temporary_marked(dp))
+            dp.set_flag((dp.get_flag()|ElementFlag::MARKED)&~ElementFlag::TEMPORARY_MARKED);
+          else if (is_temporary_unmarked(dp))
+            dp.set_flag(dp.get_flag()&~ALL_MARKED);
         }
       }
     };
@@ -109,22 +116,12 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     // Move elements by mouse dragging.
     struct MoveNode {
-      void operator()(node_property_iterator::value_type& pp,
+      void operator()(NodePropertyMap::value_type& p,
                       unsigned int flag, Vector2<double> const& diff) const {
-        DynamicNodeProperty& dnp = pp.second;
+        DynamicNodeProperty& dnp = p.second;
         if (is_visible(dnp) && (dnp.get_flag()&flag))
           dnp.get_static_property()->set_position(
             dnp.get_static_property()->get_position()+diff);
-      }
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////
-    struct ActivateFlagIfMarked {
-      void operator()(node_property_iterator::value_type& pp,
-                      unsigned int flag) const {
-        DynamicNodeProperty& dnp = pp.second;
-        if (is_visible(dnp) && dnp.get_flag()&HIGHLIGHT_AND_MARKED)
-          dnp.set_flag(dnp.get_flag()|flag);
       }
     };
 
@@ -143,11 +140,11 @@ namespace hashimoto_ut {
      * Don't forget to call read_unlock().
      */
 
-    shared_ptr<SociariumGraph const> g0 =
-      ts->get_graph(0, ts->index_of_current_layer());
+    shared_ptr<SociariumGraph const> g0
+      = ts->get_graph(0, ts->index_of_current_layer());
 
-    shared_ptr<SociariumGraph const> g1 =
-      ts->get_graph(1, ts->index_of_current_layer());
+    shared_ptr<SociariumGraph const> g1
+      = ts->get_graph(1, ts->index_of_current_layer());
 
     view_->scr2world_z0(mpos_world, mpos);
 
@@ -157,6 +154,10 @@ namespace hashimoto_ut {
       select(mpos);
       mpos_LBUTTONDOWN = mpos;
       mpos_world_LBUTTONDOWN = mpos_world;
+
+#if 0
+      logfile << mpos_world.x << ',' << mpos_world.y<< std::endl;
+#endif
 
       // --------------------------------------------------------------------------------
       // Capture the time slider.
@@ -258,8 +259,7 @@ namespace hashimoto_ut {
         set_captured_object((void*)dep);
       }
 
-      else if (modifier == MouseModifier::NONE) {
-        using namespace sociarium_project_layout;
+      else if (!(modifier&MouseModifier::CONTROL)) {
         // --------------------------------------------------------------------------------
         // Move the layout frame.
         if (is_selected(SelectionCategory::LAYOUT_FRAME)) {
@@ -292,7 +292,7 @@ namespace hashimoto_ut {
       if (mpos==mpos_LBUTTONDOWN) {
         // --------------------------------------------------------------------------------
         // Clear all highlight.
-        if (modifier==MouseModifier::NONE&&!is_selected(SelectionCategory::TIME_SLIDER)) {
+        if (!(modifier&MouseModifier::CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
           for_each(g0->edge_property_begin(), g0->edge_property_end(),
@@ -303,7 +303,7 @@ namespace hashimoto_ut {
 #ifdef CLICK_WITHOUT_CTRL_KEY_CLEAR_MARKING
         // --------------------------------------------------------------------------------
         // Clear all marking.
-        if (modifier==MouseModifier::NONE&&!is_selected(SelectionCategory::TIME_SLIDER)) {
+        if (!(modifier&MouseModifier::CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
 
@@ -361,7 +361,7 @@ namespace hashimoto_ut {
 #ifndef CLICK_WITHOUT_CTRL_KEY_CLEAR_MARKING
         // --------------------------------------------------------------------------------
         // Clear all marking.
-        else if (modifier==MouseModifier::NONE) {
+        else if (!(wp&MK_CONTROL)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
 
@@ -407,7 +407,6 @@ namespace hashimoto_ut {
         set_drag_status(false);
       }
 
-      using namespace sociarium_project_layout;
       set_layout_frame_previous_position(get_layout_frame_position());
       set_layout_frame_previous_size(get_layout_frame_size());
       set_update_layout_frame(false);
@@ -419,7 +418,7 @@ namespace hashimoto_ut {
       if (mpos==mpos_RBUTTONDOWN) {
         // --------------------------------------------------------------------------------
         // Clear all highlight.
-        if (modifier==MouseModifier::NONE) {
+        if (!(modifier&MouseModifier::CONTROL)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
 
@@ -436,13 +435,28 @@ namespace hashimoto_ut {
             = static_cast<DynamicNodeProperty*>(get_selected_dynamic_object());
           assert(dnp!=0);
 
+          // Clicked node.
           dnp->set_flag(dnp->get_flag()|HIGHLIGHT_AND_MARKED);
 
-          for_each(n->obegin(), n->oend(),
-                   boost::bind<void>(ActivateDynamicFlag(), _1, HIGHLIGHT_AND_MARKED, g0, +1));
+          // Connecting edges with the clicked node.
+          vector<DynamicEdgeProperty*> edges(n->degree());
+          transform(n->begin(), n->end(), edges.begin(),
+                    boost::bind<DynamicEdgeProperty*>(GetDynamicProperty(), _1, g0));
+          for_each(edges.begin(), edges.end(),
+                   boost::bind<void>(ActivateFlag(), _1, HIGHLIGHT_AND_MARKED));
 
-          for_each(n->ibegin(), n->iend(),
-                   boost::bind<void>(ActivateDynamicFlag(), _1, HIGHLIGHT_AND_MARKED, g0, -1));
+          // Adjacent nodes with the clicked node.
+          vector<Node*> adjacent_nodes(n->degree());
+          transform(n->obegin(), n->oend(), adjacent_nodes.begin(),
+                    boost::bind<Node* const&>(&Edge::target, _1));
+          transform(n->ibegin(), n->iend(), adjacent_nodes.begin()+n->odegree(),
+                    boost::bind<Node* const&>(&Edge::source, _1));
+
+          vector<DynamicNodeProperty*> nodes(adjacent_nodes.size());
+          transform(adjacent_nodes.begin(), adjacent_nodes.end(), nodes.begin(),
+                    boost::bind<DynamicNodeProperty*>(GetDynamicProperty(), _1, g0));
+          for_each(nodes.begin(), nodes.end(),
+                   boost::bind<void>(ActivateFlag(), _1, HIGHLIGHT_AND_MARKED));
         }
 
         // --------------------------------------------------------------------------------
@@ -466,212 +480,204 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     // Mouse move.
-    else if (action==MouseAction::LBUTTON_DRAG) {
-			// --------------------------------------------------------------------------------
-			// Scroll the time slider.
-			if (is_selected(SelectionCategory::TIME_SLIDER)) {
-				double my = mpos.y;
-				double const soff_y = get_slider_offset().y;
+      if (action==MouseAction::LBUTTON_DRAG) {
+        // --------------------------------------------------------------------------------
+        // Scroll the time slider.
+        if (is_selected(SelectionCategory::TIME_SLIDER)) {
+          double my = mpos.y;
+          double const soff_y = get_slider_offset().y;
 
-				if (my<soff_y) my = soff_y;
-				else if (my>view_->viewport_size().y-soff_y)
-					my = view_->viewport_size().y-soff_y;
+          if (my<soff_y) my = soff_y;
+          else if (my>view_->viewport_size().y-soff_y)
+            my = view_->viewport_size().y-soff_y;
 
-				double const h = view_->viewport_size().y-2*soff_y;
-				double const y = (h<=0.0)?0.0:(my-soff_y)/h;
-				ts->move_layer(int(y*(ts->number_of_layers()-1.0)+0.5));
-			}
+          double const h = view_->viewport_size().y-2*soff_y;
+          double const y = (h<=0.0)?0.0:(my-soff_y)/h;
+          ts->move_layer(int(y*(ts->number_of_layers()-1.0)+0.5));
+        }
 
-			// --------------------------------------------------------------------------------
-			// Move all marked elements.
-			else if (get_captured_object()) {
+        // --------------------------------------------------------------------------------
+        // Move all marked elements.
+        else if (get_captured_object()) {
 
-				using namespace sociarium_project_algorithm_selector;
+          Vector2<double> const diff = mpos_world-mpos_world_prev;
+          for_each(g0->node_property_begin(), g0->node_property_end(),
+                   boost::bind<void>(MoveNode(), _1, HIGHLIGHT_AND_CAPTURED, diff));
 
-				Vector2<double> const diff = mpos_world-mpos_world_prev;
-				for_each(g0->node_property_begin(), g0->node_property_end(),
-								 boost::bind<void>(MoveNode(), _1, HIGHLIGHT_AND_CAPTURED, diff));
+          if (get_force_direction_algorithm()!=RealTimeForceDirectionAlgorithm::COMMUNITY_ORIENTED)
+            for_each(g1->node_property_begin(), g1->node_property_end(),
+                     boost::bind<void>(
+                       reset_position,
+                       boost::bind<DynamicNodeProperty&>(
+                         &SociariumGraph::NodePropertyMap::value_type::second, _1)));
+          else
+            for_each(g1->node_property_begin(), g1->node_property_end(),
+                     boost::bind<void>(MoveNode(), _1, HIGHLIGHT_AND_CAPTURED, diff));
+        }
 
-				if (get_force_direction_algorithm()!=RealTimeForceDirectionAlgorithm::COMMUNITY_ORIENTED)
-					for_each(g1->node_property_begin(), g1->node_property_end(),
-									 boost::bind<void>(
-										 sociarium_project_layout::reset_position,
-										 boost::bind<DynamicNodeProperty&>(
-											 &SociariumGraph::NodePropertyMap::value_type::second, _1)));
-				else
-					for_each(g1->node_property_begin(), g1->node_property_end(),
-									 boost::bind<void>(MoveNode(), _1, HIGHLIGHT_AND_CAPTURED, diff));
-			}
+        // --------------------------------------------------------------------------------
+        // Resize the marking region.
+        else if (modifier&MouseModifier::CONTROL) {
+          set_drag_status(true);
 
-			// --------------------------------------------------------------------------------
-			// Resize the marking region.
-			else if (modifier==MouseModifier::CONTROL) {
-				set_drag_status(true);
+          { // Store for drawing.
+            Vector2<double> const p0(
+              view_->viewport_size().x==0
+              ?0:double(mpos.x)/view_->viewport_size().x,
+              view_->viewport_size().y==0
+              ?0:double(mpos.y)/view_->viewport_size().y);
 
-				{ // Store for drawing.
-					Vector2<double> const p0(
-						view_->viewport_size().x==0
-						?0:double(mpos.x)/view_->viewport_size().x,
-						view_->viewport_size().y==0
-						?0:double(mpos.y)/view_->viewport_size().y);
+            Vector2<double> const p1(
+              view_->viewport_size().x==0
+              ?0:double(mpos_LBUTTONDOWN.x)/view_->viewport_size().x,
+              view_->viewport_size().y==0
+              ?0:double(mpos_LBUTTONDOWN.y)/view_->viewport_size().y);
 
-					Vector2<double> const p1(
-						view_->viewport_size().x==0
-						?0:double(mpos_LBUTTONDOWN.x)/view_->viewport_size().x,
-						view_->viewport_size().y==0
-						?0:double(mpos_LBUTTONDOWN.y)/view_->viewport_size().y);
+            set_drag_region(0, p0);
+            set_drag_region(1, Vector2<double>(p0.x, p1.y));
+            set_drag_region(2, Vector2<double>(p1.x, p0.y));
+            set_drag_region(3, p1);
+          }
 
-					set_drag_region(0, p0);
-					set_drag_region(1, Vector2<double>(p0.x, p1.y));
-					set_drag_region(2, Vector2<double>(p1.x, p0.y));
-					set_drag_region(3, p1);
-				}
+          // Get world coordinates of the mouse position.
+          Vector2<int> const p0(mpos_LBUTTONDOWN.x, mpos.y);
+          Vector2<int> const p1(mpos.x, mpos_LBUTTONDOWN.y);
+          Vector2<double> wp0;
+          Vector2<double> wp1;
+          view_->scr2world_z0(wp0, p0);
+          view_->scr2world_z0(wp1, p1);
+          Vector2<double> drag_region[4] = { mpos_world, wp0, wp1, mpos_world_LBUTTONDOWN };
 
-				// Get world coordinates of the mouse position.
-				Vector2<int> const p0(mpos_LBUTTONDOWN.x, mpos.y);
-				Vector2<int> const p1(mpos.x, mpos_LBUTTONDOWN.y);
-				Vector2<double> wp0;
-				Vector2<double> wp1;
-				view_->scr2world_z0(wp0, p0);
-				view_->scr2world_z0(wp1, p1);
-				Vector2<double> drag_region[4] = { mpos_world, wp0, wp1, mpos_world_LBUTTONDOWN };
+          // Temporary mark nodes in the dragged region.
+          if (get_show_node()) {
 
-				// Temporary mark nodes in the dragged region.
-				if (get_show_node()) {
+            node_property_iterator i   = g0->node_property_begin();
+            node_property_iterator end = g0->node_property_end();
 
-					node_property_iterator i   = g0->node_property_begin();
-					node_property_iterator end = g0->node_property_end();
+            for (; i!=end; ++i) {
+              DynamicNodeProperty& dnp = i->second;
+              StaticNodeProperty* snp = dnp.get_static_property();
 
-					for (; i!=end; ++i) {
-						DynamicNodeProperty& dnp = i->second;
-						StaticNodeProperty* snp = dnp.get_static_property();
+              if (point_is_in_trapezoid<double>(snp->get_position()+center_, drag_region)) {
+                if (is_marked(dnp))
+                  dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+                else
+                  dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_MARKED);
+              } else
+                dnp.set_flag(dnp.get_flag()&~ALL_MARKED);
+            }
+          }
 
-						if (point_is_in_trapezoid<double>(snp->get_position()+center_, drag_region)) {
-							if (is_marked(dnp))
-								dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-							else
-								dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_MARKED);
-						} else
-							dnp.set_flag(dnp.get_flag()&~ALL_MARKED);
-					}
-				}
+          // Temporary mark edges in the dragged region.
+          if (get_show_edge()) {
 
-				// Temporary mark edges in the dragged region.
-				if (get_show_edge()) {
+            edge_property_iterator i   = g0->edge_property_begin();
+            edge_property_iterator end = g0->edge_property_end();
 
-					edge_property_iterator i   = g0->edge_property_begin();
-					edge_property_iterator end = g0->edge_property_end();
+            for (; i!=end; ++i) {
+              DynamicEdgeProperty& dep = i->second;
+              DynamicNodeProperty& dnp0 = g0->property(i->first->source());
+              DynamicNodeProperty& dnp1 = g0->property(i->first->target());
 
-					for (; i!=end; ++i) {
-						DynamicEdgeProperty& dep = i->second;
-						DynamicNodeProperty& dnp0 = g0->property(i->first->source());
-						DynamicNodeProperty& dnp1 = g0->property(i->first->target());
+              if (dnp0.get_flag()&ALL_MARKED && dnp1.get_flag()&ALL_MARKED) {
+                if (is_marked(dep))
+                  dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+                else
+                  dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_MARKED);
+              } else
+                dep.set_flag(dep.get_flag()&~ALL_MARKED);
+            }
+          }
 
-						if (dnp0.get_flag()&ALL_MARKED && dnp1.get_flag()&ALL_MARKED) {
-							if (is_marked(dep))
-								dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-							else
-								dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_MARKED);
-						} else
-							dep.set_flag(dep.get_flag()&~ALL_MARKED);
-					}
-				}
+          // Temporary mark communities in the dragged region.
+          if (get_show_community()) {
 
-				// Temporary mark communities in the dragged region.
-				if (get_show_community()) {
+            node_property_iterator i   = g1->node_property_begin();
+            node_property_iterator end = g1->node_property_end();
 
-					node_property_iterator i   = g1->node_property_begin();
-					node_property_iterator end = g1->node_property_end();
+            for (; i!=end; ++i) {
+              DynamicNodeProperty& dnp = i->second;
+              StaticNodeProperty* snp = dnp.get_static_property();
 
-					for (; i!=end; ++i) {
-						DynamicNodeProperty& dnp = i->second;
-						StaticNodeProperty* snp = dnp.get_static_property();
+              if (point_is_in_trapezoid<double>(snp->get_position()+center_, drag_region)) {
+                if (is_marked(dnp))
+                  dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+                else
+                  dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_MARKED);
+              } else
+                dnp.set_flag(dnp.get_flag()&~ALL_MARKED);
+            }
+          }
 
-						if (point_is_in_trapezoid<double>(snp->get_position()+center_, drag_region)) {
-							if (is_marked(dnp))
-								dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-							else
-								dnp.set_flag(dnp.get_flag()|ElementFlag::TEMPORARY_MARKED);
-						} else
-							dnp.set_flag(dnp.get_flag()&~ALL_MARKED);
-					}
-				}
+          // Temporary mark community edges in the dragged region.
+          if (get_show_community_edge()) {
 
-				// Temporary mark community edges in the dragged region.
-				if (get_show_community_edge()) {
+            edge_property_iterator i   = g1->edge_property_begin();
+            edge_property_iterator end = g1->edge_property_end();
 
-					edge_property_iterator i   = g1->edge_property_begin();
-					edge_property_iterator end = g1->edge_property_end();
+            for (; i!=end; ++i) {
+              DynamicEdgeProperty& dep = i->second;
+              DynamicNodeProperty& dnp0 = g1->property(i->first->source());
+              DynamicNodeProperty& dnp1 = g1->property(i->first->target());
 
-					for (; i!=end; ++i) {
-						DynamicEdgeProperty& dep = i->second;
-						DynamicNodeProperty& dnp0 = g1->property(i->first->source());
-						DynamicNodeProperty& dnp1 = g1->property(i->first->target());
+              if (dnp0.get_flag()&ALL_MARKED && dnp1.get_flag()&ALL_MARKED) {
+                if (is_marked(dep))
+                  dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
+                else
+                  dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_MARKED);
+              } else
+                dep.set_flag(dep.get_flag()&~ALL_MARKED);
+            }
+          }
+        }
 
-						if (dnp0.get_flag()&ALL_MARKED && dnp1.get_flag()&ALL_MARKED) {
-							if (is_marked(dep))
-								dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_UNMARKED);
-							else
-								dep.set_flag(dep.get_flag()|ElementFlag::TEMPORARY_MARKED);
-						} else
-							dep.set_flag(dep.get_flag()&~ALL_MARKED);
-					}
-				}
-			}
+        // --------------------------------------------------------------------------------
+        // Move the layout frame.
+        else if (is_selected(SelectionCategory::LAYOUT_FRAME)) {
 
-			// --------------------------------------------------------------------------------
-			// Move the layout frame.
-			else if (is_selected(SelectionCategory::LAYOUT_FRAME)) {
+          Vector2<float> diff((mpos_world-mpos_world_LBUTTONDOWN).fcast());
+          set_layout_frame_position(get_layout_frame_previous_position()+diff);
 
-				using namespace sociarium_project_layout;
-				using namespace sociarium_project_algorithm_selector;
+          if (get_force_direction_algorithm()
+              ==RealTimeForceDirectionAlgorithm::LATTICE_GAS_METHOD)
+            sociarium_project_force_direction::should_be_updated();
+        }
 
-				Vector2<float> diff((mpos_world-mpos_world_LBUTTONDOWN).fcast());
-				set_layout_frame_position(get_layout_frame_previous_position()+diff);
+        // --------------------------------------------------------------------------------
+        // Resize the layout frame.
+        else if (is_selected(SelectionCategory::LAYOUT_FRAME_BORDER)) {
 
-				if (get_force_direction_algorithm()
-						==RealTimeForceDirectionAlgorithm::LATTICE_GAS_METHOD)
-					sociarium_project_force_direction::should_be_updated();
-			}
+          float const dx = fabs(float(mpos_world.x)-center_.x-get_layout_frame_position().x);
+          float const dy = fabs(float(mpos_world.y)-center_.y-get_layout_frame_position().y);
+          set_layout_frame_size(dx>dy?dx:dy);
 
-			// --------------------------------------------------------------------------------
-			// Resize the layout frame.
-			else if (is_selected(SelectionCategory::LAYOUT_FRAME_BORDER)) {
+          if (get_force_direction_algorithm()
+              ==RealTimeForceDirectionAlgorithm::LATTICE_GAS_METHOD)
+            sociarium_project_force_direction::should_be_updated();
+        }
 
-				using namespace sociarium_project_layout;
-				using namespace sociarium_project_algorithm_selector;
+        // --------------------------------------------------------------------------------
+        else if (is_selected(SelectionCategory::DIAGRAM_FRAME)) {
+        }
 
-				float const dx = fabs(float(mpos_world.x)-center_.x-get_layout_frame_position().x);
-				float const dy = fabs(float(mpos_world.y)-center_.y-get_layout_frame_position().y);
-				set_layout_frame_size(dx>dy?dx:dy);
+        // --------------------------------------------------------------------------------
+        else if (is_selected(SelectionCategory::DIAGRAM_FRAME_BORDER)) {
+        }
 
-				if (get_force_direction_algorithm()
-						==RealTimeForceDirectionAlgorithm::LATTICE_GAS_METHOD)
-					sociarium_project_force_direction::should_be_updated();
-			}
+        // --------------------------------------------------------------------------------
+        // Translate a layer.
+        else {
+          center_ += mpos_world-mpos_world_prev;
+        }
+      }
 
-			// --------------------------------------------------------------------------------
-			else if (is_selected(SelectionCategory::DIAGRAM_FRAME)) {
-			}
-
-			// --------------------------------------------------------------------------------
-			else if (is_selected(SelectionCategory::DIAGRAM_FRAME_BORDER)) {
-			}
-
-			// --------------------------------------------------------------------------------
-			// Translate a layer.
-			else {
-				center_ += mpos_world-mpos_world_prev;
-			}
-		}
-
-		// --------------------------------------------------------------------------------
-		// Rotate a layer.
-		else if (action==MouseAction::RBUTTON_DRAG) {
-			int const dx = 5*(mpos.x-mpos_RBUTTONDOWN.x);
-			int const dy = 5*(mpos.y-mpos_RBUTTONDOWN.y);
-			view_->set_angle(angleH_prev+dx, angleV_prev-dy);
-		}
+      // --------------------------------------------------------------------------------
+      // Rotate a layer.
+      else if (action==MouseAction::RBUTTON_DRAG) {
+        int const dx = 5*(mpos.x-mpos_RBUTTONDOWN.x);
+        int const dy = 5*(mpos.y-mpos_RBUTTONDOWN.y);
+        view_->set_angle(angleH_prev+dx, angleV_prev-dy);
+      }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Left double click.
@@ -728,15 +734,22 @@ namespace hashimoto_ut {
         shared_ptr<CircumventHiddenElements> cond(new CircumventHiddenElements(g0));
         shared_ptr<BFSTraverser> t = BFSTraverser::create<bidirectional_tag>(g0);
         t->set_condition(cond);
-        vector<Node*> cn
+        // Get a connected component.
+        vector<Node*> nodes
           = sociarium_project_graph_utility::connected_component(0, 0, 0, t, n).second;
-        vector<Edge*> ce = induced_edges(cn.begin(), cn.end());
+        vector<Edge*> edges = induced_edges(nodes.begin(), nodes.end());
         // Mark nodes in the connected component.
-        for_each(cn.begin(), cn.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1, ElementFlag::MARKED, g0));
+        vector<DynamicNodeProperty*> dnp(nodes.size());
+        transform(nodes.begin(), nodes.end(), dnp.begin(),
+                  boost::bind<DynamicNodeProperty*>(GetDynamicProperty(), _1, g0));
+        for_each(dnp.begin(), dnp.end(),
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
         // Mark edges in the connected component.
-        for_each(ce.begin(), ce.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1, ElementFlag::MARKED, g0));
+        vector<DynamicEdgeProperty*> dep(edges.size());
+        transform(edges.begin(), edges.end(), dep.begin(),
+                  boost::bind<DynamicEdgeProperty*>(GetDynamicProperty(), _1, g0));
+        for_each(dep.begin(), dep.end(),
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
 
       // --------------------------------------------------------------------------------
@@ -754,18 +767,16 @@ namespace hashimoto_ut {
     ///////////////////////////////////////////////////////////////////////////////
     // Wheel click.
     else if (action==MouseAction::MBUTTON_DOWN) {
-      using namespace sociarium_project_layout;
       initialize_view();
-      if (modifier==MouseModifier::CONTROL) set_layout_frame_size(get_layout_frame_default_size());
+      if (modifier&MouseModifier::CONTROL) set_layout_frame_size(get_layout_frame_default_size());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Wheel rotation.
     else if (action==MouseAction::WHEEL) {
       // zoom in or out.
-      int const delta = modifier;
-      double const mag = 1.0f+(delta>0?delta:-delta)/16.0f;
-      if (delta>0) zoom(mag);
+      double const mag = 1.0f+(modifier>0?modifier:-modifier)/16.0f;
+      if (modifier>0) zoom(mag);
       else zoom(1.0/mag);
     }
 

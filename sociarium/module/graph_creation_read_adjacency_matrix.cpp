@@ -37,12 +37,9 @@
 #include <windows.h>
 #endif
 #include "graph_creation.h"
-#include "../common.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
-#include "../../shared/general.h"
-#include "../../shared/win32api.h"
-#include "../../shared/msgbox.h"
+#include "../../shared/util.h"
 #include "../../graph/graph.h"
 
 #ifdef _MSC_VER
@@ -62,25 +59,24 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using boost::numeric::ublas::mapped_matrix;
 
-  using namespace sociarium_project_common;
+  using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
-  using namespace sociarium_project_language;
 
 #ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
 #else
-  extern "C" void create_graph_time_series(
+  void create_graph_time_series(
 #endif
-      Thread* parent,
+      Thread& parent,
       deque<wstring>& status,
-      Message const* message,
+      Message const& message,
       vector<shared_ptr<Graph> >& graph,
       vector<vector<NodeProperty> >& node_property,
       vector<vector<EdgeProperty> >& edge_property,
       vector<wstring>& layer_name,
-      unordered_map<string, pair<string, int> > const& params,
-      vector<pair<string, int> > const& data,
+      unordered_map<wstring, pair<wstring, int> > const& params,
+      vector<pair<wstring, int> > const& data,
       wstring const& filename) {
 
       assert(graph.empty());
@@ -94,48 +90,36 @@ namespace hashimoto_ut {
       // Read parameters.
 
       bool directed = false;
-      char delimiter = '\0';
+      wchar_t delimiter = L'\0';
       wstring title;
       float threshold = 0.0f;
-      string node_name_line;
+      wstring node_name_line;
 
-      unordered_map<string, pair<string, int> >::const_iterator pos;
+      unordered_map<wstring, pair<wstring, int> >::const_iterator pos;
 
-      if ((pos=params.find("directed"))!=params.end())
+      if ((pos=params.find(L"directed"))!=params.end())
         directed = true;
 
-      if ((pos=params.find("title"))!=params.end() && !pos->second.first.empty())
-        title = mbcs2wcs(pos->second.first.c_str(), pos->second.first.size());
+      if ((pos=params.find(L"title"))!=params.end() && !pos->second.first.empty())
+        title = pos->second.first;
 
-      if ((pos=params.find("delimiter"))!=params.end() && !pos->second.first.empty())
-        delimiter = pos->second.first[0];
-
-      if ((pos=params.find("node_name"))!=params.end())
+      if ((pos=params.find(L"node_name"))!=params.end())
         node_name_line = pos->second.first;
 
-      if ((pos=params.find("threshold"))!=params.end()) {
+      if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
+        delimiter = pos->second.first[0];
+
+      if ((pos=params.find(L"threshold"))!=params.end()) {
         try {
           threshold = boost::lexical_cast<float>(pos->second.first);
         } catch (...) {
-          message_box(
-            get_window_handle(),
-            MessageType::CRITICAL,
-            APPLICATION_TITLE,
-            L"bad data: %s [line=%d]",
-            filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
-      if (delimiter=='\0') {
-        message_box(
-          get_window_handle(),
-          MessageType::CRITICAL,
-          APPLICATION_TITLE,
-          L"%s: %s",
-          message->get(Message::UNCERTAIN_DELIMITER),
-          filename.c_str());
-        return;
-      }
+      if (delimiter==L'\0')
+        throw message.get(Message::UNCERTAIN_DELIMITER)+wstring(L": ")+filename;
 
 
       ////////////////////////////////////////////////////////////////////////////////
@@ -143,34 +127,27 @@ namespace hashimoto_ut {
 
       size_t const nsz = data.size();
       mapped_matrix<float> weight_matrix(nsz, nsz);
-      vector<string> node_name = tokenize(node_name_line, delimiter);
+      vector<wstring> node_name = tokenize(node_name_line, delimiter);
 
       for (size_t i=0; i<nsz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
 
         status[0]
           = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::PARSING_DATA)
+             %message.get(Message::PARSING_DATA)
              %int(100.0*(i+1)/data.size())).str();
 
-        vector<string> tok = tokenize(data[i].first, delimiter);
+        vector<wstring> tok = tokenize(data[i].first, delimiter);
 
-        if (tok.size()!=nsz) {
-          message_box(
-            get_window_handle(),
-            MessageType::CRITICAL,
-            APPLICATION_TITLE,
-            L"%s: %s [line=%d]",
-            message->get(Message::INVALID_NUMBER_OF_ITEMS),
-            filename.c_str(), data[i].second);
-          graph.clear();
-          return;
-        }
+        if (tok.size()!=nsz)
+          throw (boost::wformat(L"%s: line=%d\n%s")
+                 %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                 %data[i].second%filename.c_str()).str();
 
         for (size_t j=0; j<nsz; ++j) {
 
@@ -180,14 +157,8 @@ namespace hashimoto_ut {
             float const w = boost::lexical_cast<float>(tok[j]);
             weight_matrix(j,i) = w;
           } catch (...) {
-            message_box(
-              get_window_handle(),
-              MessageType::CRITICAL,
-              APPLICATION_TITLE,
-              L"bad data: %s [line=%d]",
-              filename.c_str(), data[i].second);
-            graph.clear();
-            return;
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[i].second%filename.c_str()).str();
           }
         }
       }
@@ -203,24 +174,23 @@ namespace hashimoto_ut {
 
       for (size_t i=0; i<nsz; ++i) {
         g->add_node();
-        if (i>=node_name.size()) {
+        if (i>=node_name.size())
           // If the number of node names is less than the number of nodes,
           // the serial number is automatically assigned to the failed nodes.
-          node_name.push_back((boost::format("n%02d")%i).str());
-        }
+          node_name.push_back((boost::wformat(L"n%02d")%i).str());
       }
 
       for (size_t i=0; i<nsz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
 
         status[0]
           = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::MAKING_GRAPH_SNAPSHOT)
+             %message.get(Message::MAKING_GRAPH_SNAPSHOT)
              %int(100.0*(i+1)/data.size())).str();
 
         if (g->is_directed()) {
@@ -271,7 +241,7 @@ namespace hashimoto_ut {
 
         for (size_t i=0; i<nsz; ++i) {
           NodeProperty& np = node_property[0][i];
-          np.identifier = mbcs2wcs(node_name[i].c_str(), node_name[i].size());
+          np.identifier = node_name[i];
           np.name = np.identifier;
           np.weight = node_weight[i];
         }
@@ -280,14 +250,15 @@ namespace hashimoto_ut {
 
         for (size_t i=0; i<esz; ++i) {
           Edge* e = g->edge(i);
-          string const source = node_name[e->source()->index()];
-          string const target = node_name[e->target()->index()];
-          string const identifier
+          wstring const source = node_name[e->source()->index()];
+          wstring const target = node_name[e->target()->index()];
+          wstring const identifier
             = (directed||source<target)?source+delimiter+target:target+delimiter+source;
-          string const name = (directed||source<target)?source+'~'+target:target+'~'+source;
+          wstring const name
+            = (directed||source<target)?source+L'~'+target:target+L'~'+source;
           EdgeProperty& ep = edge_property[0][i];
-          ep.identifier = mbcs2wcs(identifier.c_str(), identifier.size());
-          ep.name = mbcs2wcs(name.c_str(), name.size());
+          ep.identifier = identifier;
+          ep.name = name;
           ep.weight = edge_weight[i];
         }
       }

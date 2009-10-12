@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: cvframe.h
+﻿// texture.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,52 +29,61 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
+//#define SOCIAIRUM_PROJECT_USES_OPENCV
+
+#ifndef INCLUDE_GUARD_SHARED_GL_TEXTURE_H
+#define INCLUDE_GUARD_SHARED_GL_TEXTURE_H
 
 #ifdef _MSC_VER
+#include <memory>
 #include <windows.h>
+#else
+#include <tr1/memory>
 #endif
-#include <boost/thread.hpp>
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
-#include "../shared/thread.h"
-#include "../shared/mutex.h"
+
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+#include <cv.h>
+#endif
 
 namespace hashimoto_ut {
 
-  class GLTexture;
-
-  ////////////////////////////////////////////////////////////////////////////////
-  class CVFrame : public Thread, public Mutex {
+  class Texture {
   public:
-    virtual ~CVFrame() {}
-    virtual void set_camera(void) = 0;
-    virtual void set_movie(char const* movie_filename) = 0;
-    virtual bool set_masking_image(char const* image_filename) = 0;
-    virtual bool set_chroma_key_background_image(char const* image_filename) = 0;
-    virtual GLTexture const* get_texture(void) const = 0;
-  };
+    enum {
+      SUCCEEDED,
+      FILE_NOT_FOUND,
+      FAILED_TO_LOAD_IMAGE,
+      UNSUPPORTED_FILE_FORMAT
+    };
 
-  ////////////////////////////////////////////////////////////////////////////////
-  namespace sociarium_project_cvframe {
+  public:
+    virtual ~Texture() {}
 
-#ifdef __APPLE__
-    std::tr1::shared_ptr<CVFrame> create(void * context);
-#else
-    std::tr1::shared_ptr<CVFrame> create(HDC hdc, HGLRC hrc);
+    virtual int set(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_mipmap(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_subimage(wchar_t const* filename) = 0;
+    virtual int set(GLuint width, GLuint height, GLenum wrap_s, GLenum wrap_t) = 0;
+
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+    virtual int set(IplImage* image, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_mipmap(IplImage* image, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_subimage(IplImage* image) = 0;
 #endif
-    std::tr1::shared_ptr<CVFrame> get_current_frame(void);
-    void invoke(std::tr1::shared_ptr<CVFrame> cvframe);
-    void terminate(void);
-    void join(void);
-    bool joinable(void);
 
-  } // The end of the namespace "sociarium_project_cvframe"
+    virtual GLuint get(void) const = 0;
+    virtual GLsizei width(void) const = 0;
+    virtual GLsizei height(void) const = 0;
+    virtual GLfloat xcoord(void) const = 0;
+    virtual GLfloat ycoord(void) const = 0;
+
+    static std::tr1::shared_ptr<Texture> create(void);
+  };
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_CVFRAME_H
+#endif // INCLUDE_GUARD_SHARED_GL_TEXTURE_H

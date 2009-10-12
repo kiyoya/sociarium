@@ -1,4 +1,4 @@
-﻿// C++ GRAPH LIBRARY: graph/traverser.h
+﻿// C++ GRAPH LIBRARY: util/traverser.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -60,6 +60,8 @@ namespace hashimoto_ut {
   // Common interfaces between each traverser.
   class Traverser {
   public:
+    virtual ~Traverser() {}
+
     virtual void set_graph(std::tr1::shared_ptr<Graph const> g) = 0;
     virtual void set_condition(std::tr1::shared_ptr<ConditionalPass> conditional_pass) = 0;
     virtual void reset(void) = 0;
@@ -68,9 +70,6 @@ namespace hashimoto_ut {
     virtual bool end(void) const = 0;
     virtual std::tr1::shared_ptr<Graph> graph(void) const = 0;
     virtual Node* node(void) const = 0;
-
-  protected:
-    virtual ~Traverser() {}
   };
 
 
@@ -78,6 +77,8 @@ namespace hashimoto_ut {
   // Breadth-first search.
   class BFSTraverser : public Traverser {
   public:
+    virtual ~BFSTraverser() {}
+
     using Traverser::start;
     virtual void start(Node const* n, double distance_offset) = 0;
     virtual double distance(void) const = 0;
@@ -89,15 +90,14 @@ namespace hashimoto_ut {
     template <typename D>
     static std::tr1::shared_ptr<BFSTraverser>
       create(std::tr1::shared_ptr<Graph const> g);
-
-  protected:
-    virtual ~BFSTraverser() {}
   };
 
   ////////////////////////////////////////////////////////////////////////////////
   // Breadth-first search with path recording.
   class BFSRecordingTraverser : public virtual BFSTraverser {
   public:
+    virtual ~BFSRecordingTraverser() {}
+
     virtual std::vector<std::pair<Edge*, Node*> >::const_iterator
       pbegin(void) const = 0;
     virtual std::vector<std::pair<Edge*, Node*> >::const_iterator
@@ -113,9 +113,6 @@ namespace hashimoto_ut {
     template <typename D>
     static std::tr1::shared_ptr<BFSRecordingTraverser>
       create(std::tr1::shared_ptr<Graph const> g);
-
-  protected:
-    virtual ~BFSRecordingTraverser() {}
   };
 
 
@@ -123,6 +120,8 @@ namespace hashimoto_ut {
   // Breadth-first search [Dijkstra's algorithm].
   class DijkstraTraverser : public virtual BFSTraverser {
   public:
+    virtual ~DijkstraTraverser() {}
+
     virtual void set_graph(std::tr1::shared_ptr<Graph const> g,
                            std::vector<double> const& edge_weight) = 0;
 
@@ -133,9 +132,6 @@ namespace hashimoto_ut {
     static std::tr1::shared_ptr<DijkstraTraverser>
       create(std::tr1::shared_ptr<Graph const> g,
              std::vector<double> const& edge_weight);
-
-  protected:
-    virtual ~DijkstraTraverser() {}
   };
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -144,6 +140,8 @@ namespace hashimoto_ut {
     public DijkstraTraverser,
     public BFSRecordingTraverser {
   public:
+    virtual ~DijkstraRecordingTraverser() {}
+
     template <typename D>
     static std::tr1::shared_ptr<DijkstraRecordingTraverser> create(void);
 
@@ -151,9 +149,6 @@ namespace hashimoto_ut {
     static std::tr1::shared_ptr<DijkstraRecordingTraverser>
       create(std::tr1::shared_ptr<Graph const> g,
              std::vector<double> const& edge_weight);
-
-  protected:
-    virtual ~DijkstraRecordingTraverser() {}
   };
 
 
@@ -161,6 +156,8 @@ namespace hashimoto_ut {
   // Depth-first search.
   class DFSTraverser : public Traverser {
   public:
+    virtual ~DFSTraverser() {}
+
     using Traverser::start;
     virtual void start(Node const* n, int order_counter_offset) = 0;
     virtual int order(void) const = 0;
@@ -173,15 +170,14 @@ namespace hashimoto_ut {
     template <typename D>
     static std::tr1::shared_ptr<DFSTraverser>
       create(std::tr1::shared_ptr<Graph const> g);
-
-  protected:
-    virtual ~DFSTraverser() {}
   };
 
   ////////////////////////////////////////////////////////////////////////////////
   // Depth-first search with path recording.
   class DFSRecordingTraverser : public virtual DFSTraverser {
   public:
+    virtual ~DFSRecordingTraverser() {}
+
     virtual std::pair<Edge*, Node*> const& predecessor(void) const = 0;
     virtual std::pair<Edge*, Node*> const& predecessor(Node const* n) const = 0;
 
@@ -191,9 +187,6 @@ namespace hashimoto_ut {
     template <typename D>
     static std::tr1::shared_ptr<DFSRecordingTraverser>
       create(std::tr1::shared_ptr<Graph const> g);
-
-  protected:
-    virtual ~DFSRecordingTraverser() {}
   };
 
 

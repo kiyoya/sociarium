@@ -31,9 +31,6 @@
 
 #include <boost/shared_array.hpp>
 #include "win32api.h"
-#ifndef _MSC_VER
-#include <stdlib.h>
-#endif
 
 namespace hashimoto_ut {
 
@@ -202,7 +199,7 @@ namespace hashimoto_ut {
     return retval;
   }
 
-#endif
+#endif // _MSC_VER
 
   ////////////////////////////////////////////////////////////////////////////////
   wstring mbcs2wcs(char const* cs, size_t length) {
@@ -211,7 +208,7 @@ namespace hashimoto_ut {
     size_t c;
     errno_t err = mbstowcs_s(&c, wcs.get(), length+1, cs, _TRUNCATE);
 #else
-    mbstowcs(wcs.get(), cs, length + 1);
+    mbstowcs(wcs.get(), cs, length+1);
 #endif
     return wstring(wcs.get());
   }
@@ -231,17 +228,14 @@ namespace hashimoto_ut {
   std::wstring CFStringGetWString(CFStringRef cs) {
     CFIndex len = CFStringGetLength(cs);
     CFIndex max = CFStringGetMaximumSizeForEncoding(len, kCFStringEncodingUTF8);
-    char *data = (char *)malloc(sizeof(char) * max + 1);
-    CFStringGetCString(cs, data, max+1, kCFStringEncodingUTF8);
-    wstring str = mbcs2wcs(data, strlen(data));
-    free(data);
-    return str;
+    shared_array<char> wcs(new char[max+1]);
+    CFStringGetCString(cs, wcs.get(), max+1, kCFStringEncodingUTF8);
+    return mbcs2wcs(wcs.get(), strlen(wcs.get()));
   }
   
-  CFStringRef CFStringCreateWithWString(CFAllocatorRef alloc, wchar_t const* cs, CFStringEncoding encoding)
-  {
+  CFStringRef CFStringCreateWithWString(CFAllocatorRef alloc, wchar_t const* cs, CFStringEncoding encoding) {
     return CFStringCreateWithCString(alloc, wcs2mbcs(cs, wcslen(cs)).c_str(), encoding);
   }
 #endif
-  
+
 } // The end of the namespace "hashimoto_ut"

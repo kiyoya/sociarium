@@ -30,22 +30,24 @@
  */
 
 #include <cassert>
-#include <memory>
 #ifdef _MSC_VER
+#include <memory>
 #include <unordered_map>
 #else
+#include <tr1/memory>
 #include <tr1/unordered_map>
 #endif
+#include <boost/format.hpp>
 #ifdef __APPLE__
 #include <GL/glew.h>
 #else
 #include <gl/glew.h>
 #endif
-#include "texture.h"
 #include "common.h"
-#include "language.h"
+#include "menu_and_message.h"
+#include "texture.h"
 #include "../shared/msgbox.h"
-#include "../shared/gl/gltexture.h"
+#include "../shared/gl/texture.h"
 
 #define SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
 
@@ -58,7 +60,7 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace {
 
@@ -70,22 +72,18 @@ namespace hashimoto_ut {
     GLint wrap_t = GL_CLAMP_TO_EDGE_EXT;
 
     ////////////////////////////////////////////////////////////////////////////////
-    shared_ptr<GLTexture> default_node_texture;
-    shared_ptr<GLTexture> default_edge_texture;
-    shared_ptr<GLTexture> default_community_texture;
-    shared_ptr<GLTexture> default_community_edge_texture;
+    shared_ptr<Texture> default_node_texture;
+    shared_ptr<Texture> default_edge_texture;
+    shared_ptr<Texture> default_community_texture;
+    shared_ptr<Texture> default_community_edge_texture;
 
-    shared_ptr<GLTexture> default_node_texture_tmp;
-    shared_ptr<GLTexture> default_edge_texture_tmp;
-    shared_ptr<GLTexture> default_community_texture_tmp;
-    shared_ptr<GLTexture> default_community_edge_texture_tmp;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    shared_ptr<GLTexture> slider_texture;
-    shared_ptr<GLTexture> thread_indicator_texture;
+    shared_ptr<Texture> default_node_texture_tmp;
+    shared_ptr<Texture> default_edge_texture_tmp;
+    shared_ptr<Texture> default_community_texture_tmp;
+    shared_ptr<Texture> default_community_edge_texture_tmp;
 
     ////////////////////////////////////////////////////////////////////////////////
-    typedef unordered_map<wstring, shared_ptr<GLTexture> > TextureMap;
+    typedef unordered_map<wstring, shared_ptr<Texture> > TextureMap;
     TextureMap identification_name2texture;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +93,7 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     void set_texture_dispatch(
-      shared_ptr<GLTexture> texture,
+      shared_ptr<Texture> texture,
       wstring const& filename,
       GLenum wrap_s, GLenum wrap_t) {
 
@@ -103,26 +101,17 @@ namespace hashimoto_ut {
       wstring const full_path = get_full_path_of_texture_folder()+filename;
 
 #ifdef SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
-      int const err = texture->create_mipmap(full_path.c_str(), wrap_s, wrap_t);
+      int const err = texture->set_mipmap(full_path.c_str(), wrap_s, wrap_t);
 #else
-      int const err = texture->create(full_path.c_str(), wrap_s, wrap_t);
+      int const err = texture->set(full_path.c_str(), wrap_s, wrap_t);
 #endif
 
-      // [TODO]
-      /*
-      if (err!=GLTexture::SUCCEEDED)
-        message_box(
-          get_window_handle(),
-          MessageType::CRITICAL,
-          APPLICATION_TITLE,
-          L"%s: %s (%d)",
-          get_message(Message::FAILED_TO_CREATE_TEXTURE),
-          full_path.c_str(), err);
-       */
+      if (err!=Texture::SUCCEEDED)
+        texture.reset();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* set_texture_dispatch(
+    Texture const* set_texture_dispatch(
       wstring const& filename,
       GLenum wrap_s, GLenum wrap_t) {
 
@@ -131,15 +120,15 @@ namespace hashimoto_ut {
 
       if (i==identification_name2texture.end()) {
         wstring const full_path = get_full_path_of_texture_folder()+filename;
-        shared_ptr<GLTexture> texture = GLTexture::create();
+        shared_ptr<Texture> texture = Texture::create();
 
 #ifdef SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
-        int const err = texture->create_mipmap(full_path.c_str(), wrap_s, wrap_t);
+        int const err = texture->set_mipmap(full_path.c_str(), wrap_s, wrap_t);
 #else
-        int const err = texture->create(full_path.c_str(), wrap_s, wrap_t);
+        int const err = texture->set(full_path.c_str(), wrap_s, wrap_t);
 #endif
 
-        if (err!=GLTexture::SUCCEEDED)
+        if (err!=Texture::SUCCEEDED)
           return 0;
 
         pair<TextureMap::iterator, bool> pp
@@ -193,13 +182,13 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_texture_by_name(wstring const& name) {
-      GLTexture const* texture = set_texture_dispatch(name+L".png", wrap_s, wrap_t);
+    Texture const* get_texture_by_name(wstring const& name) {
+      Texture const* texture = set_texture_dispatch(name+L".png", wrap_s, wrap_t);
       if (texture) return texture;
       return set_texture_dispatch(name+L".jpg", wrap_s, wrap_t);
     }
 
-    GLTexture const* get_texture(wstring const& filename) {
+    Texture const* get_texture(wstring const& filename) {
       return set_texture_dispatch(filename, wrap_s, wrap_t);
     }
 
@@ -214,114 +203,92 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_node_texture(void) {
+    Texture const* get_default_node_texture(void) {
       assert(default_node_texture!=0);
       return default_node_texture.get();
     }
 
-    GLTexture const* get_default_node_texture_tmp(void) {
+    Texture const* get_default_node_texture_tmp(void) {
       assert(default_node_texture_tmp!=0);
       return default_node_texture_tmp.get();
     }
 
     void set_default_node_texture(wstring const& filename) {
-      default_node_texture = GLTexture::create();
+      default_node_texture = Texture::create();
       set_texture_dispatch(default_node_texture, filename, wrap_s, wrap_t);
     }
 
     void set_default_node_texture_tmp(wstring const& filename) {
-      default_node_texture_tmp = GLTexture::create();
+      default_node_texture_tmp = Texture::create();
       set_texture_dispatch(default_node_texture_tmp, filename, wrap_s, wrap_t);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_edge_texture(void) {
+    Texture const* get_default_edge_texture(void) {
       assert(default_edge_texture!=0);
       return default_edge_texture.get();
     }
 
-    GLTexture const* get_default_edge_texture_tmp(void) {
+    Texture const* get_default_edge_texture_tmp(void) {
       assert(default_edge_texture_tmp!=0);
       return default_edge_texture_tmp.get();
     }
 
     void set_default_edge_texture(wstring const& filename) {
-      default_edge_texture = GLTexture::create();
+      default_edge_texture = Texture::create();
       set_texture_dispatch(default_edge_texture, filename, wrap_s, wrap_t);
     }
 
     void set_default_edge_texture_tmp(wstring const& filename) {
-      default_edge_texture_tmp = GLTexture::create();
+      default_edge_texture_tmp = Texture::create();
       set_texture_dispatch(default_edge_texture_tmp, filename, wrap_s, wrap_t);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_community_texture(void) {
+    Texture const* get_default_community_texture(void) {
       assert(default_community_texture!=0);
       return default_community_texture.get();
     }
 
-    GLTexture const* get_default_community_texture_tmp(void) {
+    Texture const* get_default_community_texture_tmp(void) {
       assert(default_community_texture_tmp!=0);
       return default_community_texture_tmp.get();
     }
 
     void set_default_community_texture(wstring const& filename) {
-      default_community_texture = GLTexture::create();
+      default_community_texture = Texture::create();
       set_texture_dispatch(default_community_texture, filename, wrap_s, wrap_t);
     }
 
     void set_default_community_texture_tmp(wstring const& filename) {
-      default_community_texture_tmp = GLTexture::create();
+      default_community_texture_tmp = Texture::create();
       set_texture_dispatch(default_community_texture_tmp, filename, wrap_s, wrap_t);
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_default_community_edge_texture(void) {
+    Texture const* get_default_community_edge_texture(void) {
       assert(default_community_edge_texture!=0);
       return default_community_edge_texture.get();
     }
 
-    GLTexture const* get_default_community_edge_texture_tmp(void) {
+    Texture const* get_default_community_edge_texture_tmp(void) {
       assert(default_community_edge_texture_tmp!=0);
       return default_community_edge_texture_tmp.get();
     }
 
     void set_default_community_edge_texture(wstring const& filename) {
-      default_community_edge_texture = GLTexture::create();
+      default_community_edge_texture = Texture::create();
       set_texture_dispatch(
         default_community_edge_texture, filename, wrap_s, wrap_t);
     }
 
     void set_default_community_edge_texture_tmp(wstring const& filename) {
-      default_community_edge_texture_tmp = GLTexture::create();
+      default_community_edge_texture_tmp = Texture::create();
       set_texture_dispatch(
         default_community_edge_texture_tmp, filename, wrap_s, wrap_t);
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_slider_texture(void) {
-      return slider_texture.get();
-    }
-
-    void set_slider_texture(wstring const& filename) {
-      slider_texture = GLTexture::create();
-      set_texture_dispatch(slider_texture, filename, GL_REPEAT, GL_REPEAT);
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    GLTexture const* get_thread_indicator_texture(void) {
-      return thread_indicator_texture.get();
-    }
-
-    void set_thread_indicator_texture(wstring const& filename) {
-      thread_indicator_texture = GLTexture::create();
-      set_texture_dispatch(thread_indicator_texture, filename, wrap_s, wrap_t);
     }
 
   } // The end of the namespace "sociarium_project_texture"

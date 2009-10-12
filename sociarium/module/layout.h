@@ -56,11 +56,12 @@ namespace hashimoto_ut {
     typedef __declspec(dllimport)
       void (__cdecl* FuncLayout)(
 #else
-    typedef void (* FuncLayout)(
+    typedef void (*FuncLayout)(
 #endif
-        Thread* parent,
-        std::deque<std::wstring>& status,
-        Message const* message,
+
+        Thread& parent,
+        std::wstring& status,
+        Message const& message,
         std::vector<Vector2<double> >& position,
         std::tr1::shared_ptr<Graph const> graph,
         std::vector<double> const& hint);

@@ -30,10 +30,11 @@
  */
 
 #include <string>
-#include <memory>
 #ifdef _MSC_VER
+#include <memory>
 #include <unordered_map>
 #else
+#include <tr1/memory>
 #include <tr1/unordered_map>
 #endif
 #include "sociarium_graph.h"

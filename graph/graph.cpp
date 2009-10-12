@@ -56,6 +56,7 @@ namespace hashimoto_ut {
     class NodeImpl : public Node {
     public:
       NodeImpl(size_t index) : index_(index), idegree_(0) {}
+
       ~NodeImpl() {}
 
       size_t index(void) const {

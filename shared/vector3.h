@@ -50,7 +50,7 @@ namespace hashimoto_ut {
       T data[3];
     };
 
-    // コンストラクタ
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3(void) : x(T(0)), y(T(0)), z(T(0)) {}
 
     template <typename U> Vector3(U const* p)
@@ -62,10 +62,10 @@ namespace hashimoto_ut {
     template <typename U> Vector3(U vx, U vy, U vz)
          : x(T(vx)), y(T(vy)), z(T(vz)) {}
 
-    // デストラクタ
+    ////////////////////////////////////////////////////////////////////////////////
     ~Vector3() {}
 
-    // 配列風参照
+    ////////////////////////////////////////////////////////////////////////////////
     T& operator[](size_t index) {
       assert(index<3);
       return data[index];
@@ -76,7 +76,7 @@ namespace hashimoto_ut {
       return data[index];
     }
 
-    // 符号
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3 operator+(void) const {
       return *this;
     }
@@ -85,7 +85,7 @@ namespace hashimoto_ut {
       return Vector3(-x, -y, -z);
     }
 
-    // 代入
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3& operator=(Vector3<T> const& v) {
       if (this!=&v) x=v.x, y=v.y, z=v.z;
       return *this;
@@ -119,7 +119,7 @@ namespace hashimoto_ut {
       return *this;
     }
 
-    // 初期化
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3& set(T vx, T vy, T vz) {
       x = vx;
       y = vy;
@@ -134,7 +134,7 @@ namespace hashimoto_ut {
       return *this;
     }
 
-    // ベクトル同士の和差
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3 operator+(Vector3 const& v) const {
       return Vector3(x+v.x, y+v.y, z+v.z);
     }
@@ -143,7 +143,7 @@ namespace hashimoto_ut {
       return Vector3(x-v.x, y-v.y, z-v.z);
     }
 
-    // 固有演算
+    ////////////////////////////////////////////////////////////////////////////////
     T operator*(Vector3 const& v) const {
       return x*v.x+y*v.y+z*v.z;
     }
@@ -152,7 +152,7 @@ namespace hashimoto_ut {
       return Vector3(y*v.z-z*v.y, z*v.x-x*v.z, x*v.y-y*v.x);
     }
 
-    // 論理演算
+    ////////////////////////////////////////////////////////////////////////////////
     bool operator==(Vector3 const& v) const {
       return (x==v.x)&&(y==v.y)&&(z==v.z);
     }
@@ -177,7 +177,7 @@ namespace hashimoto_ut {
       return norm2()>=v.norm2();
     }
 
-    // キャスト演算
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3<double> dcast(void) const {
       return Vector3<double>(double(x), double(y), double(z));
     }
@@ -194,7 +194,7 @@ namespace hashimoto_ut {
       return Vector3<int>(int(x), int(y), int(z));
     }
 
-    // 暗黙のキャスト
+    ////////////////////////////////////////////////////////////////////////////////
     operator Vector3<double>(void) const {
       return Vector3<double>(double(x), double(y), double(z));
     }
@@ -211,7 +211,7 @@ namespace hashimoto_ut {
       return Vector3<int>(int(x), int(y), int(z));
     }
 
-    // ノルム演算
+    ////////////////////////////////////////////////////////////////////////////////
     double norm(void) const {
       return sqrt(norm2());
     }
@@ -220,16 +220,17 @@ namespace hashimoto_ut {
       return x*x+y*y+z*z;
     }
 
-    // 正規化
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3<double> normalized_vector(void) const {
       double n = norm();
       if (n>0.0) return Vector3<double>(x/n, y/n, z/n);
       return Vector3<double>(0.0);
     }
 
-    // 回転
+    ////////////////////////////////////////////////////////////////////////////////
     Vector3<double> rot(double radian, Vector3<double> const& axis) const;
 
+    ////////////////////////////////////////////////////////////////////////////////
     void dump(void) const {
       std::cout << "(x, y, z) = (" << x << ", " << y << ", " << z << ")" << std::endl;
     }
@@ -281,7 +282,9 @@ namespace hashimoto_ut {
   // Vector rotation in 3-dimension
   template <typename T>
   Vector3<double> Vector3<T>::rot(double radian, Vector3<double > const& axis) const {
-    return (rotation_quaternion(-radian, axis)*Quaternion(0.0, *this)*rotation_quaternion(radian, axis)).v_;
+    return (rotation_quaternion(-radian, axis)
+            *Quaternion(0.0, *this)
+            *rotation_quaternion(radian, axis)).v_;
   }
 
 } // The end of the namespace "hashimoto_ut"

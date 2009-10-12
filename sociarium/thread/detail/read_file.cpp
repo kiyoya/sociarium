@@ -38,12 +38,12 @@
 #endif
 #include "read_file.h"
 #include "../../common.h"
-#include "../../language.h"
+#include "../../menu_and_message.h"
 #include "../../thread.h"
 #include "../../module/graph_creation.h"
-#include "../../../shared/general.h"
-#include "../../../shared/thread.h"
 #include "../../../shared/msgbox.h"
+#include "../../../shared/thread.h"
+#include "../../../shared/util.h"
 #include "../../../shared/win32api.h"
 
 namespace hashimoto_ut {
@@ -55,19 +55,19 @@ namespace hashimoto_ut {
   using std::getline;
   using std::pair;
   using std::make_pair;
-  using std::stringstream;
+  using std::wstringstream;
   using std::tr1::unordered_map;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_thread_detail_read_file {
 
     namespace {
 
       ////////////////////////////////////////////////////////////////////////////////
-      char const param_symbol = '@';
-      char const comment_out_symbol = '#';
+      wchar_t const param_symbol = L'@';
+      wchar_t const comment_out_symbol = L'#';
 
       /*
        * In this case, the following sentence
@@ -83,132 +83,129 @@ namespace hashimoto_ut {
 
       ////////////////////////////////////////////////////////////////////////////////
 #ifdef _MSC_VER
-      bool convert2sjis(char const* filename, stringstream& ss, wstring& status) {
+      void convert2utf16(wchar_t const* filename, wstringstream& ss, wstring& status) {
 
         CoInitialize(NULL);
 
-        wstring const filename_w = mbcs2wcs(filename, strlen(filename));
-        HANDLE hfile = CreateFile(
-          filename_w.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
-          OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        DWORD fsize = GetFileSize(hfile, NULL);
+        HANDLE hfile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL,
+                                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-        if (fsize<1) {
+        DWORD byte = GetFileSize(hfile, NULL);
+
+        if (byte==0) {
           CoUninitialize();
-          return false;
+          throw 0;
         }
-
-        HGLOBAL hsrc = GlobalAlloc(GMEM_MOVEABLE, fsize+1);
-        char* buf = (char*)GlobalLock(hsrc);
-        ReadFile(hfile, buf, fsize, &fsize, NULL);
-        buf[fsize-1] = '\0';
-        GlobalUnlock(hsrc);
-        CloseHandle(hfile);
-
-        string text = buf;
 
         IMultiLanguage2* ml;
 
         if (FAILED(CoCreateInstance(
           CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER,
           IID_IMultiLanguage2, (void**)&ml))) {
-          show_last_error(L"convert2sjis");
           CoUninitialize();
-          return false;
+          throw L"Failed to create an IMultiLanguage2 object";
         }
+
+        HGLOBAL hsrc = GlobalAlloc(GMEM_MOVEABLE, byte);
+
+        char* buf = (char*)GlobalLock(hsrc);
+        ReadFile(hfile, buf, byte, &byte, NULL);
+        GlobalUnlock(hsrc);
+        CloseHandle(hfile);
 
         // Generate an IStream object for reading.
         IStream* is_src;
         CreateStreamOnHGlobal(hsrc, true, &is_src);
+
         // Judge character encoding.
         status = get_message(Message::CHECKING_TEXT_ENCODING);
+
         int encsize = 1;
         DetectEncodingInfo encoding;
 
         if (FAILED(ml->DetectCodepageInIStream(
           MLDETECTCP_HTML, 0, is_src, &encoding, &encsize))) {
-          message_box(
-            get_window_handle(),
-            MessageType::CRITICAL,
-            APPLICATION_TITLE,
-            L"%s [%s]",
-            get_message(Message::UNKNOWN_CHARACTER_ENCODING),
-            filename_w.c_str());
           is_src->Release();
           CoUninitialize();
-          return false;
+          throw (boost::wformat(L"%s [%s]")
+                 %get_message(Message::UNKNOWN_CHARACTER_ENCODING)
+                 %filename).str().c_str();
         }
 
         LARGE_INTEGER pos = { 0 };
-        is_src->Seek(pos, STREAM_SEEK_SET, NULL);
+        wchar_t const null_char = L'\0';
 
-        bool cnv = encoding.nCodePage!=932 // not Shift_JIS
-          && encoding.nCodePage!=20127;    // not ASCII
+        if (encoding.nCodePage==1200) { // is UTF-16
+          // Read as it is.
+          is_src->Seek(pos, STREAM_SEEK_END, NULL);
+          is_src->Write(&null_char, sizeof(wchar_t), NULL);
+          ss << (wchar_t*)GlobalLock(hsrc);
 
-        if (cnv) {
-          // Convert @text into Shift_JIS encoding.
-          status = get_message(Message::CONVERTING_INTO_SJIS_ENCODING);
+        } else {
+          // Convert into UTF-16 encoding.
+          status = get_message(Message::CONVERTING_INTO_UTF16_ENCODING);
+          is_src->Seek(pos, STREAM_SEEK_SET, NULL);
           HGLOBAL hdst = GlobalAlloc(GMEM_MOVEABLE, 0);
           IStream* is_dst;
           CreateStreamOnHGlobal(hdst, true, &is_dst);
           DWORD mode = 0;
-          UINT const destCodePage = 932;
+          UINT const destCodePage = 1200;
           ml->ConvertStringInIStream(
             &mode, 0, NULL, encoding.nCodePage, destCodePage, is_src, is_dst);
-          char const null_char = '\0';
-          is_dst->Write(&null_char, sizeof(char), NULL);
-
-          text = (char*)GlobalLock(hdst);
-
+          is_dst->Write(&null_char, sizeof(wchar_t), NULL);
+          ss << (wchar_t*)GlobalLock(hdst);
           GlobalUnlock(hdst);
           is_dst->Release();
         }
 
-        ss << text;
         is_src->Release();
         CoUninitialize();
-        return true;
       }
 #endif
-      
+
     } // The end of the anonymous namespace
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // Remove the right part of @comment_out_symbol in a line.
-    void remove_comment_part(string& text) {
+    void remove_comment_part(wstring& text) {
       if (text.empty()) return;
       text = text.substr(0, text.find(comment_out_symbol));
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool read_file(Thread* parent, char const* filename,
-                   unordered_map<string, pair<string, int> >& params,
-                   vector<pair<string, int> >& data) {
+    void read_file(Thread* parent, wchar_t const* filename,
+                   unordered_map<wstring, pair<wstring, int> >& params,
+                   vector<pair<wstring, int> >& data) {
 
       using namespace sociarium_project_thread;
       deque<wstring>& status = get_status(GRAPH_CREATION);
 
-      int const num = number_of_lines(filename);
-      if (num<1) return false;
+      wstringstream ss;
 
-      stringstream ss;
-
-      // [TODO]
-#ifdef _MSC_VER
-      if (!convert2sjis(filename, ss, status[0]))
-        return false;
+#ifdef __APPLE__
+#warning Not implemented
+#elif _MSC_VER
+      convert2utf16(filename, ss, status[0]);
+#else
+#error Not implemented
 #endif
       
-      string line;
+      wstring line;
+
+      int num = 0;
+      while (getline(ss, line)) ++num;
+
+      ss.clear(wstringstream::goodbit);
+      ss.seekg(std::ios_base::beg);
 
       for (int i=1; getline(ss, line); ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent && parent->cancel_check()) {
           deque<wstring>(status.size()).swap(status);
-          return false;
+          throw 0;
         }
 
         status[0]
@@ -220,13 +217,15 @@ namespace hashimoto_ut {
         trim(line);
 
         if (!line.empty()) {
+          if (i==1 && line[0]==0xFEFF || line[0]==0xFFFE)
+            line = line.substr(1); // omit BOM.
           if (line[0]==param_symbol) {
-            size_t pos = line.find('=');
-            if (pos==string::npos) {
+            size_t pos = line.find(L'=');
+            if (pos==wstring::npos) {
               trim(line=line.substr(1));
-              params.insert(make_pair(line, make_pair("", i)));
+              params.insert(make_pair(line, make_pair(L"", i)));
             } else {
-              string value = line.substr(pos+1);
+              wstring value = line.substr(pos+1);
               line = line.substr(1, pos-1);
               trim(line); // key
               trim(value);
@@ -239,8 +238,6 @@ namespace hashimoto_ut {
       }
 
       deque<wstring>(status.size()).swap(status);
-
-      return true;
     }
 
   } // The end of the namespace "sociarium_project_thread_detail_read_file"

@@ -41,11 +41,14 @@
 
 namespace hashimoto_ut {
 
+  class World;
+
   ////////////////////////////////////////////////////////////////////////////////
   class CommunityDetectionThread : public Thread {
   public:
     virtual ~CommunityDetectionThread() {}
-    static std::tr1::shared_ptr<CommunityDetectionThread> create(void);
+    static std::tr1::shared_ptr<CommunityDetectionThread>
+      create(World const* world);
   };
 
 } // The end of the namespace "hashimoto_ut"

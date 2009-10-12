@@ -48,9 +48,9 @@
 
 #include "layout.h"
 #include "../graph_utility.h"
-#include "../language.h"
-#include "../../shared/thread.h"
+#include "../menu_and_message.h"
 #include "../../shared/mtrand.h"
+#include "../../shared/thread.h"
 #include "../../graph/util/traverser.h"
 
 #ifdef NDEBUG
@@ -81,7 +81,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_layout;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace ublas = boost::numeric::ublas;
   namespace lapack = boost::numeric::bindings::lapack;
@@ -89,9 +89,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl layout(
 
-      Thread* parent,
-      deque<wstring>& status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<Vector2<double> >& position,
       shared_ptr<Graph const> graph,
       vector<double> const& hint) {
@@ -104,9 +104,8 @@ namespace hashimoto_ut {
       if (nsz<4) return;
       if (esz==0) return;
 
-      status[0]
-        = (boost::wformat(L"%s")
-           %message->get(Message::HDE)).str();
+      status = (boost::wformat(L"%s")
+                %message.get(Message::HDE)).str();
 
       size_t const number_of_centers_ = 50>nsz?nsz:50;
 
@@ -134,12 +133,11 @@ namespace hashimoto_ut {
       for (size_t i=0; i<number_of_centers_; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) return;
+        if (parent.cancel_check()) return;
 
-        status[1]
-          = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::HDE_CALCULATING_GRAPH_DISTANCE)
-             %int(100.0*(i+1)/number_of_centers_)).str();
+        status = (boost::wformat(L"%s: %d%%")
+                  %message.get(Message::HDE_CALCULATING_GRAPH_DISTANCE)
+                  %int(100.0*(i+1)/number_of_centers_)).str();
 
         shared_ptr<BFSTraverser> t = BFSTraverser::create<bidirectional_tag>(graph);
 
@@ -165,20 +163,18 @@ namespace hashimoto_ut {
       for (size_t i=0; i<number_of_centers_; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) return;
+        if (parent.cancel_check()) return;
 
-        status[1]
-          = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::HDE_CALCULATING_MATRIX)
-             %int(100.0*(i+1)/number_of_centers_)).str();
+        status = (boost::wformat(L"%s: %d%%")
+                  %message.get(Message::HDE_CALCULATING_MATRIX)
+                  %int(100.0*(i+1)/number_of_centers_)).str();
 
         for (size_t j=0; j<number_of_centers_; ++j)
           m(i, j) /= nsz;
       }
 
-      status[1]
-        = (boost::wformat(L"%s")
-           %message->get(Message::HDE_CALCULATING_PRINCIPAL_COMPONENTS)).str();
+      status = (boost::wformat(L"%s")
+                %message.get(Message::HDE_CALCULATING_PRINCIPAL_COMPONENTS)).str();
 
       // Calculate eigen values and eigen vectors of variance-covariance matrix.
       ublas::matrix<complex<double>, ublas::column_major>
@@ -217,12 +213,11 @@ namespace hashimoto_ut {
       for (size_t i=0; i<nsz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) return;
+        if (parent.cancel_check()) return;
 
-        status[1]
-          = (boost::wformat(L"%s: %d%%")
-             %message->get(Message::HDE_CALCULATING_POSITION)
-             %int(100.0*(i+1)/nsz)).str();
+        status  = (boost::wformat(L"%s: %d%%")
+                   %message.get(Message::HDE_CALCULATING_POSITION)
+                   %int(100.0*(i+1)/nsz)).str();
 
         position[i].x = 0.0;
         position[i].y = 0.0;

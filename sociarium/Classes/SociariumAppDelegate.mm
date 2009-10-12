@@ -8,7 +8,7 @@
 
 #import "SociariumAppDelegate.h"
 #import "common.h"
-#import "language.h"
+#import "menu_and_message.h"
 #import "win32api.h"
 
 using namespace hashimoto_ut;
@@ -22,7 +22,19 @@ using namespace hashimoto_ut;
   sociarium_project_common::set_module_path(CFStringGetWString(CFURLGetString(resourceURL)));
   CFRelease(resourceURL);
   
-  sociarium_project_language::initialize(L"LanguageEn.plugin");
+#warning Not implemented
+  
+  try {
+    sociarium_project_menu_and_message::set_message(L"LanguageEn.plugin");
+  } catch (wchar_t const* errmsg) {
+    exit(1);
+  }
+  
+  try {
+    sociarium_project_menu_and_message::set_menu(NULL, L"LanguageEn.plugin");
+  } catch (wchar_t const* errmsg) {
+    exit(1);
+  }
 }
 
 @end

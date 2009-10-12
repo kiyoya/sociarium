@@ -35,85 +35,112 @@
 #ifdef __APPLE__
 #include <GL/glew.h>
 #else
-#ifdef _MSC_VER
-#include <GL/wglew.h>
-#endif
 #include <gl/glew.h>
+#endif
+#ifdef _MSC_VER
 #include <gl/wglew.h>
 #endif
 #include <FTGL/ftgl.h>
-#include "world_impl.h"
-#include "cvframe.h"
-#include "glew.h"
 #include "common.h"
-#include "language.h"
-#include "texture.h"
+#include "community_transition_diagram.h"
 #include "font.h"
-#include "view.h"
+#include "fps_manager.h"
+#include "glew.h"
+#include "menu_and_message.h"
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
-#include "community_transition_diagram.h"
+#include "texture.h"
 #include "thread.h"
-#include "fps_manager.h"
+#include "view.h"
+#include "world_impl.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
 #include "../shared/gl/glview.h"
-#include "../shared/gl/gltexture.h"
+#include "../shared/gl/texture.h"
+
+// #include "cvframe.h"
+// #include "designtide.h"
+//#include "tamabi_library.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib, "glew32.lib")
 #endif
-
-#include "designtide.h"
 
 namespace hashimoto_ut {
 
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_common;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
 
   ////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
-  World * World::create(CGLContextObj context) {
-		return new WorldImpl(context);
+  World* World::create(void* window, CGLContextObj context) {
+    return new WorldImpl(window, context);
   }
-	
-	void World::destroy(World * world) {
-		if (world) delete world;
-	}
+  
+  void World::destroy(World* world) {
+    delete world;
+  }
+#elif _MSC_VER
+  shared_ptr<World> World::create(HWND hwnd) {
+    return shared_ptr<World>(new WorldImpl(hwnd));
+  }
 #else
-  shared_ptr<World> World::create(void) {
-    return shared_ptr<World>(new WorldImpl());
-  }
+#error Not implemented
 #endif
 
 
   ////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
-  WorldImpl::WorldImpl(CGLContextObj context) {
+  WorldImpl::WorldImpl(void* hwnd, CGLContextObj context) : hwnd_(hwnd) {
+#elif _MSC_VER
+  WorldImpl::WorldImpl(HWND hwnd) : hwnd_(hwnd) {
 #else
-  WorldImpl::WorldImpl(void) {
+#error Not implemented
 #endif
-    
+
     // --------------------------------------------------------------------------------
     // Initialize the OpenGL environment.
 
+    if (hwnd_==NULL) {
+      show_last_error(NULL, L"Error in initialization: hwnd");
+      exit(1);
+    }
+
 #ifdef __APPLE__
-    set_rendering_context(RenderingContext::DRAW, context);
+    if (context==NULL) {
+      show_last_error(hwnd_, L"Error in initialization: context");
+      exit(1);
+    }
 #elif _MSC_VER
-    bool const glew_is_available
-      = sociarium_project_glew::initialize();
+    if ((dc_=GetDC(hwnd_))==NULL) {
+      show_last_error(hwnd_, L"Error in initialization: dc");
+      exit(1);
+    }
+#else
+#error Not implemented
+#endif
 
-    HDC dc = get_device_context();
+    bool glew_is_available = true;
 
+    try {
+      sociarium_project_glew::initialize();
+    } catch (wchar_t const* errmsg) {
+      show_last_error(hwnd_, errmsg);
+      glew_is_available = false;
+    }
+
+#ifdef __APPLE__
+#warning Not implemented
+#elif _MSC_VER
     PIXELFORMATDESCRIPTOR pfd = {
       sizeof(PIXELFORMATDESCRIPTOR),
       1,
       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
       PFD_TYPE_RGBA,
-      GetDeviceCaps(dc, BITSPIXEL),
+      GetDeviceCaps(dc_, BITSPIXEL),
       0, 0, 0, 0, 0, 0,
       1,
       0,
@@ -150,57 +177,42 @@ namespace hashimoto_ut {
         };
 
       // Try to use Multi-Sampling Anti-Aliasing (x8).
-      msaa_is_available = wglChoosePixelFormatARB(
-        dc, iattr, fattr, 1, &pf, &number_of_formats);
+      msaa_is_available
+        = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
       if (msaa_is_available && number_of_formats>0) {
-        message_box(
-          get_window_handle(),
-          MessageType::INFO,
-          APPLICATION_TITLE,
-          get_message(Message::GLEW_MSAA_8));
+        message_box(hwnd_, mb_info, APPLICATION_TITLE,
+                    get_message(Message::GLEW_MSAA_8));
       } else {
         // Try to use Multi-Sampling Anti-Aliasing (x4).
         iattr[19] = 4;
 
-        msaa_is_available = wglChoosePixelFormatARB(
-          dc, iattr, fattr, 1, &pf, &number_of_formats);
+        msaa_is_available
+          = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
         if (msaa_is_available && number_of_formats>0) {
-          message_box(
-            get_window_handle(),
-            MessageType::INFO,
-            APPLICATION_TITLE,
-            get_message(Message::GLEW_MSAA_4));
+          message_box(hwnd_, mb_info, APPLICATION_TITLE,
+                      get_message(Message::GLEW_MSAA_4));
         } else {
           // Try to use Multi-Sampling Anti-Aliasing (x2).
           iattr[19] = 2;
 
-          msaa_is_available = wglChoosePixelFormatARB(
-            dc, iattr, fattr, 1, &pf, &number_of_formats);
+          msaa_is_available
+            = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
           if (msaa_is_available && number_of_formats>0) {
-            message_box(
-              get_window_handle(),
-              MessageType::INFO,
-              APPLICATION_TITLE,
-              get_message(Message::GLEW_MSAA_2));
+            message_box(hwnd_, mb_info, APPLICATION_TITLE,
+                        get_message(Message::GLEW_MSAA_2));
           } else {
-            message_box(
-              get_window_handle(),
-              MessageType::INFO,
-              APPLICATION_TITLE,
-              get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
+            message_box(hwnd_, mb_info, APPLICATION_TITLE,
+                        get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
             msaa_is_available = FALSE;
           }
         }
       }
     } else {
-      message_box(
-        get_window_handle(),
-        MessageType::CRITICAL,
-        APPLICATION_TITLE,
-        get_message(Message::GLEW_FAILED_TO_INITIALIZE));
+      message_box(hwnd_, mb_error, APPLICATION_TITLE,
+                  get_message(Message::GLEW_FAILED_TO_INITIALIZE));
     }
 
     /*
@@ -209,66 +221,66 @@ namespace hashimoto_ut {
      */
 
     if (msaa_is_available==FALSE) {
-      if ((pf=ChoosePixelFormat(dc, &pfd))==0) {
-        show_last_error(L"WorldImpl::World/ChoosePixelFormat");
+      if ((pf=ChoosePixelFormat(dc_, &pfd))==0) {
+        show_last_error(hwnd_, L"WorldImpl::World/ChoosePixelFormat");
         exit(1);
       }
     }
 
-    if (SetPixelFormat(dc, pf, &pfd)==FALSE) {
-      show_last_error(L"WorldImpl::World/SetPixelFormat");
+    if (SetPixelFormat(dc_, pf, &pfd)==FALSE) {
+      show_last_error(hwnd_, L"WorldImpl::World/SetPixelFormat");
       exit(1);
     }
-    
-    // Create a rendering context for drawing.
-    HGLRC rc_draw = wglCreateContext(dc);
-
-    if (rc_draw==NULL) {
-      show_last_error(L"WorldImpl::World/wglCreateContext (drawing)");
-      exit(1);
-    }
-
-    set_rendering_context(
-      RenderingContext::DRAW, rc_draw);
+#else
+#error Not implemented
 #endif
-    
-    // Create a rendering context for loading textures.
+
+    // Create a rendering contexts.
+    rc_.resize(RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
+
+    for (int i=0; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
 #ifdef __APPLE__
-    CGLContextObj context_texture;
-    CGLError err = CGLCreateContext(CGLGetPixelFormat(context), context, &context_texture);
-    if (err != kCGLNoError) {
-#elif _MSC_VER
-    HGLRC rc_texture = wglCreateContext(dc);
-
-    if (rc_texture==NULL) {
-#endif
-      show_last_error(L"WorldImpl::World/wglCreateContext (loading textures)");
-      exit(1);
-    }
-
-#ifdef __APPLE__
-    set_rendering_context(
-      RenderingContext::LOAD_TEXTURES, context_texture);
-#elif _MSC_VER
-    set_rendering_context(
-      RenderingContext::LOAD_TEXTURES, rc_texture);
-
-      // Share textures between both contexts.
-    if (wglShareLists(rc_draw, rc_texture)==FALSE) {
-      show_last_error(L"WorldImpl::World/wglShareLists (drawing<->loading textures)");
-      exit(1);
-    }
-#endif
+      CGLError err = CGLCreateContext(CGLGetPixelFormat(context), context, &(rc_[i]));
       
-    // Activate the drawing context in the main thread.
-#ifdef __APPLE__
-    if (CGLSetCurrentContext(context) != kCGLNoError) {
+      if (err != kCGLNoError) {
+        show_last_error(hwnd, L"WorldImpl::World/CGLCreateContext");
+        exit(1);
+      }
 #elif _MSC_VER
-    if (wglMakeCurrent(dc, rc_draw)==FALSE) {
+      rc_[i] = wglCreateContext(dc_);
+
+      if (rc_[i]==NULL) {
+        show_last_error(hwnd_, L"WorldImpl::World/wglCreateContext");
+        exit(1);
+      }
+#else
+#error Not implemented
 #endif
-      show_last_error(L"WorldImpl::World/wglMakeCurrent");
+    }
+
+#ifdef __APPLE__
+    // Activate the drawing context in the main thread.
+    if (CGLSetCurrentContext(rc_[RenderingContext::DRAW]) != kCGLNoError) {
+      show_last_error(hwnd_, L"WorldImpl::World/CGLSetCurrentContext");
       exit(1);
     }
+#elif _MSC_VER
+    // Share textures between the drawing context and other contexts.
+    for (int i=RenderingContext::DRAW+1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      if (wglShareLists(rc_[RenderingContext::DRAW], rc_[i])==FALSE) {
+        show_last_error(hwnd_, L"WorldImpl::World/wglShareLists");
+        exit(1);
+      }
+    }
+    
+    // Activate the drawing context in the main thread.
+    if (wglMakeCurrent(dc_, rc_[RenderingContext::DRAW])==FALSE) {
+      show_last_error(hwnd_, L"WorldImpl::World/wglMakeCurrent");
+      exit(1);
+    }
+#else
+#error Not implemented
+#endif
 
     glDisable(GL_FOG);
     glDisable(GL_DEPTH_TEST);
@@ -278,12 +290,14 @@ namespace hashimoto_ut {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glAlphaFunc(GL_ALWAYS, 0.0f);
 
-      // [TODO]
-#ifdef _MSC_VER
-    if (msaa_is_available)
-      glEnable(GL_MULTISAMPLE);
+#ifdef __APPLE__
+#warning Not implemented
+#elif _MSC_VER
+    if (msaa_is_available) glEnable(GL_MULTISAMPLE);
+#else
+#error Not implemented
 #endif
-      
+
     // --------------------------------------------------------------------------------
     // Initialize view.
     center_.set(0.0, 0.0);
@@ -302,11 +316,12 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     // Create font objects.
-    sociarium_project_font::initialize();
-
-    // --------------------------------------------------------------------------------
-    // Create textures.
-    sociarium_project_texture::set_slider_texture(L"___system_slider.png");
+    try {
+      sociarium_project_font::initialize();
+    } catch (wchar_t const* errmsg) {
+      message_box(hwnd_, mb_error, APPLICATION_TITLE, errmsg);
+      exit(1);
+    }
 
     // --------------------------------------------------------------------------------
     // Create a graph time series object.
@@ -324,8 +339,7 @@ namespace hashimoto_ut {
       initialize();
 
       shared_ptr<Thread> tf = ForceDirectionThread::create();
-      if (!sociarium_project_force_direction::is_active())
-        tf->suspend();
+      if (!sociarium_project_force_direction::is_active()) tf->suspend();
       invoke(FORCE_DIRECTION, tf);
     }
 
@@ -333,13 +347,15 @@ namespace hashimoto_ut {
     // Initialize FPS counter.
     sociarium_project_fps_manager::start(60);
 
-
     //sociarium_project_designtide::initialize();
+    //sociarium_project_tamabi_library::initialize();
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   WorldImpl::~WorldImpl() {
+
+    //sociarium_project_cvframe::terminate();
 
     // --------------------------------------------------------------------------------
     sociarium_project_thread::finalize();
@@ -348,46 +364,35 @@ namespace hashimoto_ut {
     sociarium_project_graph_time_series::finalize();
 
     // --------------------------------------------------------------------------------
-#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
-    sociarium_project_cvframe::terminate();
-#endif
-
-    // --------------------------------------------------------------------------------
 #ifdef __APPLE__
-    if (CGLSetCurrentContext(NULL) != kCGLNoError)
+    if (CGLSetCurrentContext(NULL)!=kCGLNoError)
+      show_last_error(hwnd_, L"WorldImpl::~World/CGLSetCurrentContext");
+    
+    for (int i=1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      CGLReleaseContext(rc_[i]);
+    }
 #elif _MSC_VER
     if (wglMakeCurrent(0, 0)==FALSE)
-#endif
-      show_last_error(L"WorldImpl::~World/wglMakeCurrent");
+      show_last_error(hwnd_, L"WorldImpl::~World/wglMakeCurrent");
 
-#ifdef _MSC_VER
-    HWND hwnd = get_window_handle();
+    if (ReleaseDC(hwnd_, dc_)==0)
+      show_last_error(hwnd_, L"WorldImpl::~World/ReleaseDC");
 
-    if (hwnd==NULL)
-      show_last_error(L"WorldImpl::~World/get_window_handle");
-
-    HDC dc = get_device_context();
-
-    if (ReleaseDC(hwnd, dc)==0)
-      show_last_error(L"WorldImpl::~World/ReleaseDC");
-    
-    HGLRC rc_draw = get_rendering_context(
-      RenderingContext::DRAW);
-
-    if (wglDeleteContext(rc_draw)==FALSE)
-      show_last_error(L"WorldImpl::~World/wglDeleteContext (drawing)");
-#endif
+    if (wglDeleteContext(rc_[RenderingContext::DRAW])==FALSE)
+      show_last_error(hwnd_, L"WorldImpl::~World/wglDeleteContext");
     
 #if 0
-    HGLRC rc_textures = get_rendering_context(
-      RenderingContext::LOAD_TEXTURES);
-
-    if (wglDeleteContext(rc_textures)==FALSE)
-      show_last_error(L"WorldImpl::~World/wglDeleteContext (loading textures)");
+    for (int i=1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      if (wglDeleteContext(rc_[i])==FALSE)
+        show_last_error(hwnd_, L"WorldImpl::~World/wglDeleteContext");
+    }
     /* In some environments, this block causes the "pure virtual function" error.
-     * It's thought to be causally related to releasing the context that is
-     * activated by another thread, but I don't know how should it be written...
+     * It's thought to be causally related to releasing the context activated by
+     * another thread, however, I have no idea how should it be correctly written...
      */
+#endif
+#else
+#error Not implemented
 #endif
   }
 

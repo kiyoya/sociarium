@@ -43,6 +43,7 @@
 namespace hashimoto_ut {
 
 #ifdef _MSC_VER
+
   ////////////////////////////////////////////////////////////////////////////////
   // Split a given path into drive/directory/filename/extension.
   class PathSplitter {
@@ -104,8 +105,7 @@ namespace hashimoto_ut {
     std::wstring dir_;
   };
 
-#endif // _MSC_VER
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Get filenames that match the specified condition.
   std::vector<std::wstring> get_all_filenames(
@@ -113,6 +113,7 @@ namespace hashimoto_ut {
   /* Example of @condition: L"*.png"
    */
 
+#endif // _MSC_VER
 
   ////////////////////////////////////////////////////////////////////////////////
   // Multi-byte character string <-> Wide character string
@@ -122,7 +123,7 @@ namespace hashimoto_ut {
   std::wstring CFStringGetWString(CFStringRef cs);
   CFStringRef CFStringCreateWithWString(CFAllocatorRef alloc, wchar_t const* cs, CFStringEncoding encoding);
 #endif
-  
+
   struct MBCS2WCS {
     std::wstring operator()(const std::string& s) const {
       return mbcs2wcs(s.c_str(), s.size());
@@ -134,7 +135,7 @@ namespace hashimoto_ut {
       return wcs2mbcs(s.c_str(), s.size());
     }
   };
-  
+
 } // The end of the namespace "hashimoto_ut"
 
 #endif // INCLUDE_GUARD_SHARED_WIN32API_H

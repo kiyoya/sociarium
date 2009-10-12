@@ -48,9 +48,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
 
-      Thread* parent,
-      wstring* status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<vector<Node*> >& community,
       bool& is_canceled,
       shared_ptr<Graph const> g,
@@ -62,7 +62,7 @@ namespace hashimoto_ut {
 
       pair<bool, vector<vector<Node*> > >
         cc = sociarium_project_graph_utility::connected_components(
-          parent, status, message, t, 1);
+          &parent, &status, &message, t, 1);
 
       if (cc.first==false) {
         is_canceled = true;

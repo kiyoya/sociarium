@@ -35,19 +35,19 @@
 #include <cassert>
 #include <vector>
 #include <string>
-#include <memory>
 #ifdef _MSC_VER
+#include <memory>
 #include <unordered_map>
 #else
+#include <tr1/memory>
 #include <tr1/unordered_map>
 #endif
 #include "../graph/property_graph.h"
-#include "../graph/util/traverser.h"
 #include "../shared/vector2.h"
 
 namespace hashimoto_ut {
 
-  class GLTexture;
+  class Texture;
   class DynamicNodeProperty;
   class DynamicEdgeProperty;
   class StaticNodeProperty;
@@ -184,8 +184,8 @@ namespace hashimoto_ut {
     unsigned int get_flag(void) const;
     void set_flag(unsigned int flag);
 
-    GLTexture const* get_texture(void) const;
-    void set_texture(GLTexture const* texture);
+    Texture const* get_texture(void) const;
+    void set_texture(Texture const* texture);
 
     typename DynamicPropertyMap::const_iterator dynamic_property_begin(void) const;
     typename DynamicPropertyMap::const_iterator dynamic_property_end(void) const;
@@ -203,7 +203,7 @@ namespace hashimoto_ut {
     std::wstring identifier_;
     std::wstring name_;
     unsigned flag_;
-    GLTexture const* texture_;
+    Texture const* texture_;
     DynamicPropertyMap dynamic_property_;
   };
 
@@ -279,83 +279,28 @@ namespace hashimoto_ut {
 
 
   ////////////////////////////////////////////////////////////////////////////////
-  struct ElementFlag {
-    enum _ {
-      VISIBLE            = 0x01,
-      CAPTURED           = 0x02,
-      MARKED             = 0x04,
-      TEMPORARY_MARKED   = 0x08,
-      TEMPORARY_UNMARKED = 0x10,
-      HIGHLIGHT          = 0x20,
-      MASK               = 0x3f,
-      // Other.
-      TEXTURE_IS_SPECIFIED = 0x40
-    };
+  struct GetDynamicProperty {
+    template <typename T>
+    typename DynamicProperty<T>::type*
+      operator()(T* p, std::tr1::shared_ptr<SociariumGraph const> const& g) const {
+        return &g->property(p);
+      }
   };
-
-  template <typename T>
-  bool is_active(T const& p, int flag) {
-    return (p.get_flag()&flag)!=0;
-  }
-
-  template <typename T>
-  bool is_visible(T const& p) {
-    return (p.get_flag()&ElementFlag::VISIBLE)!=0;
-  }
-
-  template <typename T>
-  bool is_hidden(T const& p) {
-    return (p.get_flag()&ElementFlag::VISIBLE)==0;
-  }
-
-  template <typename T>
-  bool is_marked(T const& p) {
-    return (p.get_flag()&ElementFlag::MARKED)!=0;
-  }
-
-  template <typename T>
-  bool is_temporary_marked(T const& p) {
-    return (p.get_flag()&ElementFlag::TEMPORARY_MARKED)!=0;
-  }
-
-  template <typename T>
-  bool is_temporary_unmarked(T const& p) {
-    return (p.get_flag()&ElementFlag::TEMPORARY_UNMARKED)!=0;
-  }
 
 
   ////////////////////////////////////////////////////////////////////////////////
-  // Traversing condition.
-  struct CircumventHiddenElements : ConditionalPass {
-    typedef SociariumGraph::node_property_iterator node_property_iterator;
-    typedef SociariumGraph::edge_property_iterator edge_property_iterator;
-
-    CircumventHiddenElements(std::tr1::shared_ptr<SociariumGraph const> g) :
-    nflag_(g->nsize(), PASS), eflag_(g->esize(), PASS) {
-
-      {
-        node_property_iterator i   = g->node_property_begin();
-        node_property_iterator end = g->node_property_end();
-
-        for (; i!=end; ++i)
-          if (is_hidden(i->second))
-            nflag_[i->first->index()] = CLOSED;
-      }{
-        edge_property_iterator i   = g->edge_property_begin();
-        edge_property_iterator end = g->edge_property_end();
-
-        for (; i!=end; ++i)
-          if (is_hidden(i->second))
-            eflag_[i->first->index()] = CLOSED;
+  struct GetStaticProperty {
+    template <typename DynamicProperty>
+    typename DynamicProperty::StaticProperty*
+      operator()(std::pair<DynamicProperty, typename DynamicProperty::GraphElement> const& p) const {
+        return p.second.get_static_property();
       }
-    }
 
-    int operator()(Edge const* e, Node const* n) const {
-      return (nflag_[n->index()]==PASS && eflag_[e->index()]==PASS)?PASS:CLOSED;
-    }
-
-    std::vector<int> nflag_;
-    std::vector<int> eflag_;
+    template <typename DynamicProperty>
+    typename DynamicProperty::StaticProperty*
+      operator()(DynamicProperty* dp) const {
+        return dp->get_static_property();
+      }
   };
 
 

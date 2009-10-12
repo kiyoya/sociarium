@@ -33,12 +33,20 @@
 #include <boost/shared_array.hpp>
 #ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "msgbox.h"
 
 namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // char
+#ifdef __APPLE__
+#warning Not implemented
+  
+  bool message_box(void* window, int type, char const* title, char const* fmt, ...) {
+    return true;
+  }
+#elif _MSC_VER
   bool message_box(HWND hwnd, int type, char const* title, char const* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -46,29 +54,21 @@ namespace hashimoto_ut {
     boost::shared_array<char> buf(new char [len]);
     vsprintf_s(buf.get(), len, fmt, ap);
     va_end(ap);
-
-    UINT t;
-    switch (type) {
-      case MessageType::ALERT:
-        t = MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL;
-        break;
-      case MessageType::INFO:
-        t = MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL;
-        break;
-      case MessageType::QUESTION:
-        t = MB_OK|MB_ICONERROR|MB_SYSTEMMODAL;
-        break;
-      case MessageType::CRITICAL:
-      default:
-        t = MB_OKCANCEL|MB_ICONQUESTION|MB_SYSTEMMODAL;
-        break;
-    }
-
-    return MessageBoxA(hwnd, buf.get(), title, t) == IDOK;
+    return MessageBoxA(hwnd, buf.get(), title, type) == IDOK;
   }
+#else
+#error Not implemented
+#endif
 
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
+#ifdef __APPLE__
+#warning Not implemented
+  
+  bool message_box(void* hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...) {
+    return true;
+  }
+#elif _MSC_VER
   bool message_box(HWND hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -76,27 +76,10 @@ namespace hashimoto_ut {
     boost::shared_array<wchar_t> buf(new wchar_t [len]);
     vswprintf_s(buf.get(), len, fmt, ap);
     va_end(ap);
-
-    UINT t;
-    switch (type) {
-      case MessageType::ALERT:
-        t = MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL;
-        break;
-      case MessageType::INFO:
-        t = MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL;
-        break;
-      case MessageType::QUESTION:
-        t = MB_OK|MB_ICONERROR|MB_SYSTEMMODAL;
-        break;
-      case MessageType::CRITICAL:
-      default:
-        t = MB_OKCANCEL|MB_ICONQUESTION|MB_SYSTEMMODAL;
-        break;
-    }
-
-    return MessageBoxW(hwnd, buf.get(), title, t) == IDOK;
+    return MessageBoxW(hwnd, buf.get(), title, type) == IDOK;
   }
-
-#endif // _MSC_VER
+#else
+#error Not implemented
+#endif
 
 } // The end of the namespace "hashimoto_ut"

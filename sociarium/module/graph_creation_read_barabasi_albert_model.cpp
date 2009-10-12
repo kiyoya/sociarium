@@ -1,4 +1,5 @@
-﻿// s.o.c.i.a.r.i.u.m: module/graph_creation_read_barabasi_albert_model.cpp
+﻿// s.o.c.i.a.r.i.u.m
+// module/graph_creation_read_barabasi_albert_model.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -35,12 +36,9 @@
 #include <boost/lexical_cast.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
-#include "../../shared/general.h"
-#include "../../shared/win32api.h"
-#include "../../shared/msgbox.h"
+#include "../../shared/util.h"
 #include "../../graph/graph.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
@@ -57,22 +55,21 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_module_graph_creation;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
 
-      Thread* parent,
+      Thread& parent,
       deque<wstring>& status,
-      Message const* message,
+      Message const& message,
       vector<shared_ptr<Graph> >& graph,
       vector<vector<NodeProperty> >& node_property,
       vector<vector<EdgeProperty> >& edge_property,
       vector<wstring>& layer_name,
-      unordered_map<string, pair<string, int> > const& params,
-      vector<pair<string, int> > const& data,
+      unordered_map<wstring, pair<wstring, int> > const& params,
+      vector<pair<wstring, int> > const& data,
       wstring const& filename) {
 
       assert(graph.empty());
@@ -84,7 +81,8 @@ namespace hashimoto_ut {
       time_t t;
       boost::mt19937 generator((unsigned long)time(&t));
       boost::uniform_real<> distribution(0.0, 1.0);
-      boost::variate_generator<boost::mt19937, boost::uniform_real<> > rand(generator, distribution);
+      boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+        rand(generator, distribution);
 
 
       ////////////////////////////////////////////////////////////////////////////////
@@ -95,37 +93,29 @@ namespace hashimoto_ut {
       size_t nsz = 0;
       double ksz = 0.0;
 
-      unordered_map<string, pair<string, int> >::const_iterator pos;
+      unordered_map<wstring, pair<wstring, int> >::const_iterator pos;
 
-      if ((pos=params.find("directed"))!=params.end())
+      if ((pos=params.find(L"directed"))!=params.end())
         directed = true;
 
-      if ((pos=params.find("title"))!=params.end() && !pos->second.first.empty())
-        title = mbcs2wcs(pos->second.first.c_str(), pos->second.first.size());
+      if ((pos=params.find(L"title"))!=params.end() && !pos->second.first.empty())
+        title = pos->second.first;
 
-      if ((pos=params.find("N"))!=params.end()) {
+      if ((pos=params.find(L"N"))!=params.end()) {
         try {
           nsz = boost::lexical_cast<size_t>(pos->second.first);
         } catch (...) {
-          message_box(
-            get_window_handle(),
-            MessageType::CRITICAL,
-            APPLICATION_TITLE,
-            L"bad data: %s [line=%d]",
-            filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
-      if ((pos=params.find("K"))!=params.end()) {
+      if ((pos=params.find(L"K"))!=params.end()) {
         try {
           ksz = boost::lexical_cast<double>(pos->second.first);
         } catch (...) {
-          message_box(
-            get_window_handle(),
-            MessageType::CRITICAL,
-            APPLICATION_TITLE,
-            L"bad data: %s [line=%d]",
-            filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
@@ -138,7 +128,7 @@ namespace hashimoto_ut {
 
       status[0]
         = (boost::wformat(L"%s")
-           %message->get(Message::MAKING_GRAPH_SNAPSHOT)).str();
+           %message.get(Message::MAKING_GRAPH_SNAPSHOT)).str();
 
       status[1]
         = (boost::wformat(L"Barabasi-Albert Model [N=%d, E=%d]")
@@ -149,10 +139,10 @@ namespace hashimoto_ut {
       double const m_diff = m-double(m_base);
       size_t const seed = (m<=1.0)?2:(m_diff>0.0)?m_base+1:m_base;
 
-      // 成長のシードとなる完全グラフを作成
+      // Create a seed graph.
       for (size_t i=0; i<seed; ++i) {
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
@@ -162,7 +152,7 @@ namespace hashimoto_ut {
 
       for (size_t i=0; i<seed; ++i) {
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
@@ -171,10 +161,11 @@ namespace hashimoto_ut {
           g->add_edge(g->node(i), g->node(j));
       }
 
+      // Grow a graph.
       for (size_t i=seed; i<nsz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
@@ -194,7 +185,7 @@ namespace hashimoto_ut {
 
         status[0]
           = (boost::wformat(L"%s")
-             %message->get(Message::MAKING_GRAPH_SNAPSHOT)).str();
+             %message.get(Message::MAKING_GRAPH_SNAPSHOT)).str();
 
         status[1]
           = (boost::wformat(L"Barabasi-Albert Model [N=%d, E=%d]")
@@ -206,11 +197,14 @@ namespace hashimoto_ut {
       // Set properties.
 
       node_property.resize(1, vector<NodeProperty>(g->nsize()));
+      edge_property.resize(1, vector<EdgeProperty>(g->esize()));
+
       int const digit = int(log10(double(g->nsize())))+1;
+
       for (size_t i=0, nsz=g->nsize(); i<nsz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
@@ -226,11 +220,10 @@ namespace hashimoto_ut {
         np.weight = float(g->node(i)->degree());
       }
 
-      edge_property.resize(1, vector<EdgeProperty>(g->esize()));
       for (size_t i=0, esz=g->esize(); i<esz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           graph.clear();
           return;
         }
