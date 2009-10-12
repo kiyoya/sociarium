@@ -1,6 +1,5 @@
 ﻿// util.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
-// update: 2009/09/23
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
  *
@@ -65,6 +64,20 @@ namespace hashimoto_ut {
 
     while (ifs.get(c))
       if (c=='\n')
+        ++retval;
+
+    return retval;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  int number_of_lines(wchar_t const* filename) {
+    int retval = 0;
+    wifstream ifs(filename);
+    if (ifs.fail()) return -1;
+    wchar_t c;
+
+    while (ifs.get(c))
+      if (c==L'\n')
         ++retval;
 
     return retval;

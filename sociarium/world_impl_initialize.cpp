@@ -50,6 +50,10 @@
 #include "../shared/GL/glview.h"
 #include "../shared/GL/texture.h"
 
+// #include "cvframe.h"
+// #include "designtide.h"
+//#include "tamabi_library.h"
+
 #pragma comment(lib, "glew32.lib")
 
 namespace hashimoto_ut {
@@ -61,27 +65,42 @@ namespace hashimoto_ut {
 
 
   ////////////////////////////////////////////////////////////////////////////////
-  shared_ptr<World> World::create(void) {
-    return shared_ptr<World>(new WorldImpl());
+  shared_ptr<World> World::create(HWND hwnd) {
+    return shared_ptr<World>(new WorldImpl(hwnd));
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
-  WorldImpl::WorldImpl(void) {
+  WorldImpl::WorldImpl(HWND hwnd) : hwnd_(hwnd) {
 
     // --------------------------------------------------------------------------------
     // Initialize the OpenGL environment.
 
-    bool const glew_is_available = sociarium_project_glew::initialize();
+    if (hwnd_==NULL) {
+      show_last_error(NULL, L"Error in initialization: hwnd");
+      exit(1);
+    }
 
-    HDC dc = get_device_context();
+    if ((dc_=GetDC(hwnd_))==NULL) {
+      show_last_error(hwnd_, L"Error in initialization: dc");
+      exit(1);
+    }
+
+    bool glew_is_available = true;
+
+    try {
+      sociarium_project_glew::initialize();
+    } catch (wchar_t const* errmsg) {
+      show_last_error(hwnd_, errmsg);
+      glew_is_available = false;
+    }
 
     PIXELFORMATDESCRIPTOR pfd = {
       sizeof(PIXELFORMATDESCRIPTOR),
       1,
       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
       PFD_TYPE_RGBA,
-      GetDeviceCaps(dc, BITSPIXEL),
+      GetDeviceCaps(dc_, BITSPIXEL),
       0, 0, 0, 0, 0, 0,
       1,
       0,
@@ -119,40 +138,40 @@ namespace hashimoto_ut {
 
       // Try to use Multi-Sampling Anti-Aliasing (x8).
       msaa_is_available
-        = wglChoosePixelFormatARB(dc, iattr, fattr, 1, &pf, &number_of_formats);
+        = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
       if (msaa_is_available && number_of_formats>0) {
-        message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+        message_box(hwnd_, mb_info, APPLICATION_TITLE,
                     get_message(Message::GLEW_MSAA_8));
       } else {
         // Try to use Multi-Sampling Anti-Aliasing (x4).
         iattr[19] = 4;
 
         msaa_is_available
-          = wglChoosePixelFormatARB(dc, iattr, fattr, 1, &pf, &number_of_formats);
+          = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
         if (msaa_is_available && number_of_formats>0) {
-          message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+          message_box(hwnd_, mb_info, APPLICATION_TITLE,
                       get_message(Message::GLEW_MSAA_4));
         } else {
           // Try to use Multi-Sampling Anti-Aliasing (x2).
           iattr[19] = 2;
 
           msaa_is_available
-            = wglChoosePixelFormatARB(dc, iattr, fattr, 1, &pf, &number_of_formats);
+            = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
           if (msaa_is_available && number_of_formats>0) {
-            message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+            message_box(hwnd_, mb_info, APPLICATION_TITLE,
                         get_message(Message::GLEW_MSAA_2));
           } else {
-            message_box(get_window_handle(), mb_info, APPLICATION_TITLE,
+            message_box(hwnd_, mb_info, APPLICATION_TITLE,
                         get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
             msaa_is_available = FALSE;
           }
         }
       }
     } else {
-      message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+      message_box(hwnd_, mb_error, APPLICATION_TITLE,
                   get_message(Message::GLEW_FAILED_TO_INITIALIZE));
     }
 
@@ -162,41 +181,41 @@ namespace hashimoto_ut {
      */
 
     if (msaa_is_available==FALSE) {
-      if ((pf=ChoosePixelFormat(dc, &pfd))==0) {
-        show_last_error(L"WorldImpl::World/ChoosePixelFormat");
+      if ((pf=ChoosePixelFormat(dc_, &pfd))==0) {
+        show_last_error(hwnd_, L"WorldImpl::World/ChoosePixelFormat");
         exit(1);
       }
     }
 
-    if (SetPixelFormat(dc, pf, &pfd)==FALSE) {
-      show_last_error(L"WorldImpl::World/SetPixelFormat");
+    if (SetPixelFormat(dc_, pf, &pfd)==FALSE) {
+      show_last_error(hwnd_, L"WorldImpl::World/SetPixelFormat");
       exit(1);
     }
 
     // Create a rendering contexts.
-    for (int i=0; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
-      HGLRC rc = wglCreateContext(dc);
+    rc_.resize(RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
 
-      if (rc==NULL) {
-        show_last_error(L"WorldImpl::World/wglCreateContext");
+    for (int i=0; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+
+      rc_[i] = wglCreateContext(dc_);
+
+      if (rc_[i]==NULL) {
+        show_last_error(hwnd_, L"WorldImpl::World/wglCreateContext");
         exit(1);
       }
-
-      set_rendering_context(i, rc);
     }
 
     // Share textures between the drawing context and other contexts.
-    for (int i=1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
-      if (wglShareLists(get_rendering_context(0),
-                        get_rendering_context(i))==FALSE) {
-        show_last_error(L"WorldImpl::World/wglShareLists");
+    for (int i=RenderingContext::DRAW+1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
+      if (wglShareLists(rc_[RenderingContext::DRAW], rc_[i])==FALSE) {
+        show_last_error(hwnd_, L"WorldImpl::World/wglShareLists");
         exit(1);
       }
     }
 
     // Activate the drawing context in the main thread.
-    if (wglMakeCurrent(dc, get_rendering_context(0))==FALSE) {
-      show_last_error(L"WorldImpl::World/wglMakeCurrent");
+    if (wglMakeCurrent(dc_, rc_[RenderingContext::DRAW])==FALSE) {
+      show_last_error(hwnd_, L"WorldImpl::World/wglMakeCurrent");
       exit(1);
     }
 
@@ -228,7 +247,12 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     // Create font objects.
-    sociarium_project_font::initialize();
+    try {
+      sociarium_project_font::initialize();
+    } catch (wchar_t const* errmsg) {
+      message_box(hwnd_, mb_error, APPLICATION_TITLE, errmsg);
+      exit(1);
+    }
 
     // --------------------------------------------------------------------------------
     // Create a graph time series object.
@@ -253,11 +277,16 @@ namespace hashimoto_ut {
     // --------------------------------------------------------------------------------
     // Initialize FPS counter.
     sociarium_project_fps_manager::start(60);
+
+    //sociarium_project_designtide::initialize();
+    //sociarium_project_tamabi_library::initialize();
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   WorldImpl::~WorldImpl() {
+
+    //sociarium_project_cvframe::terminate();
 
     // --------------------------------------------------------------------------------
     sociarium_project_thread::finalize();
@@ -267,27 +296,18 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     if (wglMakeCurrent(0, 0)==FALSE)
-      show_last_error(L"WorldImpl::~World/wglMakeCurrent");
+      show_last_error(hwnd_, L"WorldImpl::~World/wglMakeCurrent");
 
-    HWND hwnd = get_window_handle();
+    if (ReleaseDC(hwnd_, dc_)==0)
+      show_last_error(hwnd_, L"WorldImpl::~World/ReleaseDC");
 
-    if (hwnd==NULL)
-      show_last_error(L"WorldImpl::~World/get_window_handle");
-
-    HDC dc = get_device_context();
-
-    if (ReleaseDC(hwnd, dc)==0)
-      show_last_error(L"WorldImpl::~World/ReleaseDC");
-
-    HGLRC rc_draw = get_rendering_context(RenderingContext::DRAW);
-
-    if (wglDeleteContext(rc_draw)==FALSE)
-      show_last_error(L"WorldImpl::~World/wglDeleteContext");
+    if (wglDeleteContext(rc_[RenderingContext::DRAW])==FALSE)
+      show_last_error(hwnd_, L"WorldImpl::~World/wglDeleteContext");
 
 #if 0
     for (int i=1; i<RenderingContext::NUMBER_OF_THREAD_CATEGORIES; ++i) {
-      if (wglDeleteContext(get_rendering_context(i))==FALSE)
-        show_last_error(L"WorldImpl::~World/wglDeleteContext");
+      if (wglDeleteContext(rc_[i])==FALSE)
+        show_last_error(hwnd_, L"WorldImpl::~World/wglDeleteContext");
     }
     /* In some environments, this block causes the "pure virtual function" error.
      * It's thought to be causally related to releasing the context activated by

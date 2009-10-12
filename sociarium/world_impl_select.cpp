@@ -181,8 +181,10 @@ namespace hashimoto_ut {
 #endif
     } else {
       sociarium_project_selection::clear();
-//       HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
-//       SetCursor(hcur);
+#if 0
+      HCURSOR hcur = HCURSOR(LoadImage(NULL, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED|LR_DEFAULTSIZE));
+      SetCursor(hcur);
+#endif
     }
   }
 

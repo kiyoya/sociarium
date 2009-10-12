@@ -34,8 +34,6 @@
 #include <cassert>
 #include <unordered_map>
 #include "graph_creation.h"
-#include "../common.h"
-#include "../menu_and_message.h"
 
 namespace hashimoto_ut {
 
@@ -43,9 +41,6 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::pair;
   using std::tr1::unordered_map;
-
-  using namespace sociarium_project_common;
-  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_module_graph_creation {
 
@@ -85,10 +80,8 @@ namespace hashimoto_ut {
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {
             // Not yet loaded.
-            if ((handle=LoadLibrary(path.c_str()))==0) {
-              show_last_error(path.c_str());
-              return 0;
-            }
+            if ((handle=LoadLibrary(path.c_str()))==0)
+              throw path.c_str();
 
             module_[path].first = handle;
           }
@@ -100,10 +93,8 @@ namespace hashimoto_ut {
           pair<HMODULE, FuncCreateGraphTimeSeries>& p = module_[path];
           p.second = (FuncCreateGraphTimeSeries)GetProcAddress(p.first, function_name.c_str());
 
-          if (p.second==0) {
-            show_last_error(path.c_str());
-            return 0;
-          }
+          if (p.second==0)
+            throw path.c_str();
 
           return p.second;
         }

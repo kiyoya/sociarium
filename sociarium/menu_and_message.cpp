@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: language.cpp
+﻿// s.o.c.i.a.r.i.u.m: menu_and_message.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -32,7 +32,6 @@
 #include <cassert>
 #include <unordered_map>
 #include <windows.h>
-#include "common.h"
 #include "menu_and_message.h"
 #include "resource.h"
 
@@ -42,8 +41,6 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
-
-  using namespace sociarium_project_common;
 
   namespace sociarium_project_menu_and_message {
 
@@ -66,10 +63,8 @@ namespace hashimoto_ut {
 
       FuncLoadMenu func = (FuncLoadMenu)GetProcAddress(handle, "load_menu");
 
-      if (func==0) {
-        show_last_error(path.c_str());
-        exit(1);
-      }
+      if (func==0)
+        throw path.c_str();
 
       unordered_map<int, wstring> menu;
 
@@ -2123,17 +2118,13 @@ namespace hashimoto_ut {
 
       HMODULE handle = LoadLibrary(path.c_str());
 
-      if (handle==0) {
-        show_last_error(path.c_str());
-        exit(1);
-      }
+      if (handle==0)
+        throw path.c_str();
 
       FuncLoadMessage func = (FuncLoadMessage)GetProcAddress(handle, "load_message");
 
-      if (func==0) {
-        show_last_error(path.c_str());
-        exit(1);
-      }
+      if (func==0)
+        throw path.c_str();
 
       vector<wstring> message;
       message.resize(Message::NUMBER_OF_MESSAGES);

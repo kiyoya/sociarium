@@ -34,9 +34,7 @@
 #include <boost/format.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -57,7 +55,6 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
@@ -95,7 +92,7 @@ namespace hashimoto_ut {
       if ((pos=params.find(L"directed"))!=params.end())
         directed = true;
 
-      if ((pos=params.find(L"title"))!=params.end())
+      if ((pos=params.find(L"title"))!=params.end() && !pos->second.first.empty())
         title = pos->second.first;
 
       if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
@@ -105,28 +102,28 @@ namespace hashimoto_ut {
         try {
           threshold = boost::lexical_cast<float>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
-      if (delimiter==L'\0') {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"%s: %s", message.get(Message::UNCERTAIN_DELIMITER),
-                    filename.c_str());
-        return;
-      }
+      if (delimiter==L'\0')
+        throw message.get(Message::UNCERTAIN_DELIMITER)+wstring(L": ")+filename;
 
       size_t number_of_columns = 0;
 
       size_t source_column = 0;
       size_t target_column = 1;
-      size_t weight_column = 2;
-      size_t name_column = -1; // Unavailable in a default setting.
+      size_t source_texture_column = -1;
+      size_t target_texture_column = -1;
+      size_t weight_column = -1;
+      size_t name_column = -1;
 
       if ((pos=params.find(L"columns"))!=params.end()) {
         vector<wstring> row = tokenize(pos->second.first, delimiter);
+
+        source_column = -1;
+        target_column = -1;
 
         for (size_t i=0; i<row.size(); ++i)
           trim(row[i]);
@@ -137,6 +134,12 @@ namespace hashimoto_ut {
             ++number_of_columns;
           } else if (row[i]==L"target") {
             target_column = i;
+            ++number_of_columns;
+          } else if (row[i]==L"source_texture") {
+            source_texture_column = i;
+            ++number_of_columns;
+          } else if (row[i]==L"target_texture") {
+            target_texture_column = i;
             ++number_of_columns;
           } else if (row[i]==L"weight") {
             weight_column = i;
@@ -149,6 +152,10 @@ namespace hashimoto_ut {
             ++number_of_columns;
           }
         }
+
+        if (source_column==-1 || target_column==-1)
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
       }
 
 
@@ -156,6 +163,7 @@ namespace hashimoto_ut {
       // Parse data.
 
       unordered_map<wstring, pair<wstring, float> > id2property;
+      unordered_map<wstring, wstring> node_name2texture_file_name;
 
       for (size_t count=0; count<data.size(); ++count) {
 
@@ -171,12 +179,11 @@ namespace hashimoto_ut {
         vector<wstring> tok = tokenize(data[count].first, delimiter);
 
         // Get a name of a node.
-        if ((number_of_columns==0 && tok.size()<2) || (tok.size()<number_of_columns)) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"%s: %s [line=%d]",  message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                      filename.c_str(), data[count].second);
-          return;
-        }
+        if ((number_of_columns==0 && tok.size()<2)
+            || (tok.size()<number_of_columns))
+          throw (boost::wformat(L"%s: line=%d\n%s")
+                 %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                 %data[count].second%filename.c_str()).str();
 
         trim(tok[source_column]);
         trim(tok[target_column]);
@@ -184,81 +191,109 @@ namespace hashimoto_ut {
         wstring const source = tok[source_column]; // The name of the source node.
         wstring const target = tok[target_column]; // The name of the target node.
 
-        if (source.empty() || target.empty()) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]", filename.c_str(), data[count].second);
-          return;
-        }
+        if (source.empty() || target.empty())
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %data[count].second%filename.c_str()).str();
 
         // If the graph is undirected, the direction of the edge is ignored.
-        wstring const identifier
+        wstring identifier
           = (directed||source<target)?(source+delimiter+target):(target+delimiter+source);
 
-        pair<wstring, float>& ep = id2property[identifier];
+        pair<wstring, float>* ep = 0;
 
-        { // Get a name of an edge.
-          // If the name column is not specified, the name of the edge
-          // is made from the names of nodes.
-          if (number_of_columns==0 || name_column==-1)
-            ep.first = (directed||source<target)?(source+L'~'+target):(target+L'~'+source);
+        // Get a name of an edge.
+        // If the name column is not specified, the name of the edge
+        // is made from the names of nodes.
+        if (number_of_columns==0 || name_column==-1) {
+          ep = &id2property[identifier];
+          ep->first
+            = (directed||source<target)?(source+L'~'+target):(target+L'~'+source);
+        } else {
+          if (tok.size()<number_of_columns)
+            throw (boost::wformat(L"%s: line=%d\n%s")
+                   %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                   %data[count].second%filename.c_str()).str();
 
-          else {
-            if (tok.size()<number_of_columns) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [line=%d]",
-                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                          filename.c_str(), data[count].second);
-              return;
-            }
+          trim(tok[name_column]);
+          identifier += delimiter+tok[name_column];
+          ep = &id2property[identifier];
 
-            trim(tok[name_column]);
+          if (!ep->first.empty() && ep->first!=tok[name_column])
+            throw (boost::wformat(L"name confliction: line=%d [%s]\n%s")
+                   %data[count].second%tok[name_column].c_str()
+                   %filename.c_str()).str();
 
-            if (!ep.first.empty() && ep.first!=tok[name_column]) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"name confliction: %s [line=%d]",
-                          filename.c_str(), data[count].second);
-            }
-
-            ep.first = tok[name_column];
-          }
+          ep->first = tok[name_column];
         }
 
-        { // Get weight of an edge.
+        { // Get a weight value of the edge.
           wstring w;
-
-          // If the weight column is not specified, the default column is used.
-          // If the number of columns is less than the value of the default column,
-          // the weight is set to 1.0.
-          if (number_of_columns==0)
+          if (number_of_columns==0) {
+            // If the weight column is not specified, the default column is used.
+            // If the number of columns is less than the value of the default column,
+            // the weight is set to "1.0".
             if (tok.size()>weight_column) {
               trim(tok[weight_column]);
               w = tok[weight_column];
             } else
-              // The default weight column is invalid.
+              // In case the default weight column is invalid.
               w = L"1.0";
-          else if (weight_column==-1)
+          } else if (weight_column==-1) {
             // The weight column is not specified.
             w = L"1.0";
-          else {
-            if (tok.size()<number_of_columns) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [line=%d]",
-                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                          filename.c_str(), data[count].second);
-              return;
-            }
+          } else {
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
 
             trim(tok[weight_column]);
             w = tok[weight_column];
           }
 
           try {
-            ep.second += boost::lexical_cast<float>(w);
+            ep->second += boost::lexical_cast<float>(w);
           } catch (...) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[count].second);
-            return;
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[count].second%filename.c_str()).str();
+          }
+        }
+
+        { // Get a texture filename.
+          if (source_texture_column!=-1 && !source.empty()) {
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
+
+            trim(tok[source_texture_column]);
+            wstring& texture_file_name = node_name2texture_file_name[source];
+
+            if (!texture_file_name.empty()
+                && texture_file_name!=tok[source_texture_column])
+              throw (boost::wformat(L"texture confliction: line=%d [%s]\n%s")
+                     %data[count].second%tok[source_texture_column].c_str()
+                     %filename.c_str()).str();
+
+            texture_file_name = tok[source_texture_column];
+          }
+
+          if (target_texture_column!=-1 && !target.empty()) {
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
+
+            trim(tok[target_texture_column]);
+            wstring& texture_file_name = node_name2texture_file_name[target];
+
+            if (!texture_file_name.empty()
+                && texture_file_name!=tok[target_texture_column])
+              throw (boost::wformat(L"texture confliction: line=%d [%s]\n%s")
+                     %data[count].second%tok[source_texture_column].c_str()
+                     %filename.c_str()).str();
+
+            texture_file_name = tok[target_texture_column];
           }
         }
       }

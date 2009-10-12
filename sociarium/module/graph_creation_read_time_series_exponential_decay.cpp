@@ -37,9 +37,7 @@
 #include <boost/regex.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -65,7 +63,6 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
@@ -118,9 +115,8 @@ namespace hashimoto_ut {
         try {
           interval = boost::lexical_cast<time_t>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
@@ -128,9 +124,8 @@ namespace hashimoto_ut {
         try {
           characteristic_time = boost::lexical_cast<time_t>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
@@ -138,43 +133,36 @@ namespace hashimoto_ut {
         try {
           threshold = boost::lexical_cast<double>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
-      if (delimiter==L'\0') {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"%s: %s", message.get(Message::UNCERTAIN_DELIMITER),
-                    filename.c_str());
-        return;
-      }
+      if (delimiter==L'\0')
+        throw message.get(Message::UNCERTAIN_DELIMITER)+wstring(L": ")+filename;
 
-      if (interval==-1) {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"no @interval: %s", filename.c_str());
-        return;
-      }
+      if (interval==-1)
+        throw L"no @interval: "+filename;
 
-      if (characteristic_time==-1) {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"no @characteristic_time: %s", filename.c_str());
-        return;
-      }
+      if (characteristic_time==-1)
+        throw L"no @characteristic_time: "+filename;
 
       size_t number_of_columns = 0;
 
       size_t time_column = 0;
       size_t source_column = 1;
       size_t target_column = 2;
-      size_t source_texture_column = -1; // Unavailable in a default format.
-      size_t target_texture_column = -1; // Unavailable in a default format.
-      size_t weight_column = -1; // Unavailable in a default format.
-      size_t name_column = -1; // Unavailable in a default format.
+      size_t source_texture_column = -1;
+      size_t target_texture_column = -1;
+      size_t weight_column = -1;
+      size_t name_column = -1;
 
       if ((pos=params.find(L"columns"))!=params.end()) {
         vector<wstring> row = tokenize(pos->second.first, delimiter);
+
+        time_column = -1;
+        source_column = -1;
+        target_column = -1;
 
         for (size_t i=0; i<row.size(); ++i)
           trim(row[i]);
@@ -206,6 +194,10 @@ namespace hashimoto_ut {
             ++number_of_columns;
           }
         }
+
+        if (time_column==-1 || source_column==-1 || target_column==-1)
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
       }
 
       unordered_map<wstring, Vector2<float> > node_name2position;
@@ -224,10 +216,8 @@ namespace hashimoto_ut {
               throw;
             }
           } catch (...) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), pos->second.second);
-            break;
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %pos->second.second%filename.c_str()).str();
           }
         }
       }
@@ -264,13 +254,10 @@ namespace hashimoto_ut {
 
         { // Get a time and a pair of node names.
           if ((number_of_columns==0 && tok.size()<3)
-              || (tok.size()<number_of_columns)) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"%s: %s [line=%d]",
-                        message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                        filename.c_str(), data[count].second);
-            return;
-          }
+              || (tok.size()<number_of_columns))
+            throw (boost::wformat(L"%s: line=%d\n%s")
+                   %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                   %data[count].second%filename.c_str()).str();
 
           trim(tok[time_column]);
           trim(tok[source_column]);
@@ -279,20 +266,15 @@ namespace hashimoto_ut {
           source = tok[source_column]; // The name of the source node.
           target = tok[target_column]; // The name of the target node.
 
-          if (tok[time_column].empty() || source.empty() && target.empty()) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[count].second);
-            return;
-          }
+          if (tok[time_column].empty() || source.empty() && target.empty())
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[count].second%filename.c_str()).str();
 
           try {
             time = boost::lexical_cast<time_t>(tok[time_column]);
           } catch (...) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[count].second);
-            return;
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[count].second%filename.c_str()).str();
           }
         }
 
@@ -312,13 +294,10 @@ namespace hashimoto_ut {
             // The weight column is not specified.
             w = L"1.0";
           } else {
-            if (tok.size()<number_of_columns) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [line=%d]",
-                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                          filename.c_str(), data[count].second);
-              return;
-            }
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
 
             trim(tok[weight_column]);
             w = tok[weight_column];
@@ -327,56 +306,46 @@ namespace hashimoto_ut {
           try {
             weight = boost::lexical_cast<double>(w);
           } catch (...) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[count].second);
-            return;
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[count].second%filename.c_str()).str();
           }
         }
 
         { // Get a texture filename.
           if (source_texture_column!=-1 && !source.empty()) {
-            if (tok.size()<number_of_columns) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [line=%d]",
-                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                          filename.c_str(), data[count].second);
-              return;
-            }
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
 
             trim(tok[source_texture_column]);
             wstring& texture_file_name = node_name2texture_file_name[source];
 
             if (!texture_file_name.empty()
-                && texture_file_name!=tok[source_texture_column]) {
-              if (message_box(get_window_handle(), mb_ok_cancel_error, APPLICATION_TITLE,
-                              L"texture confliction: %s [%s, line=%d]",
-                              filename.c_str(), tok[source_texture_column].c_str(),
-                              data[count].second)==IDCANCEL) return;
-            } else
-              texture_file_name = tok[source_texture_column];
+                && texture_file_name!=tok[source_texture_column])
+              throw (boost::wformat(L"texture confliction: line=%d [%s]\n%s")
+                     %data[count].second%tok[source_texture_column].c_str()
+                     %filename.c_str()).str();
+
+            texture_file_name = tok[source_texture_column];
           }
 
           if (target_texture_column!=-1 && !target.empty()) {
-            if (tok.size()<number_of_columns) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [line=%d]",
-                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                          filename.c_str(), data[count].second);
-              return;
-            }
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
 
             trim(tok[target_texture_column]);
             wstring& texture_file_name = node_name2texture_file_name[target];
 
             if (!texture_file_name.empty()
-                && texture_file_name!=tok[target_texture_column]) {
-              if (message_box(get_window_handle(), mb_ok_cancel_error, APPLICATION_TITLE,
-                              L"texture confliction: %s [%s, line=%d]",
-                              filename.c_str(), tok[target_texture_column].c_str(),
-                              data[count].second)==IDCANCEL) return;
-            } else
-              texture_file_name = tok[target_texture_column];
+                && texture_file_name!=tok[target_texture_column])
+              throw (boost::wformat(L"texture confliction: line=%d [%s]\n%s")
+                     %data[count].second%tok[source_texture_column].c_str()
+                     %filename.c_str()).str();
+
+            texture_file_name = tok[target_texture_column];
           }
         }
 
@@ -394,25 +363,21 @@ namespace hashimoto_ut {
             identifier2edge_name[identifier]
               = (directed||source<target)?source+L'~'+target:target+L'~'+source;
           else {
-            if (tok.size()<number_of_columns) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [line=%d]",
-                          message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                          filename.c_str(), data[count].second);
-              return;
-            }
+            if (tok.size()<number_of_columns)
+              throw (boost::wformat(L"%s: line=%d\n%s")
+                     %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                     %data[count].second%filename.c_str()).str();
 
             trim(tok[name_column]);
             identifier += delimiter+tok[name_column];
             wstring& name = identifier2edge_name[identifier];
 
-            if (!name.empty() && name!=tok[name_column]) {
-              if (message_box(get_window_handle(), mb_ok_cancel_error, APPLICATION_TITLE,
-                              L"name confliction: %s [%s, line=%d]",
-                              filename.c_str(), tok[name_column].c_str(),
-                              data[count].second)==IDCANCEL) return;
-            } else
-              name = tok[name_column];
+            if (!name.empty() && name!=tok[name_column])
+              throw (boost::wformat(L"name confliction: line=%d [%s]\n%s")
+                     %data[count].second%tok[name_column].c_str()
+                     %filename.c_str()).str();
+
+            name = tok[name_column];
           }
 
           edge_time_series.insert(make_pair(time, make_pair(identifier, weight)));
@@ -423,31 +388,29 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // Make a graph time-series and set properties.
 
-      if (node_time_series.empty() && edge_time_series.empty()) {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"%s: %s", message.get(Message::NO_VALID_DATA),
-                    filename.c_str());
-        return;
-      }
+      if (node_time_series.empty() && edge_time_series.empty())
+        throw (boost::wformat(L"%s\n%s")
+               %message.get(Message::NO_VALID_DATA)
+               %filename.c_str()).str();
 
       // Start time.
-      time_t const start_time =
-        node_time_series.empty()?
-          edge_time_series.begin()->first
-            :(edge_time_series.empty()?
-              node_time_series.begin()->first
-              :(node_time_series.begin()->first<edge_time_series.begin()->first?
-                node_time_series.begin()->first
+      time_t const start_time
+        = node_time_series.empty()
+          ?edge_time_series.begin()->first
+            :(edge_time_series.empty()
+              ?node_time_series.begin()->first
+              :(node_time_series.begin()->first<edge_time_series.begin()->first
+                ?node_time_series.begin()->first
                 :edge_time_series.begin()->first));
 
       // End time.
-      time_t const end_time =
-        node_time_series.empty()?
-          edge_time_series.rbegin()->first
-            :(edge_time_series.empty()?
-              node_time_series.rbegin()->first
-              :(node_time_series.rbegin()->first>edge_time_series.rbegin()->first?
-                node_time_series.rbegin()->first
+      time_t const end_time
+        =node_time_series.empty()
+          ?edge_time_series.rbegin()->first
+            :(edge_time_series.empty()
+              ?node_time_series.rbegin()->first
+              :(node_time_series.rbegin()->first>edge_time_series.rbegin()->first
+                ?node_time_series.rbegin()->first
                 :edge_time_series.rbegin()->first));
 
       time_t const range = 3*characteristic_time; // The cut-off value is 1e-3.
@@ -471,18 +434,24 @@ namespace hashimoto_ut {
 
         // Calculate node and wdge weights at time @t.
 
+        struct TimeDiff {
+          time_t operator()(time_t lhs, time_t rhs) const {
+            return lhs>rhs?lhs-rhs:rhs-lhs;
+          }
+        };
+
         { // Accumulate node weights between @t-@range and @t.
           TimeSeries::const_iterator now = node_time_series.upper_bound(t);
-          TimeSeries::const_iterator i = node_time_series.upper_bound(t-range);
+          TimeSeries::const_iterator i = node_time_series.upper_bound(TimeDiff()(t,range));
           for (; i!=now; ++i)
             node_weight[i->second.first]
-              += (i->second.second)*exp(-double(t-i->first)/characteristic_time);
+              += (i->second.second)*exp(-double(TimeDiff()(t,i->first))/characteristic_time);
         }{// Accumulate edge weights between @t-@range and @t.
           TimeSeries::const_iterator now = edge_time_series.upper_bound(t);
-          TimeSeries::const_iterator i = edge_time_series.upper_bound(t-range);
+          TimeSeries::const_iterator i = edge_time_series.upper_bound(TimeDiff()(t,range));
           for (; i!=now; ++i)
             edge_weight[i->second.first]
-              += (i->second.second)*exp(-double(t-i->first)/characteristic_time);
+              += (i->second.second)*exp(-double(TimeDiff()(t,i->first))/characteristic_time);
         }
 
         // **********  Catch a termination signal  **********

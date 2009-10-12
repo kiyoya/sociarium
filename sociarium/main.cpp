@@ -58,6 +58,10 @@
 #include "../shared/util.h"
 #include "../shared/win32api.h"
 
+//#include "cvframe.h"
+//#include "designtide.h"
+//#include "tamabi_library.h"
+
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
@@ -94,9 +98,6 @@ namespace hashimoto_ut {
       SetCurrentDirectory(get_module_path().c_str());
     }
 
-    // Set a window handle and a device context.
-    set_main_window(hwnd);
-
     unordered_map<wstring, wstring> data_ini;
 
     { // Read *.ini file.
@@ -116,20 +117,27 @@ namespace hashimoto_ut {
     unordered_map<wstring, wstring>::const_iterator m
       = data_ini.find(L"language");
 
-    if (m!=data_ini.end())
-      sociarium_project_menu_and_message::set_message(m->second.c_str());
-    else // Default language is English.
-      sociarium_project_menu_and_message::set_message(L"language_en.dll");
+    // Default language is English.
+    wchar_t const* ini_filename
+      = (m!=data_ini.end())?m->second.c_str():L"language_en.dll";
+
+    try {
+      sociarium_project_menu_and_message::set_message(ini_filename);
+    } catch (wchar_t const* errmsg) {
+      show_last_error(hwnd, errmsg);
+      exit(1);
+    }
 
     // Create the OpenGL world.
-    world_ = World::create();
+    world_ = World::create(hwnd);
 
     // Set menu.
-    if (m!=data_ini.end())
-      sociarium_project_menu_and_message::set_menu(hwnd, m->second.c_str());
-    else // Default language is English.
-      sociarium_project_menu_and_message::set_menu(hwnd, L"language_en.dll");
-
+    try {
+      sociarium_project_menu_and_message::set_menu(hwnd, ini_filename);
+    } catch (wchar_t const* errmsg) {
+      show_last_error(hwnd, errmsg);
+      exit(1);
+    }
     /* 'SetMenu()' will cause the WM_SIZE command, and window sizing requires
      * the world instance. So, 'SetMenu()' should be called after 'World::create()'.
      * In 'World::create()', some messages may be shown depending on the PC environment.
@@ -160,6 +168,78 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmCommand(HWND hwnd, WPARAM wp, LPARAM lp) {
     switch (LOWORD(wp)) {
+#if 0
+    case IDM_KEY_W: {
+      sociarium_project_designtide::switch_cvframe();
+      break;
+    }
+#endif
+    case IDM_KEY_Q:
+    case IDM_KEY_CTRL_Q: {
+#if 0
+      if (sociarium_project_cvframe::joinable()) {
+        sociarium_project_cvframe::terminate();
+        sociarium_project_tamabi_library::set_cell_texture(false);
+      } else {
+        sociarium_project_tamabi_library::set_cell_texture(true);
+        shared_ptr<CVFrame> cvframe = sociarium_project_cvframe::create();
+        if (GetKeyState(VK_CONTROL)<0) cvframe->set_camera();
+        else cvframe->set_movie(L"movie.avi");
+        sociarium_project_cvframe::invoke(cvframe);
+      }
+#endif
+#if 0
+      static Texture const* texture_prev = 0;
+
+      if (sociarium_project_cvframe::joinable()) {
+        sociarium_project_cvframe::terminate();
+
+        shared_ptr<SociariumGraphTimeSeries> ts
+          = sociarium_project_graph_time_series::get();
+
+        ts->read_lock();
+
+        SociariumGraphTimeSeries::StaticNodePropertySet::iterator i
+          = ts->find_static_node(0, 0);
+
+        if (i==ts->static_node_property_end(0)) {
+          ts->read_unlock();
+          break;
+        }
+
+        i->set_texture(texture_prev);
+        ts->read_unlock();
+
+      } else {
+
+        shared_ptr<SociariumGraphTimeSeries> ts
+          = sociarium_project_graph_time_series::get();
+
+        ts->read_lock();
+
+        SociariumGraphTimeSeries::StaticNodePropertySet::iterator i
+          = ts->find_static_node(0, 0);
+
+        if (i==ts->static_node_property_end(0)) {
+          ts->read_unlock();
+          break;
+        }
+
+        texture_prev = i->get_texture();
+        ts->read_unlock();
+
+        shared_ptr<CVFrame> cvframe = sociarium_project_cvframe::create();
+        if (GetKeyState(VK_CONTROL)<0) cvframe->set_camera();
+        else cvframe->set_movie(L"movie.avi");
+        cvframe->set_masking_image(L"balloon_mask.png");
+        sociarium_project_cvframe::invoke(cvframe);
+      }
+#endif
+#if 0
+      sociarium_project_designtide::update();
+#endif
+      break;
+    }
 
     case IDM_KEY_ESCAPE: {
       using namespace sociarium_project_thread;

@@ -34,9 +34,7 @@
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -56,7 +54,6 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using boost::numeric::ublas::mapped_matrix;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
@@ -98,28 +95,23 @@ namespace hashimoto_ut {
       if ((pos=params.find(L"title"))!=params.end() && !pos->second.first.empty())
         title = pos->second.first;
 
-      if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
-        delimiter = pos->second.first[0];
-
       if ((pos=params.find(L"node_name"))!=params.end())
         node_name_line = pos->second.first;
+
+      if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
+        delimiter = pos->second.first[0];
 
       if ((pos=params.find(L"threshold"))!=params.end()) {
         try {
           threshold = boost::lexical_cast<float>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
-      if (delimiter==L'\0') {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"%s: %s", message.get(Message::UNCERTAIN_DELIMITER),
-                    filename.c_str());
-        return;
-      }
+      if (delimiter==L'\0')
+        throw message.get(Message::UNCERTAIN_DELIMITER)+wstring(L": ")+filename;
 
 
       ////////////////////////////////////////////////////////////////////////////////
@@ -144,14 +136,10 @@ namespace hashimoto_ut {
 
         vector<wstring> tok = tokenize(data[i].first, delimiter);
 
-        if (tok.size()!=nsz) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"%s: %s [line=%d]",
-                      message.get(Message::INVALID_NUMBER_OF_ITEMS),
-                      filename.c_str(), data[i].second);
-          graph.clear();
-          return;
-        }
+        if (tok.size()!=nsz)
+          throw (boost::wformat(L"%s: line=%d\n%s")
+                 %message.get(Message::INVALID_NUMBER_OF_ITEMS)
+                 %data[i].second%filename.c_str()).str();
 
         for (size_t j=0; j<nsz; ++j) {
 
@@ -161,11 +149,8 @@ namespace hashimoto_ut {
             float const w = boost::lexical_cast<float>(tok[j]);
             weight_matrix(j,i) = w;
           } catch (...) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[i].second);
-            graph.clear();
-            return;
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[i].second%filename.c_str()).str();
           }
         }
       }

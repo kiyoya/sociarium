@@ -45,10 +45,7 @@ namespace hashimoto_ut {
 
     namespace {
       wstring module_path;
-      HWND window_handle = NULL;
       HINSTANCE instance_handle = NULL;
-      HDC device_context = NULL;
-      vector<HGLRC> rendering_context(RenderingContext::NUMBER_OF_THREAD_CATEGORIES, NULL);
     }
 
 
@@ -73,38 +70,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    HWND get_window_handle(void) {
-      return window_handle;
-    }
-
-    HDC get_device_context(void) {
-      return device_context;
-    }
-
-    void set_main_window(HWND hwnd) {
-      window_handle = hwnd;
-      device_context = GetDC(window_handle);
-      if (device_context==NULL) {
-        show_last_error(L"sociarium_project_common::set_main_window/GetDC");
-        exit(1);
-      }
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    HGLRC get_rendering_context(int thread_id) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
-      return rendering_context[thread_id];
-    }
-
-    void set_rendering_context(int thread_id, HGLRC rc) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
-      rendering_context[thread_id] = rc;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text) {
+    void show_last_error(HWND hwnd, wchar_t const* text) {
       LPVOID buf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER
                     | FORMAT_MESSAGE_FROM_SYSTEM
@@ -112,7 +78,7 @@ namespace hashimoto_ut {
                     NULL, GetLastError(),
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                     (LPTSTR)&buf, 0, NULL);
-      message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
+      message_box(hwnd, mb_error, APPLICATION_TITLE,
                   L"%s%s", (wchar_t*)buf, text);
       LocalFree(buf);
     }

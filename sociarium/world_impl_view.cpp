@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "world_impl.h"
 #include "view.h"
+#include "world_impl.h"
 #include "../shared/GL/glview.h"
 
 namespace hashimoto_ut {

@@ -34,9 +34,7 @@
 #include <boost/format.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -58,7 +56,6 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
@@ -101,13 +98,8 @@ namespace hashimoto_ut {
       if ((pos=params.find(L"delimiter"))!=params.end() && !pos->second.first.empty())
         delimiter = pos->second.first[0];
 
-      if (delimiter==L'\0') {
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"%s: %s",
-                    message.get(Message::UNCERTAIN_DELIMITER),
-                    filename.c_str());
-        return;
-      }
+      if (delimiter==L'\0')
+        throw message.get(Message::UNCERTAIN_DELIMITER)+wstring(L": ")+filename;
 
 
       ////////////////////////////////////////////////////////////////////////////////

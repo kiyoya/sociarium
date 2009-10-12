@@ -44,6 +44,10 @@
 #include "world_impl.h"
 #include "../shared/GL/glview.h"
 
+//#include "cvframe.h"
+//#include "designtide.h"
+//#include "tamabi_library.h"
+
 #pragma comment(lib, "winmm.lib")
 
 namespace hashimoto_ut {
@@ -142,16 +146,17 @@ namespace hashimoto_ut {
 
     // Draw a perspective part.
     view_->push_matrix();
+    view_->initialize_matrix();
     draw_perspective_part();
     view_->pop_matrix();
 
     // Draw an orthogonal part.
     view_->push_matrix();
+    view_->initialize_matrix();
     draw_orthogonal_part();
     view_->pop_matrix();
 
-    HDC dc = get_device_context();
-    SwapBuffers(dc);
+    SwapBuffers(dc_);
   }
 
 
@@ -160,11 +165,6 @@ namespace hashimoto_ut {
 
     GLint mode;
     glGetIntegerv(GL_RENDER_MODE, &mode);
-
-    if (mode==GL_RENDER) view_->initialize_matrix();
-    /*
-     * Never initialize the modelview matrix in the GL_SELECT mode.
-     */
 
     view_->set_orthogonal_matrix();
 
@@ -195,11 +195,6 @@ namespace hashimoto_ut {
 
     GLint mode;
     glGetIntegerv(GL_RENDER_MODE, &mode);
-
-    if (mode==GL_RENDER) view_->initialize_matrix();
-    /*
-     * Never initialize the modelview matrix in the GL_SELECT mode.
-     */
 
     view_->set_perspective_matrix();
 
@@ -249,6 +244,16 @@ namespace hashimoto_ut {
           for (; i!=end; ++i) {
             Node const* n = i->first;
             StaticNodeProperty* snp = i->second.get_static_property();
+#if 0
+            if (snp->get_id()==0) {
+              shared_ptr<CVFrame> cvframe = sociarium_project_cvframe::get_current_frame();
+              if (cvframe) {
+                cvframe->read_lock();
+                snp->set_texture(cvframe->get_texture());
+                cvframe->read_unlock();
+              }
+            }
+#endif
             glPushName(GLuint(n->index()));
             draw_node_with_texture(i->second, angleH, angleV, is_selected(n)||is_selected(snp));
             glPopName();
@@ -446,6 +451,9 @@ namespace hashimoto_ut {
 
         ts->read_unlock();
       }
+
+      //sociarium_project_designtide::draw(angleH, angleV);
+      //sociarium_project_tamabi_library::draw();
     }
 
     glPopMatrix();

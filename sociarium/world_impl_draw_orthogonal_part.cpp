@@ -578,17 +578,42 @@ namespace hashimoto_ut {
       float const scy = size.y*(diagram->get_max_bundle_size()>0
                                 ?1.0f/diagram->get_max_bundle_size():0.0f);
 
-      vector<shared_ptr<Trajectory> >::const_iterator i
-        = diagram->trajectory_begin();
-      vector<shared_ptr<Trajectory> >::const_iterator end
-        = diagram->trajectory_end();
-
       glPushMatrix();
       glTranslatef(0.0f, pos.y+0.5f*size.y, 0.0f);
       glLoadName(SelectionCategory::TRAJECTORY);
 
       float y_max = 0.0f;
       float y_min = 1000.0f;
+
+      shared_ptr<SociariumGraphTimeSeries> ts
+        = sociarium_project_graph_time_series::get();
+
+      vector<vector<StaticNodeProperty const*> > xxx(ts->number_of_layers());
+
+      if (sociarium_project_selection::is_selected(SelectionCategory::NODE)) {
+        StaticNodeProperty const* snp_sel = static_cast<StaticNodeProperty const*>(get_selected_static_object());
+
+        typedef StaticNodeProperty::DynamicPropertyMap DynamicPropertyMap;
+
+        DynamicPropertyMap::const_iterator j = snp_sel->dynamic_property_begin();
+        DynamicPropertyMap::const_iterator jend = snp_sel->dynamic_property_end();
+
+        for (; j!=jend; ++j) {
+
+          vector<DynamicNodeProperty*>::const_iterator k
+            = j->first->upper_nbegin();
+          vector<DynamicNodeProperty*>::const_iterator kend
+            = j->first->upper_nend();
+
+          for (; k!=kend; ++k)
+            xxx[j->second].push_back((*k)->get_static_property());
+        }
+      }
+
+      vector<shared_ptr<Trajectory> >::const_iterator i
+        = diagram->trajectory_begin();
+      vector<shared_ptr<Trajectory> >::const_iterator end
+        = diagram->trajectory_end();
 
       for (; i!=end; ++i) {
 
@@ -627,12 +652,24 @@ namespace hashimoto_ut {
             if (y_min>y.first) y_min = y.first;
           }
 
+          int const index_of_layer = j/get_resolution();
+
           {
             Vector3<float> rgb = (*i)->get_interpolated_color(j);
             //= predefined_color[snp->dynamic_property_begin()->first->get_color_id()];
 
             using namespace sociarium_project_selection;
-            if (is_selected(snp)) {
+
+            bool b = false;
+
+            for (size_t k=0; k<xxx[index_of_layer].size(); ++k) {
+              if (xxx[index_of_layer][k]==snp) {
+                b = true;
+                break;
+              }
+            }
+
+            if (is_selected(snp) || b) {
               rgb.x *= 0.4f;
               rgb.y *= 0.4f;
               rgb.z *= 0.4f;

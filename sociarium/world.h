@@ -34,6 +34,7 @@
 
 #include <memory>
 #include <windows.h>
+#include <gl/gl.h>
 #include "../shared/vector2.h"
 
 namespace hashimoto_ut {
@@ -44,6 +45,10 @@ namespace hashimoto_ut {
   class World {
   public:
     virtual ~World() {}
+
+    virtual HWND get_window_handle(void) const = 0;
+    virtual HDC get_device_context(void) const = 0;
+    virtual HGLRC get_rendering_context(int thread_id) const = 0;
 
     virtual void draw(void) const = 0;
     virtual void select(Vector2<int> const& mpos) const = 0;
@@ -70,10 +75,7 @@ namespace hashimoto_ut {
     virtual void show_elements(int menu) const = 0;
     virtual void remove_marked_elements(int menu) const = 0;
 
-    static std::tr1::shared_ptr<World> create(void);
-
-  protected:
-    World(void) {}
+    static std::tr1::shared_ptr<World> create(HWND hwnd);
   };
 
 } // The end of the namespace "hashimoto_ut"

@@ -52,7 +52,7 @@ namespace hashimoto_ut {
 
     namespace RenderingContext {
       enum {
-        DRAW = 0,
+        DRAW = 0, // The ID of drawing context should be 0.
         LOAD_TEXTURES,
         CVFRAME,
         NUMBER_OF_THREAD_CATEGORIES
@@ -70,18 +70,7 @@ namespace hashimoto_ut {
     void set_instance_handle(HINSTANCE hinst);
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Get a window handle and a device context of the main window.
-    HWND get_window_handle(void);
-    HDC get_device_context(void);
-    void set_main_window(HWND hwnd);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the rendering context.
-    HGLRC get_rendering_context(int thread_id);
-    void set_rendering_context(int thread_id, HGLRC rc);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text=L"");
+    void show_last_error(HWND hwnd, wchar_t const* text=L"");
 
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef DEBUG

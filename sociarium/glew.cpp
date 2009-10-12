@@ -32,16 +32,13 @@
 #include <windows.h>
 #include <gl/glew.h>
 #include <gl/wglew.h>
-#include "common.h"
 #include "glew.h"
 
 namespace hashimoto_ut {
 
-  using namespace sociarium_project_common;
-
   namespace sociarium_project_glew {
 
-    bool initialize(void) {
+    void initialize(void) {
 
       ////////////////////////////////////////////////////////////////////////////////
       // Make a dummy window, then initialize GLEW environment.
@@ -52,10 +49,8 @@ namespace hashimoto_ut {
       wc.lpfnWndProc = DefWindowProc;
       wc.lpszClassName = L"GLEW";
 
-      if (RegisterClass(&wc)==0) {
-        show_last_error(L"sociarium_project_glew::initialize/RegisterClass");
-        return false;
-      }
+      if (RegisterClass(&wc)==0)
+        throw L"sociarium_project_glew::initialize/RegisterClass";
 
       // --------------------------------------------------------------------------------
       // 1. Make a dummy window.
@@ -64,10 +59,8 @@ namespace hashimoto_ut {
                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                        NULL, NULL, GetModuleHandle(NULL), NULL);;
 
-      if (hwnd==NULL) {
-        show_last_error(L"sociarium_project_glew::initialize/CreateWindow");
-        return false;
-      }
+      if (hwnd==NULL)
+        throw L"sociarium_project_glew::initialize/CreateWindow";
 
       ShowWindow(hwnd, SW_HIDE); // Don't show.
 
@@ -75,10 +68,8 @@ namespace hashimoto_ut {
       // 2. Get a device context.
       HDC dc = GetDC(hwnd);
 
-      if (dc==NULL) {
-        show_last_error(L"sociarium_project_glew::initialize/GetDC");
-        return false;
-      }
+      if (dc==NULL)
+        throw L"sociarium_project_glew::initialize/GetDC";
 
       // --------------------------------------------------------------------------------
       // 3. Choose and set the pixel format. This is not the ARB one.
@@ -90,35 +81,29 @@ namespace hashimoto_ut {
 
       int const pf = ChoosePixelFormat(dc, &pfd);
 
-      if (pf==0) {
-        show_last_error(L"sociarium_project_glew::initialize/ChoosePixelFormat");
-        return false;
-      }
+      if (pf==0)
+        throw L"sociarium_project_glew::initialize/ChoosePixelFormat";
 
-      if (SetPixelFormat(dc, pf, &pfd)==FALSE) {
+      if (SetPixelFormat(dc, pf, &pfd)==FALSE)
+        throw L"sociarium_project_glew::initialize/SetPixelFormat";
         /* "SetPixelFormat()" can be called once in the same window.
          * So, after initializing the GLEW environment,
          * the dummy window should be destroyed.
          */
-        show_last_error(L"sociarium_project_glew::initialize/SetPixelFormat");
-        return false;
-      }
 
       // --------------------------------------------------------------------------------
       // 4. Create and enable the rendering context.
       HGLRC rc = wglCreateContext(dc);
 
       if (rc==0) {
-        show_last_error(L"sociarium_project_glew::initialize/wglCreateContext");
         ReleaseDC(hwnd, dc);
-        return false;
+        throw L"sociarium_project_glew::initialize/wglCreateContext";
       }
 
       if (wglMakeCurrent(dc, rc)==FALSE) {
-        show_last_error(L"sociarium_project_glew::initialize/wglMakeCurrent");
         ReleaseDC(hwnd, dc);
         wglDeleteContext(rc);
-        return false;
+        throw L"sociarium_project_glew::initialize/wglMakeCurrent";
       }
 
       /*
@@ -137,12 +122,8 @@ namespace hashimoto_ut {
       DestroyWindow(hwnd);
       UnregisterClass(L"GLEW", GetModuleHandle(NULL));
 
-      if (err!=GLEW_OK) {
-        show_last_error(L"sociarium_project_glew::initialize/glewInit");
-        return false;
-      }
-
-      return true;
+      if (err!=GLEW_OK)
+        throw L"sociarium_project_glew::initialize/glewInit";
     }
 
   } // The end of the namespace "sociarium_project_glew"

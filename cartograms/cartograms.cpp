@@ -12,13 +12,6 @@
 #include "../shared/thread.h"
 #include "../shared/math.h"
 
-#ifdef NDEBUG
-#pragma comment(lib, "libfftw_s.lib") // static link
-#else
-#pragma comment(lib, "libfftwd.lib")
-#pragma comment(linker, "/NODEFAULTLIB:LIBCMTD.lib")
-#endif
-
 namespace hashimoto_ut {
 
   using std::vector;

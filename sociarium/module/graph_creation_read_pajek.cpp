@@ -34,9 +34,7 @@
 #include <boost/format.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -56,7 +54,6 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
@@ -140,12 +137,9 @@ namespace hashimoto_ut {
           wstring id = line.substr(0, head);
           trim(id);
 
-          if (identifier2node.find(id)!=identifier2node.end()) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[count].second);
-            return;
-          }
+          if (identifier2node.find(id)!=identifier2node.end())
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %data[count].second%filename.c_str()).str();
 
           ++head;
           wstring const identifier = line.substr(head, tail-head);
@@ -161,65 +155,61 @@ namespace hashimoto_ut {
         else if (mode==1) {
           // Make edges.
           vector<wstring> tok = tokenize(line, ' ');
-          if (tok.size()<2) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"bad data: %s [line=%d]",
-                        filename.c_str(), data[count].second);
-            return;
-          } else {
-            trim(tok[0]);
-            trim(tok[1]);
-            float weight = 1.0f;
+          if (tok.size()<2)
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %data[count].second%filename.c_str()).str();
 
-            if (tok.size()>2) {
-              trim(tok[2]);
-              try {
-                weight = boost::lexical_cast<float>(tok[2]);
-              } catch (...) {
-                weight = 1.0f;
-              }
-            }
+          trim(tok[0]);
+          trim(tok[1]);
+          float weight = 1.0f;
 
-            unordered_map<wstring, Node*>::const_iterator m0
-              = identifier2node.find(tok[0]);
-            unordered_map<wstring, Node*>::const_iterator m1
-              = identifier2node.find(tok[1]);
-
-            if (m0==identifier2node.end() || m1==identifier2node.end()) {
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"bad data: %s [line=%d]",
-                          filename.c_str(), data[count].second);
-              return;
-            } else {
-              Node* n0 = m0->second;
-              Node* n1 = m1->second;
-              if (!directed) {
-                n0 = m0->first<m1->first?m0->second:m1->second;
-                n1 = m0->first<m1->first?m1->second:m0->second;
-              }
-
-              wstring const& node_name0 = node_property[0][n0->index()].name;
-              wstring const& node_name1 = node_property[0][n1->index()].name;
-              wstring const identifier = L'\"'+node_name0+L"\"~"+node_name1+L'\"';
-              unordered_map<wstring, Edge*>::const_iterator m
-                = identifier2edge.find(identifier);
-
-              if (m==identifier2edge.end()) {
-                Edge* e = g->add_edge(n0, n1);
-                identifier2edge.insert(make_pair(identifier, e));
-                EdgeProperty ep;
-                ep.identifier = identifier;
-                ep.name = node_name0+L'~'+node_name1;
-                ep.weight = weight;
-                edge_property[0].push_back(ep);
-              } else
-                edge_property[0][m->second->index()].weight += weight;
-
-              node_property[0][n0->index()].weight += weight;
-              node_property[0][n1->index()].weight += weight;
+          if (tok.size()>2) {
+            trim(tok[2]);
+            try {
+              weight = boost::lexical_cast<float>(tok[2]);
+            } catch (...) {
+              weight = 1.0f;
             }
           }
-        } else assert(0 && "never reach");
+
+          unordered_map<wstring, Node*>::const_iterator m0
+            = identifier2node.find(tok[0]);
+          unordered_map<wstring, Node*>::const_iterator m1
+            = identifier2node.find(tok[1]);
+
+          if (m0==identifier2node.end() || m1==identifier2node.end())
+            throw (boost::wformat(L"bad data: line=%d\n%s")
+                   %data[count].second%filename.c_str()).str();
+
+          Node* n0 = m0->second;
+          Node* n1 = m1->second;
+          if (!directed) {
+            n0 = m0->first<m1->first?m0->second:m1->second;
+            n1 = m0->first<m1->first?m1->second:m0->second;
+          }
+
+          wstring const& node_name0 = node_property[0][n0->index()].name;
+          wstring const& node_name1 = node_property[0][n1->index()].name;
+          wstring const identifier = L'\"'+node_name0+L"\"~"+node_name1+L'\"';
+          unordered_map<wstring, Edge*>::const_iterator m
+            = identifier2edge.find(identifier);
+
+          if (m==identifier2edge.end()) {
+            Edge* e = g->add_edge(n0, n1);
+            identifier2edge.insert(make_pair(identifier, e));
+            EdgeProperty ep;
+            ep.identifier = identifier;
+            ep.name = node_name0+L'~'+node_name1;
+            ep.weight = weight;
+            edge_property[0].push_back(ep);
+          } else
+            edge_property[0][m->second->index()].weight += weight;
+
+          node_property[0][n0->index()].weight += weight;
+          node_property[0][n1->index()].weight += weight;
+        }
+
+        else assert(0 && "never reach");
       }
 
 

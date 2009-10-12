@@ -1226,12 +1226,12 @@ namespace hashimoto_ut {
     }
 
     if (another_thread_is_running) {
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    if (message_box(get_window_handle(), mb_ok_cancel, APPLICATION_TITLE,
+    if (message_box(hwnd_, mb_ok_cancel, APPLICATION_TITLE,
                     L"%s", get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
       return;
 

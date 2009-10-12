@@ -225,7 +225,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_draw::set_coordinates_size(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_grid_interval))!=params.end()) {
       wstring const& s = i->second.first;
@@ -233,7 +233,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_layout::set_grid_interval(v);
       } catch (...) {}
-    } 
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -245,7 +245,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_force_direction::set_force_scale(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_kk_force_NN))!=params.end()) {
       wstring const& s = i->second.first;
@@ -253,7 +253,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_force_direction::set_kk_force_CC(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_kk_force_CC))!=params.end()) {
       wstring const& s = i->second.first;
@@ -261,7 +261,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_force_direction::set_kk_force_CC(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_spring_force_CN))!=params.end()) {
       wstring const& s = i->second.first;
@@ -269,7 +269,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_force_direction::set_spring_force_CN(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_spring_force_NN))!=params.end()) {
       wstring const& s = i->second.first;
@@ -277,7 +277,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_force_direction::set_spring_force_NN(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_spring_length_CN))!=params.end()) {
       wstring const& s = i->second.first;
@@ -285,7 +285,7 @@ namespace hashimoto_ut {
         float const v = boost::lexical_cast<float>(s);
         if (v>0.0f) sociarium_project_force_direction::set_spring_length_CN(v);
       } catch (...) {}
-    } 
+    }
 
     if ((i=params.find(pre_spring_length_NN))!=params.end()) {
       wstring const& s = i->second.first;

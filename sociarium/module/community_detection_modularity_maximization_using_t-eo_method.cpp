@@ -57,7 +57,7 @@ namespace hashimoto_ut {
   using namespace sociarium_project_menu_and_message;
 
   namespace {
-    int const alpha = 50;
+    int const alpha = 10;
 
     // fitness
     vector<double> calc_fitness(
@@ -212,8 +212,8 @@ namespace hashimoto_ut {
           // smaller the rank, higher the probability.
           double p_cum = 0.0;
 
-          //double const exp = 1.0+1.0/log(double(csz)); ??
-          double const exp = 1.0+1.0/log(double(nsz));
+          double const exp = 1.0+1.0/log(double(csz)); // ??
+          // double const exp = 1.0+1.0/log(double(nsz));
 
           for (int i=0; i<csz; ++i) {
             p[i] = pow(p[i], -exp);

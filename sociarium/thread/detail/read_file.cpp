@@ -80,7 +80,7 @@ namespace hashimoto_ut {
        */
 
       ////////////////////////////////////////////////////////////////////////////////
-      bool convert2utf16(wchar_t const* filename, wstringstream& ss, wstring& status) {
+      void convert2utf16(wchar_t const* filename, wstringstream& ss, wstring& status) {
 
         CoInitialize(NULL);
 
@@ -91,7 +91,7 @@ namespace hashimoto_ut {
 
         if (byte==0) {
           CoUninitialize();
-          return false;
+          throw 0;
         }
 
         IMultiLanguage2* ml;
@@ -99,9 +99,8 @@ namespace hashimoto_ut {
         if (FAILED(CoCreateInstance(
           CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER,
           IID_IMultiLanguage2, (void**)&ml))) {
-          show_last_error(L"convert2utf16/CoCreateInstance");
           CoUninitialize();
-          return false;
+          throw L"Failed to create an IMultiLanguage2 object";
         }
 
         HGLOBAL hsrc = GlobalAlloc(GMEM_MOVEABLE, byte);
@@ -123,12 +122,11 @@ namespace hashimoto_ut {
 
         if (FAILED(ml->DetectCodepageInIStream(
           MLDETECTCP_HTML, 0, is_src, &encoding, &encsize))) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"%s [%s]", get_message(Message::UNKNOWN_CHARACTER_ENCODING),
-                      filename);
           is_src->Release();
           CoUninitialize();
-          return false;
+          throw (boost::wformat(L"%s [%s]")
+                 %get_message(Message::UNKNOWN_CHARACTER_ENCODING)
+                 %filename).str().c_str();
         }
 
         LARGE_INTEGER pos = { 0 };
@@ -159,7 +157,6 @@ namespace hashimoto_ut {
 
         is_src->Release();
         CoUninitialize();
-        return true;
       }
 
     } // The end of the anonymous namespace
@@ -174,34 +171,31 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool read_file(Thread* parent, wchar_t const* filename,
+    void read_file(Thread* parent, wchar_t const* filename,
                    unordered_map<wstring, pair<wstring, int> >& params,
                    vector<pair<wstring, int> >& data) {
 
       using namespace sociarium_project_thread;
       deque<wstring>& status = get_status(GRAPH_CREATION);
 
-      status[0]
-        = (boost::wformat(L"%s: 0%%")
-           %get_message(Message::READING_DATA_FILE)).str();
-
-      string const filename_mb = wcs2mbcs(filename, wcslen(filename));
-      int const num = number_of_lines(filename_mb.c_str());
-      if (num<1) return false;
-
       wstringstream ss;
 
-      if (!convert2utf16(filename, ss, status[0]))
-        return false;
+      convert2utf16(filename, ss, status[0]);
 
       wstring line;
+
+      int num = 0;
+      while (getline(ss, line)) ++num;
+
+      ss.clear(wstringstream::goodbit);
+      ss.seekg(std::ios_base::beg);
 
       for (int i=1; getline(ss, line); ++i) {
 
         // **********  Catch a termination signal  **********
         if (parent && parent->cancel_check()) {
           deque<wstring>(status.size()).swap(status);
-          return false;
+          throw 0;
         }
 
         status[0]
@@ -234,8 +228,6 @@ namespace hashimoto_ut {
       }
 
       deque<wstring>(status.size()).swap(status);
-
-      return true;
     }
 
   } // The end of the namespace "sociarium_project_thread_detail_read_file"

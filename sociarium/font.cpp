@@ -32,8 +32,8 @@
 #include <cassert>
 #include <string>
 #include <windows.h>
+#include <boost/format.hpp>
 #include <FTGL/ftgl.h>
-#include "common.h"
 #include "font.h"
 #include "menu_and_message.h"
 #include "../shared/msgbox.h"
@@ -44,7 +44,6 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::tr1::shared_ptr;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_font {
@@ -113,25 +112,21 @@ namespace hashimoto_ut {
               if (f->CharMap(ft_encoding_unicode)) break; // Successfully finished.
               else if (i==NUMBER_OF_FONT_OPTIONS-1) {
                 // No option available any more.
-                message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                            L"%s: %s [ft_encoding_unicode]",
-                            get_message(Message::FTGL_ERROR_CHARMAP),
-                            filename.c_str());
-                exit(1);
+                throw (boost::wformat(L"%s: %s [ft_encoding_unicode]")
+                       %get_message(Message::FTGL_ERROR_CHARMAP)
+                       %filename.c_str()).str().c_str();
               } else continue; // Try the next option.
             } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
               // No option available any more.
-              message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                          L"%s: %s [%d]",
-                          get_message(Message::FTGL_ERROR_FACESIZE),
-                          filename.c_str(), default_face_size);
-              exit(1);
+                throw (boost::wformat(L"%s: %s [%d]")
+                       %get_message(Message::FTGL_ERROR_FACESIZE)
+                       %filename.c_str()
+                       %default_face_size).str().c_str();
             } else continue; // Try the next option.
           } else if (i==NUMBER_OF_FONT_OPTIONS-1) {
             // No option available any more.
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"%s", get_message(Message::FTGL_ERROR_CREATE));
-            exit(1);
+            throw (boost::wformat(L"%s")
+                   %get_message(Message::FTGL_ERROR_CREATE)).str().c_str();
           } else continue; // Try the next option.
         }
       }

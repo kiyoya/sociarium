@@ -41,7 +41,6 @@
  * you probably have to define "BIND_FORTRAN_LOWERCASE_UNDERSCORE" instead of
  * "BOOST_NUMERIC_BINDINGS_USE_CLAPACK" and link against the "*_nowrap.lib" libraries.
  */
-// http://mathema.tician.de/dl/software/boost-numeric-bindings
 #include <boost/numeric/bindings/lapack/geev.hpp>
 #include <boost/numeric/bindings/traits/std_vector.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
@@ -54,7 +53,6 @@
 #include "../../shared/thread.h"
 #include "../../graph/util/traverser.h"
 
-// http://www.netlib.org/clapack/LIB_WINDOWS/prebuilt_libraries_windows.html
 #ifdef NDEBUG
 #pragma comment(lib, "libf2c.lib")
 #pragma comment(lib, "BLAS.lib")

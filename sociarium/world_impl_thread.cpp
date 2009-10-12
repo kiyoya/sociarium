@@ -60,7 +60,7 @@ namespace hashimoto_ut {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     }
@@ -72,12 +72,12 @@ namespace hashimoto_ut {
       /* During other threads are running,
        * the graph creation thread can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(GRAPH_CREATION, GraphCreationThread::create(filename));
+    invoke(GRAPH_CREATION, GraphCreationThread::create(this, filename));
   }
 
 #if 0
@@ -88,7 +88,7 @@ namespace hashimoto_ut {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     }
@@ -100,12 +100,12 @@ namespace hashimoto_ut {
       /* During other threads are running,
        * the graph creation thread can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(GRAPH_RETOUCH, GraphRetouchThread::create(filename));
+    invoke(GRAPH_RETOUCH, GraphRetouchThread::create(this, filename));
   }
 #endif
 
@@ -116,18 +116,18 @@ namespace hashimoto_ut {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(LAYOUT)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(LAYOUT, LayoutThread::create());
+    invoke(LAYOUT, LayoutThread::create(this));
   }
 
 
@@ -138,18 +138,18 @@ namespace hashimoto_ut {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(COMMUNITY_DETECTION)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    invoke(COMMUNITY_DETECTION, CommunityDetectionThread::create());
+    invoke(COMMUNITY_DETECTION, CommunityDetectionThread::create(this));
   }
 
 
@@ -160,13 +160,13 @@ namespace hashimoto_ut {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(NODE_SIZE_UPDATE)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
@@ -182,13 +182,13 @@ namespace hashimoto_ut {
       /* During the graph creation thread is running,
        * other threads can't be invoked.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::GRAPH_IS_LOCKED));
       return;
     } else if (joinable(EDGE_WIDTH_UPDATE)) {
       /* Multiple execution of the same kind of thread is prohibited.
        */
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
     }
 

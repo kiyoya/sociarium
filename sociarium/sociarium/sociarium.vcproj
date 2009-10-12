@@ -712,6 +712,10 @@
 				RelativePath="..\world.h"
 				>
 			</File>
+			<File
+				RelativePath="..\world_impl.h"
+				>
+			</File>
 			<Filter
 				Name="shared"
 				>

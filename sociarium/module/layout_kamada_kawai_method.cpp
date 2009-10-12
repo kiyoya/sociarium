@@ -38,7 +38,6 @@
 #include "../graph_utility.h"
 #include "../menu_and_message.h"
 #include "../../shared/thread.h"
-#include "../../shared/msgbox.h"
 #include "../../graph/util/traverser.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {

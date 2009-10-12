@@ -47,6 +47,21 @@ namespace hashimoto_ut {
   using namespace sociarium_project_menu_and_message;
 
   ////////////////////////////////////////////////////////////////////////////////
+  HWND WorldImpl::get_window_handle(void) const {
+    return hwnd_;
+  }
+
+  HDC WorldImpl::get_device_context(void) const {
+    return dc_;
+  }
+
+  HGLRC WorldImpl::get_rendering_context(int thread_id) const {
+    assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_THREAD_CATEGORIES);
+    return rc_[thread_id];
+  }
+
+
+  ////////////////////////////////////////////////////////////////////////////////
   void WorldImpl::forward_layer(Vector2<int> const& mpos) {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
@@ -83,12 +98,12 @@ namespace hashimoto_ut {
     }
 
     if (another_thread_is_running) {
-      message_box(get_window_handle(), mb_notice, APPLICATION_TITLE,
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
                   L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    if (message_box(get_window_handle(), mb_ok_cancel, APPLICATION_TITLE,
+    if (message_box(hwnd_, mb_ok_cancel, APPLICATION_TITLE,
                     L"%s", get_message(Message::CLEAR_COMMUNITY))==IDCANCEL)
       return;
 

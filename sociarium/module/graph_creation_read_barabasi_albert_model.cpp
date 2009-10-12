@@ -1,4 +1,5 @@
-﻿// s.o.c.i.a.r.i.u.m: module/graph_creation_read_barabasi_albert_model.cpp
+﻿// s.o.c.i.a.r.i.u.m
+// module/graph_creation_read_barabasi_albert_model.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -35,9 +36,7 @@
 #include <boost/lexical_cast.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -56,7 +55,6 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_menu_and_message;
 
@@ -107,9 +105,8 @@ namespace hashimoto_ut {
         try {
           nsz = boost::lexical_cast<size_t>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
@@ -117,9 +114,8 @@ namespace hashimoto_ut {
         try {
           ksz = boost::lexical_cast<double>(pos->second.first);
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 

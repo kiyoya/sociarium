@@ -36,7 +36,7 @@ namespace hashimoto_ut {
 
   namespace sociarium_project_glew {
 
-    bool initialize(void);
+    void initialize(void);
 
   } // The end of the namespace "sociarium_project_glew"
 

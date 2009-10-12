@@ -51,6 +51,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_en", "module\langu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_betweenness_centrality_separation", "module\community_detection_betweenness_centrality_separation\community_detection_betweenness_centrality_separation.vcproj", "{72AB6078-6490-4C9A-B2E7-35943A37BFC6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graph_creation_read_time_series_designtide", "module\graph_creation_read_time_series_designtide\graph_creation_read_time_series_designtide.vcproj", "{F890BFDF-712D-4893-97B0-61CDC2D7A41D}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graph_creation_read_lattice_model", "module\graph_creation_read_lattice_model\graph_creation_read_lattice_model.vcproj", "{B82A0C91-3811-486A-893E-ECC8DE0FF3E2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "layout_cartograms", "module\layout_cartograms\layout_cartograms.vcproj", "{C18F9FCD-68DB-40B9-8D48-FBC03ADD000C}"
@@ -161,6 +163,10 @@ Global
 		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Debug|Win32.Build.0 = Debug|Win32
 		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Release|Win32.ActiveCfg = Release|Win32
 		{72AB6078-6490-4C9A-B2E7-35943A37BFC6}.Release|Win32.Build.0 = Release|Win32
+		{F890BFDF-712D-4893-97B0-61CDC2D7A41D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F890BFDF-712D-4893-97B0-61CDC2D7A41D}.Debug|Win32.Build.0 = Debug|Win32
+		{F890BFDF-712D-4893-97B0-61CDC2D7A41D}.Release|Win32.ActiveCfg = Release|Win32
+		{F890BFDF-712D-4893-97B0-61CDC2D7A41D}.Release|Win32.Build.0 = Release|Win32
 		{B82A0C91-3811-486A-893E-ECC8DE0FF3E2}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B82A0C91-3811-486A-893E-ECC8DE0FF3E2}.Debug|Win32.Build.0 = Debug|Win32
 		{B82A0C91-3811-486A-893E-ECC8DE0FF3E2}.Release|Win32.ActiveCfg = Release|Win32

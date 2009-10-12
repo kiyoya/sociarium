@@ -32,6 +32,7 @@
 #include <cassert>
 #include <memory>
 #include <unordered_map>
+#include <boost/format.hpp>
 #include <gl/glew.h>
 #include "common.h"
 #include "menu_and_message.h"
@@ -97,9 +98,7 @@ namespace hashimoto_ut {
 #endif
 
       if (err!=Texture::SUCCEEDED)
-        message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                    L"%s: %s (%d)", get_message(Message::FAILED_TO_CREATE_TEXTURE),
-                    full_path.c_str(), err);
+        texture.reset();
     }
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,5 @@
-﻿// s.o.c.i.a.r.i.u.m: module/graph_creation_read_lattice.cpp
+﻿// s.o.c.i.a.r.i.u.m
+// module/graph_creation_read_lattice.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -34,9 +35,7 @@
 #include <boost/format.hpp>
 #include <windows.h>
 #include "graph_creation.h"
-#include "../common.h"
 #include "../menu_and_message.h"
-#include "../../shared/msgbox.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
@@ -57,7 +56,6 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::unordered_map;
 
-  using namespace sociarium_project_common;
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
@@ -98,15 +96,12 @@ namespace hashimoto_ut {
         try {
           xsize = boost::lexical_cast<size_t>(pos->second.first);
           if (xsize<2) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"xsize<2: %s [line=%d]",
-                        filename.c_str(), pos->second.second);
-            return;
+            throw (boost::wformat(L"xsize<2: line=%d\n%s")
+                   %pos->second.second%filename.c_str()).str();
           }
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 
@@ -114,15 +109,12 @@ namespace hashimoto_ut {
         try {
           ysize = boost::lexical_cast<size_t>(pos->second.first);
           if (ysize<2) {
-            message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                        L"ysize<2: %s [line=%d]",
-                        filename.c_str(), pos->second.second);
-            return;
+            throw (boost::wformat(L"ysize<2: line=%d\n%s")
+                   %pos->second.second%filename.c_str()).str();
           }
         } catch (...) {
-          message_box(get_window_handle(), mb_error, APPLICATION_TITLE,
-                      L"bad data: %s [line=%d]",
-                      filename.c_str(), pos->second.second);
+          throw (boost::wformat(L"bad data: line=%d\n%s")
+                 %pos->second.second%filename.c_str()).str();
         }
       }
 

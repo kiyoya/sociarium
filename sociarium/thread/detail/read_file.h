@@ -44,9 +44,9 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     // The function reads @filename and store parsed data in @params and @data.
-    // If file reading were canceled (the signal is caught via @parent),
-    // returns false.
-    bool read_file(
+    // If file reading were canceled (the signal is caught via @parent) or
+    // some errors occur, throw exception.
+    void read_file(
       Thread* parent, wchar_t const* filename,
       std::tr1::unordered_map<std::wstring, std::pair<std::wstring, int> >& params,
       std::vector<std::pair<std::wstring, int> >& data);

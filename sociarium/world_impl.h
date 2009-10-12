@@ -32,6 +32,7 @@
 #ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_WORLD_IMPL_H
 #define INCLUDE_GUARD_SOCIARIUM_PROJECT_WORLD_IMPL_H
 
+#include <vector>
 #include "world.h"
 
 namespace hashimoto_ut {
@@ -41,8 +42,13 @@ namespace hashimoto_ut {
   class WorldImpl : public World {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    WorldImpl(void);
+    WorldImpl(HWND hwnd);
     ~WorldImpl();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    HWND get_window_handle(void) const;
+    HDC get_device_context(void) const;
+    HGLRC get_rendering_context(int thread_id) const;
 
     ////////////////////////////////////////////////////////////////////////////////
     void draw(void) const;
@@ -81,6 +87,9 @@ namespace hashimoto_ut {
     void remove_marked_elements(int menu) const;
 
   private:
+    HWND hwnd_;
+    HDC dc_;
+    std::vector<HGLRC> rc_;
     Vector2<float> center_;
     std::tr1::shared_ptr<GLView> view_;
   };

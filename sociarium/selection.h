@@ -129,7 +129,7 @@ namespace hashimoto_ut {
     bool is_selected(int category);
 
     bool is_selected(Node const* n);
-    bool is_selected( Edge const* e);
+    bool is_selected(Edge const* e);
 
     bool is_selected(DynamicNodeProperty const* dnp);
     bool is_selected(DynamicEdgeProperty const* dep);
