@@ -45,11 +45,8 @@ namespace hashimoto_ut {
 
     namespace {
       wstring module_path;
-      HWND window_handle = NULL;
       HINSTANCE instance_handle = NULL;
-      HDC device_context = NULL;
-      vector<HGLRC> rendering_context(RenderingContext::NUMBER_OF_CATEGORIES, NULL);
-      }
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -73,39 +70,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    HWND get_window_handle(void) {
-      return window_handle;
-    }
-
-    void set_window_handle(HWND hwnd) {
-      window_handle = hwnd;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    HDC get_device_context(void) {
-      return device_context;
-    }
-
-    void set_device_context(HDC dc) {
-      device_context = dc;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    HGLRC get_rendering_context(int thread_id) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
-      return rendering_context[thread_id];
-    }
-
-    void set_rendering_context(int thread_id, HGLRC rc) {
-      assert(0<=thread_id && thread_id<RenderingContext::NUMBER_OF_CATEGORIES);
-      rendering_context[thread_id] = rc;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text) {
+    void show_last_error(HWND hwnd, wchar_t const* text) {
       LPVOID buf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER
                     | FORMAT_MESSAGE_FROM_SYSTEM
@@ -113,9 +78,7 @@ namespace hashimoto_ut {
                     NULL, GetLastError(),
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                     (LPTSTR)&buf, 0, NULL);
-      message_box(get_window_handle(),
-                  MessageType::CRITICAL,
-                  APPLICATION_TITLE,
+      message_box(hwnd, mb_error, APPLICATION_TITLE,
                   L"%s%s", (wchar_t*)buf, text);
       LocalFree(buf);
     }

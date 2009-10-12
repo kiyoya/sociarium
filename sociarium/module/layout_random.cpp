@@ -53,9 +53,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl layout(
 
-      Thread* parent,
-      deque<wstring>& status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<Vector2<double> >& position,
       shared_ptr<Graph const> graph,
       vector<double> const& hint) {

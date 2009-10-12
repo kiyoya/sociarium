@@ -49,9 +49,9 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     typedef __declspec(dllimport)
       void (__cdecl* FuncDetectCommunity)(
-        Thread* parent,
-        std::wstring* status,
-        Message const* message,
+        Thread& parent,
+        std::wstring& status,
+        Message const& message,
         std::vector<std::vector<Node*> >& community,
         bool& is_canceled,
         std::tr1::shared_ptr<Graph const> graph,

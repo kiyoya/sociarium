@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m - thread/graph_retouch.h
+﻿// texture.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,22 +29,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+//#define SOCIAIRUM_PROJECT_USES_OPENCV
+
+#ifndef INCLUDE_GUARD_SHARED_GL_TEXTURE_H
+#define INCLUDE_GUARD_SHARED_GL_TEXTURE_H
 
 #include <memory>
-#include "../../shared/thread.h"
+#include <windows.h>
+#include <GL/gl.h>
+
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+#include <cv.h>
+#endif
 
 namespace hashimoto_ut {
 
-  ////////////////////////////////////////////////////////////////////////////////
-  class GraphRetouchThread : public Thread {
+  class Texture {
   public:
-    virtual ~GraphRetouchThread() {}
-    static std::tr1::shared_ptr<GraphRetouchThread>
-      create(wchar_t const* filename);
+    enum {
+      SUCCEEDED,
+      FILE_NOT_FOUND,
+      FAILED_TO_LOAD_IMAGE,
+      UNSUPPORTED_FILE_FORMAT
+    };
+
+  public:
+    virtual ~Texture() {}
+
+    virtual int set(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_mipmap(wchar_t const* filename, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_subimage(wchar_t const* filename) = 0;
+    virtual int set(GLuint width, GLuint height, GLenum wrap_s, GLenum wrap_t) = 0;
+
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+    virtual int set(IplImage* image, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_mipmap(IplImage* image, GLenum wrap_s, GLenum wrap_t) = 0;
+    virtual int set_subimage(IplImage* image) = 0;
+#endif
+
+    virtual GLuint get(void) const = 0;
+    virtual GLsizei width(void) const = 0;
+    virtual GLsizei height(void) const = 0;
+    virtual GLfloat xcoord(void) const = 0;
+    virtual GLfloat ycoord(void) const = 0;
+
+    static std::tr1::shared_ptr<Texture> create(void);
   };
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_GRAPH_RETOUCH_H
+#endif // INCLUDE_GUARD_SHARED_GL_TEXTURE_H

@@ -1,4 +1,4 @@
-﻿// C++ GRAPH LIBRARY: graph/traverser.cpp
+﻿// C++ GRAPH LIBRARY: util/traverser.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.

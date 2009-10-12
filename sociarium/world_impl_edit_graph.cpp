@@ -33,18 +33,17 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <windows.h>
-#include "world_impl.h"
 #include "resource.h"
-#include "common.h"
-#include "language.h"
 #include "color.h"
-#include "thread.h"
-#include "flag_operation.h"
-#include "sociarium_graph_time_series.h"
+#include "common.h"
 #include "community_transition_diagram.h"
+#include "flag_operation.h"
+#include "menu_and_message.h"
+#include "sociarium_graph_time_series.h"
+#include "thread.h"
+#include "world_impl.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
-#include "../shared/predefined_color.h"
 
 namespace hashimoto_ut {
 
@@ -58,7 +57,7 @@ namespace hashimoto_ut {
   using namespace sociarium_project_common;
   using namespace sociarium_project_color;
   using namespace sociarium_project_thread;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace {
 
@@ -70,11 +69,11 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    unsigned int const hide_mask =
-      ~(ElementFlag::VISIBLE|ElementFlag::MARKED|ElementFlag::HIGHLIGHT);
+    unsigned int const hide_mask
+      = ~(ElementFlag::VISIBLE|ElementFlag::MARKED|ElementFlag::HIGHLIGHT);
 
-    unsigned int const show_mask =
-      ElementFlag::VISIBLE|ElementFlag::MARKED;
+    unsigned int const show_mask
+      = ElementFlag::VISIBLE|ElementFlag::MARKED;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -161,63 +160,193 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    vector<Node const*> inner_community_nodes(shared_ptr<SociariumGraph const> g) {
+    vector<DynamicNodeProperty*>
+      get_nodes_inside_communities(shared_ptr<SociariumGraph const> g0) {
 
-      vector<Node const*> retval;
-      node_property_iterator first = g->node_property_begin();
-      node_property_iterator last  = g->node_property_end();
+        vector<DynamicNodeProperty*> retval;
+        node_property_iterator first = g0->node_property_begin();
+        node_property_iterator last  = g0->node_property_end();
 
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()>0)
-          retval.push_back(first->first);
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()>0)
+            retval.push_back(&first->second);
 
-      return retval;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    vector<Node const*> outer_community_nodes(shared_ptr<SociariumGraph const> g) {
-
-      vector<Node const*> retval;
-      node_property_iterator first = g->node_property_begin();
-      node_property_iterator last  = g->node_property_end();
-
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()==0)
-          retval.push_back(first->first);
-
-      return retval;
-    }
+        return retval;
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    vector<Edge const*> inner_community_edges(shared_ptr<SociariumGraph const> g) {
+    vector<DynamicEdgeProperty*>
+      get_edges_inside_communities(shared_ptr<SociariumGraph const> g0) {
 
-      vector<Edge const*> retval;
-      edge_property_iterator first = g->edge_property_begin();
-      edge_property_iterator last  = g->edge_property_end();
+        vector<DynamicEdgeProperty*> retval;
+        edge_property_iterator first = g0->edge_property_begin();
+        edge_property_iterator last  = g0->edge_property_end();
 
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()>0)
-          retval.push_back(first->first);
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()>0)
+            retval.push_back(&first->second);
 
-      return retval;
-    }
+        return retval;
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    vector<Edge const*> outer_community_edges(shared_ptr<SociariumGraph const> g) {
+    vector<DynamicNodeProperty*>
+      get_nodes_outside_communities(shared_ptr<SociariumGraph const> g0) {
 
-      vector<Edge const*> retval;
-      edge_property_iterator first = g->edge_property_begin();
-      edge_property_iterator last  = g->edge_property_end();
+        vector<DynamicNodeProperty*> retval;
+        node_property_iterator first = g0->node_property_begin();
+        node_property_iterator last  = g0->node_property_end();
 
-      for (; first!=last; ++first)
-        if (first->second.number_of_upper_nodes()==0)
-          retval.push_back(first->first);
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()==0)
+            retval.push_back(&first->second);
 
-      return retval;
-    }
+        return retval;
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    vector<DynamicEdgeProperty*>
+      get_edges_outside_communities(shared_ptr<SociariumGraph const> g0) {
+
+        vector<DynamicEdgeProperty*> retval;
+        edge_property_iterator first = g0->edge_property_begin();
+        edge_property_iterator last  = g0->edge_property_end();
+
+        for (; first!=last; ++first)
+          if (first->second.number_of_upper_nodes()==0)
+            retval.push_back(&first->second);
+
+        return retval;
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    vector<DynamicNodeProperty*>
+      get_nodes_inside_marked_communities(shared_ptr<SociariumGraph const> g1) {
+
+        vector<DynamicNodeProperty*> retval;
+        node_property_iterator first = g1->node_property_begin();
+        node_property_iterator last  = g1->node_property_end();
+
+        for (; first!=last; ++first) {
+
+          DynamicNodeProperty const& dnp = first->second;
+
+          if (!is_marked(dnp)) continue;
+
+          vector<DynamicNodeProperty*>::const_iterator i = dnp.lower_nbegin();
+          vector<DynamicNodeProperty*>::const_iterator end = dnp.lower_nend();
+
+          for (; i!=end; ++i)
+            if (is_visible(**i))
+              retval.push_back(*i);
+        }
+
+        return retval;
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    vector<DynamicEdgeProperty*>
+      get_edges_inside_marked_communities(shared_ptr<SociariumGraph const> g1) {
+
+        vector<DynamicEdgeProperty*> retval;
+        node_property_iterator first = g1->node_property_begin();
+        node_property_iterator last  = g1->node_property_end();
+
+        for (; first!=last; ++first) {
+
+          DynamicNodeProperty const& dnp = first->second;
+
+          if (!is_marked(dnp)) continue;
+
+          vector<DynamicEdgeProperty*>::const_iterator i = dnp.lower_ebegin();
+          vector<DynamicEdgeProperty*>::const_iterator end = dnp.lower_eend();
+
+          for (; i!=end; ++i)
+            if (is_visible(**i))
+              retval.push_back(*i);
+        }
+
+        return retval;
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    vector<DynamicNodeProperty*>
+      get_nodes_in_marked_community_continuums(shared_ptr<SociariumGraph const> g1) {
+
+        vector<DynamicNodeProperty*> retval;
+        node_property_iterator first = g1->node_property_begin();
+        node_property_iterator last  = g1->node_property_end();
+
+        for (; first!=last; ++first) {
+
+          DynamicNodeProperty const& dnp = first->second;
+
+          if (!is_marked(dnp)) continue;
+
+          StaticNodeProperty const* snp = dnp.get_static_property();
+
+          StaticNodeProperty::DynamicPropertyMap::const_iterator i
+            = snp->dynamic_property_begin();
+          StaticNodeProperty::DynamicPropertyMap::const_iterator iend
+            = snp->dynamic_property_end();
+
+          for (; i!=iend; ++i) {
+
+            vector<DynamicNodeProperty*>::const_iterator j
+              = i->first->lower_nbegin();
+            vector<DynamicNodeProperty*>::const_iterator jend
+              = i->first->lower_nend();
+
+            for (; j!=jend; ++j)
+              if (is_visible(**j))
+                retval.push_back(*j);
+          }
+        }
+
+        return retval;
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    vector<DynamicEdgeProperty*>
+      get_edges_in_marked_community_continuums(shared_ptr<SociariumGraph const> g1) {
+
+        vector<DynamicEdgeProperty*> retval;
+        node_property_iterator first = g1->node_property_begin();
+        node_property_iterator last  = g1->node_property_end();
+
+        for (; first!=last; ++first) {
+
+          if (!is_marked(first->second)) continue;
+
+          StaticNodeProperty const* snp = first->second.get_static_property();
+
+          StaticNodeProperty::DynamicPropertyMap::const_iterator i
+            = snp->dynamic_property_begin();
+          StaticNodeProperty::DynamicPropertyMap::const_iterator iend
+            = snp->dynamic_property_end();
+
+          for (; i!=iend; ++i) {
+
+            vector<DynamicEdgeProperty*>::const_iterator j
+              = i->first->lower_ebegin();
+            vector<DynamicEdgeProperty*>::const_iterator jend
+              = i->first->lower_eend();
+
+            for (; j!=jend; ++j)
+              if (is_visible(**j))
+                retval.push_back(*j);
+          }
+        }
+
+        return retval;
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +425,7 @@ namespace hashimoto_ut {
 
       size_t const number_of_layers = ts->number_of_layers();
 
-      // Extract marked nodes in all layers.
+      // Extract marked nodes on all layers.
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g = ts->get_graph(0, layer);
         for_each(g->node_property_begin(),
@@ -361,7 +490,7 @@ namespace hashimoto_ut {
 
       size_t const number_of_layers = ts->number_of_layers();
 
-      // Extract marked edges in all layers.
+      // Extract marked edges on all layers.
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g = ts->get_graph(0, layer);
         for_each(g->edge_property_begin(),
@@ -438,7 +567,7 @@ namespace hashimoto_ut {
 
       size_t const number_of_layers = ts->number_of_layers();
 
-      // Extract marked nodes in all layers.
+      // Extract marked nodes on all layers.
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g = ts->get_graph(0, layer);
         for_each(g->node_property_begin(),
@@ -511,7 +640,7 @@ namespace hashimoto_ut {
 
       size_t const number_of_layers = ts->number_of_layers();
 
-      // Extract marked edges in all layers.
+      // Extract marked edges on all layers.
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g = ts->get_graph(0, layer);
         for_each(g->edge_property_begin(),
@@ -567,17 +696,8 @@ namespace hashimoto_ut {
         vector<DynamicNodeProperty*>::const_iterator first = recolored_nodes.begin();
         vector<DynamicNodeProperty*>::const_iterator last  = recolored_nodes.end();
 
-        for (; first!=last; ++first) {
-          if ((*first)->number_of_upper_nodes()==0)
-            // Isolated.
-            assert(0 && "never reach");
-          else if ((*first)->number_of_upper_nodes()==1)
-            // Belong to one community.
-            (*first)->set_color_id((*(*first)->upper_nbegin())->get_color_id());
-          else
-            // Belong to multiple communities.
-            (*first)->set_color_id(get_default_node_color_id());
-        }
+        for (; first!=last; ++first)
+          sociarium_project_color::update_color_under_community_information(**first);
       }
 
       {
@@ -585,17 +705,8 @@ namespace hashimoto_ut {
         vector<DynamicEdgeProperty*>::const_iterator first = recolored_edges.begin();
         vector<DynamicEdgeProperty*>::const_iterator last  = recolored_edges.begin();
 
-        for (; first!=last; ++first) {
-          if ((*first)->number_of_upper_nodes()==0)
-            // Isolated.
-            assert(0 && "never reach");
-          else if ((*first)->number_of_upper_nodes()==1)
-            // Belong to one community.
-            (*first)->set_color_id((*(*first)->upper_nbegin())->get_color_id());
-          else
-            // Belong to multiple communities.
-            (*first)->set_color_id(get_default_edge_color_id());
-        }
+        for (; first!=last; ++first)
+          sociarium_project_color::update_color_under_community_information(**first);
       }
     }
 
@@ -623,131 +734,118 @@ namespace hashimoto_ut {
     size_t const number_of_layers = ts->number_of_layers();
 
     // --------------------------------------------------------------------------------
-    if (menu==IDM_EDIT_MARK_NODES_ON_CURRENT_LAYER)
-      // Mark all nodes in the current layer.
+    if (menu==IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER)
+      // Mark all nodes on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
                boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
 
-    else if (menu==IDM_EDIT_MARK_EDGES_ON_CURRENT_LAYER)
-      // Mark all edges in the current layer.
+    else if (menu==IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER)
+      // Mark all edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-
-    else if (menu==IDM_EDIT_MARK_COMMUNITIES_ON_CURRENT_LAYER)
-      // Mark all communities in the current layer.
-      for_each(g1_current->node_property_begin(), g1_current->node_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-
-    else if (menu==IDM_EDIT_MARK_COMMUNITY_EDGES_ON_CURRENT_LAYER)
-      // Mark all community edges in the current layer.
-      for_each(g1_current->edge_property_begin(), g1_current->edge_property_end(),
                boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
 
     else if (menu==IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER) {
-      // Mark all nodes in the current layer.
+      // Mark all nodes on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
                boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-      // Mark all edges in the current layer.
+      // Mark all edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-      // Mark all communities in the current layer.
-      for_each(g1_current->node_property_begin(), g1_current->node_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-      // Mark all community edges in the current layer.
-      for_each(g1_current->edge_property_begin(), g1_current->edge_property_end(),
                boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = inner_community_nodes(g0_current);
-      // Mark all inner community nodes in the current layer.
+      vector<DynamicNodeProperty*> const nodes = get_nodes_inside_communities(g0_current);
+      // Mark all inner community nodes on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Edge const*> const edges = inner_community_edges(g0_current);
-      // Mark all inner community edges in the current layer.
+      vector<DynamicEdgeProperty*> const edges = get_edges_inside_communities(g0_current);
+      // Mark all inner community edges on the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = inner_community_nodes(g0_current);
-      vector<Edge const*> const edges = inner_community_edges(g0_current);
-      // Mark all inner community nodes and edges in the current layer.
+      vector<DynamicNodeProperty*> const nodes = get_nodes_inside_communities(g0_current);
+      vector<DynamicEdgeProperty*> const edges = get_edges_inside_communities(g0_current);
+      // Mark all inner community nodes and edges on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = outer_community_nodes(g0_current);
-      // Mark all outer community nodes in the current layer.
+      vector<DynamicNodeProperty*> const nodes = get_nodes_outside_communities(g0_current);
+      // Mark all outer community nodes on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Edge const*> const edges = outer_community_edges(g0_current);
-      // Mark all outer community edges in the current layer.
+      vector<DynamicEdgeProperty*> const edges = get_edges_outside_communities(g0_current);
+      // Mark all outer community edges on the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
-      vector<Node const*> const nodes = outer_community_nodes(g0_current);
-      vector<Edge const*> const edges = outer_community_edges(g0_current);
-      // Mark all outer community nodes and edges in the current layer.
+      vector<DynamicNodeProperty*> const nodes = get_nodes_outside_communities(g0_current);
+      vector<DynamicEdgeProperty*> const edges = get_edges_outside_communities(g0_current);
+      // Mark all outer community nodes and edges on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateDynamicFlag(), _1,
-                                 ElementFlag::MARKED, g0_current));
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
-    else if (menu==IDM_EDIT_MARK_NODES_ON_EACH_LAYER)
+    else if (menu==IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER) {
+      vector<DynamicNodeProperty*> const nodes
+         = get_nodes_inside_marked_communities(g1_current);
+      // Mark nodes in selected communities on the current layer.
+      for_each(nodes.begin(), nodes.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+    }
+
+    else if (menu==IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER) {
+      vector<DynamicEdgeProperty*> const edges
+        = get_edges_inside_marked_communities(g1_current);
+      // Mark edges in selected communities on the current layer.
+      for_each(edges.begin(), edges.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+    }
+
+    else if (menu==IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER) {
+      vector<DynamicNodeProperty*> const nodes
+        = get_nodes_inside_marked_communities(g1_current);
+      vector<DynamicEdgeProperty*> const edges
+        = get_edges_inside_marked_communities(g1_current);
+      // Mark elements in selected communities on the current layer.
+      for_each(nodes.begin(), nodes.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+      for_each(edges.begin(), edges.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+    }
+
+    // --------------------------------------------------------------------------------
+    else if (menu==IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Mark all nodes in all layers.
+        // Mark all nodes on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
                  boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
 
-    else if (menu==IDM_EDIT_MARK_EDGES_ON_EACH_LAYER) {
+    else if (menu==IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Mark all edges in all layers.
+        // Mark all edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-      }
-    }
-
-    else if (menu==IDM_EDIT_MARK_COMMUNITIES_ON_EACH_LAYER) {
-      for (size_t layer=0; layer<number_of_layers; ++layer) {
-        shared_ptr<SociariumGraph const> g1 = ts->get_graph(1, layer);
-        // Mark all communities in all layers.
-        for_each(g1->node_property_begin(), g1->node_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-      }
-    }
-
-    else if (menu==IDM_EDIT_MARK_COMMUNITY_EDGES_ON_EACH_LAYER) {
-      for (size_t layer=0; layer<number_of_layers; ++layer) {
-        shared_ptr<SociariumGraph const> g1 = ts->get_graph(1, layer);
-        // Mark all community edges in all layers.
-        for_each(g1->edge_property_begin(), g1->edge_property_end(),
                  boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
@@ -756,17 +854,11 @@ namespace hashimoto_ut {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
         shared_ptr<SociariumGraph const> g1 = ts->get_graph(1, layer);
-        // Mark all nodes in all layers.
+        // Mark all nodes on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
                  boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-        // Mark all edges in all layers.
+        // Mark all edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-        // Mark all communities in all layers.
-        for_each(g1->node_property_begin(), g1->node_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
-        // Mark all community edges in all layers.
-        for_each(g1->edge_property_begin(), g1->edge_property_end(),
                  boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
@@ -775,36 +867,32 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = inner_community_nodes(g0);
-        // Mark all inner community nodes in all layers.
+        vector<DynamicNodeProperty*> nodes = get_nodes_inside_communities(g0);
+        // Mark all inner community nodes on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
 
     else if (menu==IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Edge const*> edges = inner_community_edges(g0);
-        // Mark all inner community edges in all layers.
+        vector<DynamicEdgeProperty*> edges = get_edges_inside_communities(g0);
+        // Mark all inner community edges on all layers.
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = inner_community_nodes(g0);
-        vector<Edge const*> edges = inner_community_edges(g0);
-        // Mark all inner community nodes and edges in all layers.
+        vector<DynamicNodeProperty*> nodes = get_nodes_inside_communities(g0);
+        vector<DynamicEdgeProperty*> edges = get_edges_inside_communities(g0);
+        // Mark all inner community nodes and edges on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -812,38 +900,63 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = outer_community_nodes(g0);
-        // Mark all outer community nodes in all layers.
+        vector<DynamicNodeProperty*> nodes = get_nodes_outside_communities(g0);
+        // Mark all outer community nodes on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Edge const*> edges = outer_community_edges(g0);
-        // Mark all outer community edges in all layers.
+        vector<DynamicEdgeProperty*> edges = get_edges_outside_communities(g0);
+        // Mark all outer community edges on all layers.
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        vector<Node const*> nodes = outer_community_nodes(g0);
-        vector<Edge const*> edges = outer_community_edges(g0);
-        // Mark all outer community nodes and edges in all layers.
+        vector<DynamicNodeProperty*> nodes = get_nodes_outside_communities(g0);
+        vector<DynamicEdgeProperty*> edges = get_edges_outside_communities(g0);
+        // Mark all outer community nodes and edges on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateDynamicFlag(), _1,
-                                   ElementFlag::MARKED, g0));
+                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
       }
+    }
+
+    // --------------------------------------------------------------------------------
+    else if (menu==IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER) {
+      vector<DynamicNodeProperty*> const nodes
+        = get_nodes_in_marked_community_continuums(g1_current);
+      // Mark nodes, on each layer, which are in selected community-continuums.
+      for_each(nodes.begin(), nodes.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+    }
+
+    else if (menu==IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER) {
+      vector<DynamicEdgeProperty*> const edges
+        = get_edges_in_marked_community_continuums(g1_current);
+      // Mark edges, on each layer, which are in selected community-continuums.
+      for_each(edges.begin(), edges.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+    }
+
+    else if (menu==IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER) {
+      vector<DynamicNodeProperty*> const nodes
+        = get_nodes_in_marked_community_continuums(g1_current);
+      vector<DynamicEdgeProperty*> const edges
+        = get_edges_in_marked_community_continuums(g1_current);
+      // Mark elements, on each layer, which are in selected community-continuums.
+      for_each(nodes.begin(), nodes.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+      for_each(edges.begin(), edges.end(),
+               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
@@ -875,16 +988,16 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     if (menu==IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER) {
-      // Inverse marking of all nodes in the current layer.
+      // Inverse marking of all nodes on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
                boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
-      // Inverse marking of all edges in the current layer.
+      // Inverse marking of all edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
                boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
-      // Inverse marking of all communities in the current layer.
+      // Inverse marking of all communities on the current layer.
       for_each(g1_current->node_property_begin(), g1_current->node_property_end(),
                boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
-      // Inverse marking of all community edges in the current layer.
+      // Inverse marking of all community edges on the current layer.
       for_each(g1_current->edge_property_begin(), g1_current->edge_property_end(),
                boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
     }
@@ -894,16 +1007,16 @@ namespace hashimoto_ut {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
         shared_ptr<SociariumGraph const> g1 = ts->get_graph(1, layer);
-        // Inverse marking of all nodes in all layers.
+        // Inverse marking of all nodes on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
                  boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
-        // Inverse marking of all edges in all layers.
+        // Inverse marking of all edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
                  boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
-        // Inverse marking of all communities in all layers.
+        // Inverse marking of all communities on all layers.
         for_each(g1->node_property_begin(), g1->node_property_end(),
                  boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
-        // Inverse marking of all community edges in all layers.
+        // Inverse marking of all community edges on all layers.
         for_each(g1->edge_property_begin(), g1->edge_property_end(),
                  boost::bind<void>(ToggleFlag(), _1, ElementFlag::MARKED));
       }
@@ -935,18 +1048,18 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     if (menu==IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER)
-      // Hide marked nodes and their connecting edges in the current layer.
+      // Hide marked nodes and their connecting edges on the current layer.
       hide_marked_nodes(g0_current);
 
     else if (menu==IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER)
-      // Hide marked edges in the current layer.
+      // Hide marked edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
                HideMarkedElement());
 
     else if (menu==IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER) {
       shared_ptr<SociariumGraph const> g =
         ts->get_graph(0, ts->index_of_current_layer());
-      // Hide marked nodes and their connecting edges and marked edges in the current layer.
+      // Hide marked nodes and their connecting edges and marked edges on the current layer.
       hide_marked_nodes(g);
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
                HideMarkedElement());
@@ -956,14 +1069,14 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Hide marked nodes and their connecting edges in all layers.
+        // Hide marked nodes and their connecting edges on all layers.
         hide_marked_nodes(g0);
       }
 
     else if (menu==IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Hide marked edges in all layers.
+        // Hide marked edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
                  HideMarkedElement());
       }
@@ -971,7 +1084,7 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Hide marked nodes and their connecting edges and marked edges in all layers.
+        // Hide marked nodes and their connecting edges and marked edges on all layers.
         hide_marked_nodes(g0);
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
                  HideMarkedElement());
@@ -979,39 +1092,39 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL)
-      // Hide marked nodes and their connecting edges in the current layer,
-      // and hide all elements in all layers that correspond to the hidden elements
-      // in the current layer.
+      // Hide marked nodes and their connecting edges on the current layer,
+      // and hide all elements on all layers that correspond to the hidden elements
+      // on the current layer.
       hide_marked_nodes_all(g0_current);
 
     else if (menu==IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL)
-      // Hide marked edges in the current layer, and hide all edges in all layers
-      // that correspond to the hidden edges in the current layer.
+      // Hide marked edges on the current layer, and hide all edges on all layers
+      // that correspond to the hidden edges on the current layer.
       hide_marked_edges_all(g0_current);
 
     else if (menu==IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL) {
       // Hide marked nodes and their connecting edges and marked edges
-      // in the current layer, and hide all elements in all layers that correspond to
-      // the hidden elements in the current layer.
+      // on the current layer, and hide all elements on all layers that correspond to
+      // the hidden elements on the current layer.
       hide_marked_nodes_all(g0_current);
       hide_marked_edges_all(g0_current);
     }
 
     else if (menu==IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL)
-      // Hide marked nodes and their connecting edges in all layers,
-      // and hide all elements in all layers that correspond to the hidden elements
-      // in any layer.
+      // Hide marked nodes and their connecting edges on all layers,
+      // and hide all elements on all layers that correspond to the hidden elements
+      // on any layer.
       hide_marked_nodes_all();
 
     else if (menu==IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL)
-      // Hide marked edges in all layers, and hide all elements in all layers
-      // that correspond to the hidden elements in any layer.
+      // Hide marked edges on all layers, and hide all elements on all layers
+      // that correspond to the hidden elements on any layer.
       hide_marked_edges_all();
 
     else if (menu==IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL) {
-      // Hide marked nodes and their connecting edges and marked edges in all layers,
-      // and hide all elements in all layers that correspond to the hidden elements
-      // in any layer.
+      // Hide marked nodes and their connecting edges and marked edges on all layers,
+      // and hide all elements on all layers that correspond to the hidden elements
+      // on any layer.
       hide_marked_nodes_all();
       hide_marked_edges_all();
     }
@@ -1044,17 +1157,17 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     if (menu==IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER)
-      // Show hidden nodes in the current layer.
+      // Show hidden nodes on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
                ShowElement());
 
     else if (menu==IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER)
-      // Show hidden edges in the current layer.
+      // Show hidden edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
                ShowElement());
 
     else if (menu==IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER) {
-      // Show hidden nodes and edges in the current layer.
+      // Show hidden nodes and edges on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
                ShowElement());
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
@@ -1065,7 +1178,7 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Show hidden nodes in all layers.
+        // Show hidden nodes on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
                  ShowElement());
       }
@@ -1073,7 +1186,7 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Show hidden edges in all layers.
+        // Show hidden edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
                  ShowElement());
       }
@@ -1081,7 +1194,7 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER)
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
-        // Show hidden nodes and edges in all layers.
+        // Show hidden nodes and edges on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
                  ShowElement());
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
@@ -1113,21 +1226,13 @@ namespace hashimoto_ut {
     }
 
     if (another_thread_is_running) {
-      message_box(
-        get_window_handle(),
-        MessageType::INFO,
-        APPLICATION_TITLE,
-        L"%s",
-        get_message(Message::ANOTHER_THREAD_IS_RUNNING));
+      message_box(hwnd_, mb_notice, APPLICATION_TITLE,
+                  L"%s", get_message(Message::ANOTHER_THREAD_IS_RUNNING));
       return;
     }
 
-    if (!message_box(
-      get_window_handle(),
-      MessageType::QUESTION,
-      APPLICATION_TITLE,
-      L"%s",
-      get_message(Message::REMOVE_ELEMENTS)))
+    if (message_box(hwnd_, mb_ok_cancel, APPLICATION_TITLE,
+                    L"%s", get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
       return;
 
     // --------------------------------------------------------------------------------
@@ -1157,18 +1262,18 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     if (menu==IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER) {
-      // Remove marked nodes in the current layer.
+      // Remove marked nodes on the current layer.
       remove_marked_nodes(g0_current);
       adjust_community_size(g1_current);
     }
 
     else if (menu==IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER) {
-      // Remove marked edges in the current layer.
+      // Remove marked edges on the current layer.
       remove_marked_edges(g0_current);
     }
 
     else if (menu==IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER) {
-      // Remove marked nodes and edges in the current layer.
+      // Remove marked nodes and edges on the current layer.
       remove_marked_nodes(g0_current);
       remove_marked_edges(g0_current);
       adjust_community_size(g1_current);
@@ -1179,7 +1284,7 @@ namespace hashimoto_ut {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph> g0 = ts->get_graph(0, layer);
         shared_ptr<SociariumGraph> g1 = ts->get_graph(1, layer);
-        // Remove marked nodes in all layers.
+        // Remove marked nodes on all layers.
         remove_marked_nodes(g0);
         adjust_community_size(g1);
       }
@@ -1188,7 +1293,7 @@ namespace hashimoto_ut {
     else if (menu==IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER) {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph> g0 = ts->get_graph(0, layer);
-        // Remove marked edges in all layers.
+        // Remove marked edges on all layers.
         remove_marked_edges(g0);
       }
     }
@@ -1197,7 +1302,7 @@ namespace hashimoto_ut {
       for (size_t layer=0; layer<number_of_layers; ++layer) {
         shared_ptr<SociariumGraph> g0 = ts->get_graph(0, layer);
         shared_ptr<SociariumGraph> g1 = ts->get_graph(1, layer);
-        // Remove marked nodes and edges in all layers.
+        // Remove marked nodes and edges on all layers.
         remove_marked_nodes(g0);
         remove_marked_edges(g0);
         adjust_community_size(g1);
@@ -1206,9 +1311,9 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL) {
-      // Remove marked nodes and their connecting edges in the current layer,
-      // and remove all elements in all layers that correspond to the removed elements
-      // in the current layer.
+      // Remove marked nodes and their connecting edges on the current layer,
+      // and remove all elements on all layers that correspond to the removed elements
+      // on the current layer.
       remove_marked_nodes_all(g0_current);
 
       for (size_t layer=0; layer<number_of_layers; ++layer) {
@@ -1218,14 +1323,14 @@ namespace hashimoto_ut {
     }
 
     else if (menu==IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL)
-      // Remove marked edges in the current layer, and remove all edges in all layers
-      // that correspond to the removed edges in the current layer.
+      // Remove marked edges on the current layer, and remove all edges on all layers
+      // that correspond to the removed edges on the current layer.
       remove_marked_edges_all(g0_current);
 
     else if (menu==IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL) {
-      // Remove marked nodes and their connecting edges and marked edges in the current layer,
-      // and remove all elements in all layers that correspond to the removed elements
-      // in the current layer.
+      // Remove marked nodes and their connecting edges and marked edges on the current layer,
+      // and remove all elements on all layers that correspond to the removed elements
+      // on the current layer.
       remove_marked_nodes_all(g0_current);
       remove_marked_edges_all(g0_current);
 
@@ -1237,8 +1342,8 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     else if (menu==IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL) {
-      // Remove marked nodes and their connecting edges in all layers, and remove all
-      // elements in all layers that correspond to the removed elements in the current layer.
+      // Remove marked nodes and their connecting edges on all layers, and remove all
+      // elements on all layers that correspond to the removed elements on the current layer.
       remove_marked_nodes_all();
 
       for (size_t layer=0; layer<number_of_layers; ++layer) {
@@ -1248,14 +1353,14 @@ namespace hashimoto_ut {
     }
 
     else if (menu==IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL)
-      // Remove marked edges in all layers, and remove all elements in all layers that
-      // correspond to the removed edges in the current layer.
+      // Remove marked edges on all layers, and remove all elements on all layers that
+      // correspond to the removed edges on the current layer.
       remove_marked_edges_all();
 
     else if (menu==IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL) {
-      // Remove marked nodes and their connecting edges and marked edges in all layers,
-      // and remove all elements in all layers that correspond to the removed elements
-      // in the current layer.
+      // Remove marked nodes and their connecting edges and marked edges on all layers,
+      // and remove all elements on all layers that correspond to the removed elements
+      // on the current layer.
       remove_marked_nodes_all();
       remove_marked_edges_all();
 

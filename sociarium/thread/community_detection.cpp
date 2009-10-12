@@ -35,14 +35,17 @@
 #include <unordered_map>
 #include <boost/format.hpp>
 #include "community_detection.h"
-#include "../module/community_detection.h"
-#include "../graph_extractor.h"
-#include "../thread.h"
 #include "../algorithm_selector.h"
-#include "../texture.h"
 #include "../color.h"
-#include "../language.h"
+#include "../common.h"
+#include "../flag_operation.h"
+#include "../graph_extractor.h"
+#include "../menu_and_message.h"
 #include "../sociarium_graph_time_series.h"
+#include "../texture.h"
+#include "../thread.h"
+#include "../world.h"
+#include "../module/community_detection.h"
 #include "../../graph/graphex.h"
 #include "../../shared/predefined_color.h"
 
@@ -60,9 +63,10 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using std::tr1::unordered_multimap;
 
-  using namespace sociarium_project_module_community_detection;
   using namespace sociarium_project_algorithm_selector;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_common;
+  using namespace sociarium_project_menu_and_message;
+  using namespace sociarium_project_module_community_detection;
 
   typedef SociariumGraphTimeSeries::StaticNodePropertySet StaticNodePropertySet;
   typedef SociariumGraphTimeSeries::StaticEdgePropertySet StaticEdgePropertySet;
@@ -178,7 +182,7 @@ namespace hashimoto_ut {
     typedef unordered_multimap<StaticNodeProperty*, SNP2SEP> CommunityEdgeIdentifier;
 
     ////////////////////////////////////////////////////////////////////////////////
-    CommunityDetectionThreadImpl(void) {}
+    CommunityDetectionThreadImpl(World const* world) : world_(world) {}
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -201,6 +205,8 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     void operator()(void) {
 
+      HWND hwnd = world_->get_window_handle();
+
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
@@ -216,12 +222,17 @@ namespace hashimoto_ut {
       // --------------------------------------------------------------------------------
       // Load a community detection module.
 
-      FuncDetectCommunity detect_community = get(get_community_detection_algorithm());
+      FuncDetectCommunity detect_community = 0;
 
-      if (detect_community==0) {
+      try {
+        detect_community = get(get_community_detection_algorithm());
+      } catch (wchar_t const* errmsg) {
+        show_last_error(hwnd, errmsg);
         ts->read_unlock();
         return terminate();
       }
+
+      assert(detect_community!=0);
 
       // --------------------------------------------------------------------------------
       // Detect communities in graphs consisting of "visible" elements in all layers.
@@ -290,8 +301,8 @@ namespace hashimoto_ut {
         bool is_canceled = false;
 
         detect_community(
-          this,
-          &status[1],
+          *this,
+          status[1],
           get_message_object(),
           community,
           is_canceled,
@@ -705,6 +716,7 @@ namespace hashimoto_ut {
     }
 
   private:
+    World const* world_;
     StaticNodePropertySet static_community_property_;
     StaticEdgePropertySet static_community_edge_property_;
     CommunityEdgeIdentifier community_edge_identifier_;
@@ -713,8 +725,10 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of CommunityDetectionThread.
-  shared_ptr<CommunityDetectionThread> CommunityDetectionThread::create(void) {
-    return shared_ptr<CommunityDetectionThread>(new CommunityDetectionThreadImpl);
-  }
+  shared_ptr<CommunityDetectionThread>
+    CommunityDetectionThread::create(World const* world) {
+      return shared_ptr<CommunityDetectionThread>(
+        new CommunityDetectionThreadImpl(world));
+    }
 
 } // The end of the namespace "hashimoto_ut"

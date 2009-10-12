@@ -31,8 +31,8 @@
 
 #include <boost/format.hpp>
 #include "graph_extractor.h"
+#include "menu_and_message.h"
 #include "thread.h"
-#include "language.h"
 #include "../shared/thread.h"
 
 namespace hashimoto_ut {
@@ -48,14 +48,13 @@ namespace hashimoto_ut {
   typedef SociariumGraph::node_property_iterator node_property_iterator;
   typedef SociariumGraph::edge_property_iterator edge_property_iterator;
 
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_graph_extractor {
 
     ////////////////////////////////////////////////////////////////////////////////
     pair<bool, shared_ptr<Graph> > get(
-      Thread* th,
-      wstring* status,
+      Thread* th, wstring* status,
       shared_ptr<SociariumGraph const> graph,
       unordered_map<Node*, Node const*>& node2node,
       unordered_map<Edge*, Edge const*>& edge2edge,
@@ -78,7 +77,7 @@ namespace hashimoto_ut {
         for (int count=1; i!=end; ++i, ++count) {
 
           // **********  Catch a termination signal  **********
-          if (th->cancel_check())
+          if (th && th->cancel_check())
             return make_pair(false, shared_ptr<Graph>());
 
           if (status)
@@ -109,7 +108,7 @@ namespace hashimoto_ut {
         for (int count=1; i!=end; ++i, ++count) {
 
           // **********  Catch a termination signal  **********
-          if (th->cancel_check())
+          if (th && th->cancel_check())
             return make_pair(false, shared_ptr<Graph>());
 
           if (status)
@@ -124,9 +123,9 @@ namespace hashimoto_ut {
           DynamicNodeProperty const& dnp1 = graph->property(n1);
           DynamicEdgeProperty const& dep = i->second;
 
-          if (dep.get_flag()&flag &&
-              dnp0.get_flag()&flag &&
-              dnp1.get_flag()&flag) {
+          if (dep.get_flag()&flag
+              && dnp0.get_flag()&flag
+              && dnp1.get_flag()&flag) {
             Node* m0 = index2node[n0->index()];
             Node* m1 = index2node[n1->index()];
             assert(m0!=0);

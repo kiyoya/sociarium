@@ -1,4 +1,4 @@
-// s.o.c.i.a.r.i.u.m: sociarium.rc
+Ôªø// s.o.c.i.a.r.i.u.m: sociarium.rc
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -31,24 +31,6 @@
 
 #include <windows.h>
 #include "resource.h"
-
-/////////////////////////////////////////////////////////////////////////////
-// MENU
-
-MENU MENU
-BEGIN
-/////////////////////////////////////////////////////////////////////////////
-	POPUP "ÉtÉ@ÉCÉã(&F)"
-	BEGIN
-		MENUITEM	"äJÇ≠(&O)\tCtrl+O",	IDM_KEY_CTRL_O, GRAYED
-		MENUITEM	"ï€ë∂(&S)\tCtrl+S",	IDM_KEY_CTRL_S, GRAYED
-		MENUITEM SEPARATOR
-		MENUITEM	"èIóπ(&Q)\tESC",	IDM_KEY_ESCAPE
-	END
-
-
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 // ACCELERATORS

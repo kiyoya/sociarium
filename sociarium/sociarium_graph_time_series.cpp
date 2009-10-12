@@ -37,12 +37,13 @@
 #include <array>
 #include <unordered_set>
 #include <unordered_map>
-#include "selection.h"
-#include "layout.h"
-#include "color.h"
 #include "algorithm_selector.h"
-#include "sociarium_graph_time_series.h"
+#include "color.h"
 #include "community_transition_diagram.h"
+#include "flag_operation.h"
+#include "layout.h"
+#include "selection.h"
+#include "sociarium_graph_time_series.h"
 #include "thread/force_direction.h"
 #include "../shared/mutex.h"
 #include "../shared/predefined_color.h"
@@ -66,7 +67,7 @@ namespace hashimoto_ut {
 
     struct CreateSociariumGraph {
       void operator()(shared_ptr<SociariumGraph>& g) const {
-        g.swap(SociariumGraph::create());
+        g = SociariumGraph::create();
       }
     };
 
@@ -171,8 +172,8 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraph>
       get_graph(size_t level, size_t index_of_layer) const {
         assert(0<=index_of_layer && index_of_layer<number_of_layers());
-      return graph_series_[level][index_of_layer];
-    }
+        return graph_series_[level][index_of_layer];
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -189,7 +190,7 @@ namespace hashimoto_ut {
     }
 
     size_t number_of_static_edges(size_t level) const {
-            assert(0<=level && level<number_of_levels);
+      assert(0<=level && level<number_of_levels);
       return static_edge_property_[level].size();
     }
 
@@ -197,27 +198,27 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     StaticNodePropertySet::const_iterator
       static_node_property_begin(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_node_property_[level].begin();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_node_property_[level].begin();
+      }
 
     StaticNodePropertySet::const_iterator
       static_node_property_end(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_node_property_[level].end();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_node_property_[level].end();
+      }
 
     StaticEdgePropertySet::const_iterator
       static_edge_property_begin(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_edge_property_[level].begin();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_edge_property_[level].begin();
+      }
 
     StaticEdgePropertySet::const_iterator
       static_edge_property_end(size_t level) const {
-      assert(0<=level && level<number_of_levels);
-      return static_edge_property_[level].end();
-    }
+        assert(0<=level && level<number_of_levels);
+        return static_edge_property_[level].end();
+      }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +249,7 @@ namespace hashimoto_ut {
 
             // If there is no associated property in other layers,
             // delete a static property.
-            if (sep.number_of_dynamic_properties()==1)
+            if (sep.number_of_dynamic_properties()==0)
               static_edge_property_[0].erase(sep);
 
             m = n->begin();
@@ -307,6 +308,24 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
+    StaticNodePropertySet::iterator
+      find_static_node(size_t level, wstring const& name) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_node_property_[level].begin(),
+                       static_node_property_[level].end(),
+                       bind(std::equal_to<wstring>(),
+                            bind(&StaticNodeProperty::get_name, _1), name));
+      }
+
+    StaticEdgePropertySet::iterator
+      find_static_edge(size_t level, wstring const& name) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_edge_property_[level].begin(),
+                       static_edge_property_[level].end(),
+                       bind(std::equal_to<wstring>(),
+                            bind(&StaticEdgeProperty::get_name, _1), name));
+      }
+
     StaticNodePropertySet::const_iterator
       find_static_node(size_t level, wstring const& name) const {
         assert(0<=level && level<number_of_levels);
@@ -323,6 +342,26 @@ namespace hashimoto_ut {
                        static_edge_property_[level].end(),
                        bind(std::equal_to<wstring>(),
                             bind(&StaticEdgeProperty::get_name, _1), name));
+      }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    StaticNodePropertySet::iterator
+      find_static_node(size_t level, size_t id) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_node_property_[level].begin(),
+                       static_node_property_[level].end(),
+                       bind(std::equal_to<size_t>(),
+                            bind(&StaticNodeProperty::get_id, _1), id));
+      }
+
+    StaticEdgePropertySet::iterator
+      find_static_edge(size_t level, size_t id) {
+        assert(0<=level && level<number_of_levels);
+        return find_if(static_edge_property_[level].begin(),
+                       static_edge_property_[level].end(),
+                       bind(std::equal_to<size_t>(),
+                            bind(&StaticEdgeProperty::get_id, _1), id));
       }
 
     StaticNodePropertySet::const_iterator
@@ -436,7 +475,7 @@ namespace hashimoto_ut {
 
       // Rebuild an empty community level.
       for (size_t layer=0; layer<number_of_layers(); ++layer) {
-        graph_series_[1][layer].swap(SociariumGraph::create());
+        graph_series_[1][layer] = SociariumGraph::create();
 
         shared_ptr<SociariumGraph> g0 = graph_series_[0][layer];
 
@@ -476,11 +515,10 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    void update(
-      vector<shared_ptr<SociariumGraph> >& graph_series,
-      StaticNodePropertySet& static_node_property,
-      StaticEdgePropertySet& static_edge_property,
-      vector<wstring>& layer_name) {
+    void update(vector<shared_ptr<SociariumGraph> >& graph_series,
+                StaticNodePropertySet& static_node_property,
+                StaticEdgePropertySet& static_edge_property,
+                vector<wstring>& layer_name) {
 
       assert(graph_series.size()==layer_name.size());
 
@@ -592,47 +630,20 @@ namespace hashimoto_ut {
           }
         }
 
-        using namespace sociarium_project_color;
-
-        // Set color of nodes in the base level.
         {
+          // Set color of nodes.
           node_property_iterator i   = g0->node_property_begin();
           node_property_iterator end = g0->node_property_end();
 
-          for (; i!=end; ++i) {
-
-            DynamicNodeProperty& dnp = i->second;
-
-            if (dnp.number_of_upper_nodes()==0)
-              // If the node doesn't belong to any community.
-              dnp.set_color_id(get_independent_node_color_id());
-            else if (dnp.number_of_upper_nodes()==1)
-              // If the node belongs to only one community.
-              dnp.set_color_id((*dnp.upper_nbegin())->get_color_id());
-            else
-              // If the node belongs to multiple communities.
-              dnp.set_color_id(PredefinedColor::WHITE);
-          }
-        }
-
-        // Set color of edges.
-        {
+          for (; i!=end; ++i)
+            sociarium_project_color::update_color_under_community_information(i->second);
+        }{
+          // Set color of edges.
           edge_property_iterator i   = g0->edge_property_begin();
           edge_property_iterator end = g0->edge_property_end();
 
-          for (; i!=end; ++i) {
-            DynamicEdgeProperty& dep = i->second;
-
-            if (dep.number_of_upper_nodes()==0)
-              // If the edge doesn't belong to any community.
-              dep.set_color_id(get_independent_edge_color_id());
-            else if (dep.number_of_upper_nodes()==1)
-              // If the edge belongs to only one community.
-              dep.set_color_id((*dep.upper_nbegin())->get_color_id());
-            else
-              // If the edge belongs to multiple communities.
-              dep.set_color_id(get_default_edge_color_id());
-          }
+          for (; i!=end; ++i)
+            sociarium_project_color::update_color_under_community_information(i->second);
         }
       }
 

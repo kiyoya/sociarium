@@ -34,8 +34,9 @@
 #include "force_direction.h"
 #include "../algorithm_selector.h"
 #include "../layout.h"
-#include "../sociarium_graph_time_series.h"
+#include "../flag_operation.h"
 #include "../thread.h"
+#include "../sociarium_graph_time_series.h"
 #include "../../shared/fps.h"
 #include "../../shared/math.h"
 #include "../../shared/mtrand.h"
@@ -111,7 +112,7 @@ namespace hashimoto_ut {
         scale_of_distance *= force_scale*sociarium_project_layout::get_layout_frame_size();
 
         // Limit the max force.
-        float const force_max = 500.0f;
+        float const force_max = 300.0f;
 
         vector<shared_ptr<Element> >::const_iterator i   = element.begin();
         vector<shared_ptr<Element> >::const_iterator end = element.end();
@@ -247,7 +248,7 @@ namespace hashimoto_ut {
         scale_of_distance *= force_scale*sociarium_project_layout::get_layout_frame_size();
 
         // Limit the max force.
-        float const force_max = 500.0f;
+        float const force_max = 300.0f;
 
         vector<shared_ptr<Element> >::const_iterator i   = element.begin();
         vector<shared_ptr<Element> >::const_iterator end = element.end();
@@ -865,8 +866,11 @@ namespace hashimoto_ut {
               // Calculate the force between the members of the community.
               Node const* n = (*j)->get_graph_element();
 
-              for (vector<DynamicNodeProperty*>::const_iterator k=j+1; k!=jend; ++k) {
-                if (is_hidden(**j)) continue;
+              vector<DynamicNodeProperty*>::const_iterator k = j+1;
+
+              for (; k!=jend; ++k) {
+
+                if (is_hidden(**k)) continue;
 
                 momentum_list[*j].mass = 1.0f;
                 shared_ptr<Spring::Element> se(new Spring::Element);
@@ -1013,14 +1017,12 @@ namespace hashimoto_ut {
         initialize(g0, g1);
       }
 
-      // セル内粒子数のカウント
       for (int i=0; i<number_of_cell_x; ++i) {
         for (int j=0; j<number_of_cell_y; ++j) {
           cells[i][j]->update_local_parameters();
         }
       }
 
-      // 衝突角の計算と粒子速度の決定
       for (int i=0; i<number_of_cell_x; ++i) {
         for (int j=0; j<number_of_cell_y; ++j) {
           cells[i][j]->update_particle_velocity();
@@ -1033,7 +1035,6 @@ namespace hashimoto_ut {
         }
       }
 
-      // 粒子の移動
       for (vector<shared_ptr<Particle> >::iterator i=particles.begin(); i!=particles.end(); ++i) {
         Momentum& p = (*i)->p;
         DynamicNodeProperty const* dnp = (*i)->dnp;

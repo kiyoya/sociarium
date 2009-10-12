@@ -37,8 +37,9 @@
 #include "../graph_extractor.h"
 #include "../thread.h"
 #include "../algorithm_selector.h"
+#include "../flag_operation.h"
 #include "../graph_utility.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../sociarium_graph_time_series.h"
 #include "../../graph/util/traverser.h"
 
@@ -54,7 +55,7 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_thread;
   using namespace sociarium_project_algorithm_selector;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   typedef SociariumGraph::node_property_iterator node_property_iterator;
   typedef SociariumGraph::edge_property_iterator edge_property_iterator;
@@ -236,7 +237,7 @@ namespace hashimoto_ut {
 
             pair<bool, pair<vector<double>, vector<double> > > bc =
               sociarium_project_graph_utility::betweenness_centrality(
-                this, &status[1], get_message_object(), t);
+                this, &status[1], &get_message_object(), t);
 
             if (bc.first) {
               assert(bc.second.second.size()==tesz);
@@ -289,4 +290,4 @@ namespace hashimoto_ut {
     return shared_ptr<EdgeWidthUpdateThread>(new EdgeWidthUpdateThreadImpl);
   }
 
-} // The endof the namespace "hashimoto_ut"
+} // The end of the namespace "hashimoto_ut"

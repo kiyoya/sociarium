@@ -42,13 +42,20 @@ namespace hashimoto_ut {
 
     namespace {
       wchar_t const* APPLICATION_TITLE = L"s.o.c.i.a.r.i.u.m";
+
+      int const mb_notice = MB_OK|MB_ICONEXCLAMATION;
+      int const mb_info   = MB_OK|MB_ICONASTERISK;
+      int const mb_error  = MB_OK|MB_ICONERROR;
+      int const mb_ok_cancel = MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON1;
+      int const mb_ok_cancel_error = MB_OKCANCEL|MB_ICONERROR;
     }
 
     namespace RenderingContext {
       enum {
-        DRAW = 0,
+        DRAW = 0, // The ID of drawing context should be 0.
         LOAD_TEXTURES,
-        NUMBER_OF_CATEGORIES
+        CVFRAME,
+        NUMBER_OF_THREAD_CATEGORIES
       };
     }
 
@@ -63,22 +70,7 @@ namespace hashimoto_ut {
     void set_instance_handle(HINSTANCE hinst);
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the main window.
-    HWND get_window_handle(void);
-    void set_window_handle(HWND hwnd);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the device context.
-    HDC get_device_context(void);
-    void set_device_context(HDC dc);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Handle of the rendering context.
-    HGLRC get_rendering_context(int thread_id);
-    void set_rendering_context(int thread_id, HGLRC rc);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void show_last_error(wchar_t const* text=L"");
+    void show_last_error(HWND hwnd, wchar_t const* text=L"");
 
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef DEBUG

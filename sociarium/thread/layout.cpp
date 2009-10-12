@@ -33,14 +33,17 @@
 #include <unordered_map>
 #include <boost/format.hpp>
 #include "layout.h"
-#include "../module/layout.h"
-#include "../graph_extractor.h"
-#include "../thread.h"
-#include "../layout.h"
-#include "../language.h"
 #include "../algorithm_selector.h"
+#include "../common.h"
+#include "../flag_operation.h"
+#include "../graph_extractor.h"
+#include "../layout.h"
+#include "../menu_and_message.h"
 #include "../sociarium_graph.h"
 #include "../sociarium_graph_time_series.h"
+#include "../thread.h"
+#include "../world.h"
+#include "../module/layout.h"
 
 namespace hashimoto_ut {
 
@@ -52,11 +55,12 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using std::tr1::weak_ptr;
 
-  using namespace sociarium_project_thread;
-  using namespace sociarium_project_module_layout;
   using namespace sociarium_project_algorithm_selector;
+  using namespace sociarium_project_common;
   using namespace sociarium_project_layout;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
+  using namespace sociarium_project_module_layout;
+  using namespace sociarium_project_thread;
 
   typedef SociariumGraph::node_property_iterator node_property_iterator;
   typedef SociariumGraph::edge_property_iterator edge_property_iterator;
@@ -64,7 +68,7 @@ namespace hashimoto_ut {
   class LayoutThreadImpl : public LayoutThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    LayoutThreadImpl(void) {}
+    LayoutThreadImpl(World const* world) : world_(world) {}
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +88,8 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     void operator()(void) {
+
+      HWND hwnd = world_->get_window_handle();
 
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
@@ -114,6 +120,9 @@ namespace hashimoto_ut {
       }
 
       shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
+
+      status[0] = (boost::wformat(L"%s")
+                   %get_message(Message::LAYOUTING)).str();
 
       // --------------------------------------------------------------------------------
       // Memory the position of extracted nodes.
@@ -147,7 +156,9 @@ namespace hashimoto_ut {
         }
       }
 
-      if (get_layout_algorithm()==LayoutAlgorithm::CIRCLE) {
+      switch (get_layout_algorithm()) {
+
+      case LayoutAlgorithm::CIRCLE: {
         hint.resize(nsz);
 
         node_iterator i   = g_target->nbegin();
@@ -156,8 +167,14 @@ namespace hashimoto_ut {
         for (; i!=end; ++i)
           hint[(*i)->index()] = node2node[*i]->index();
 
-      } else if (get_layout_algorithm()==LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER
-                 || get_layout_algorithm()==LayoutAlgorithm::LATTICE) {
+        break;
+      }
+
+      case LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER:
+      case LayoutAlgorithm::LATTICE:
+      case LayoutAlgorithm::CARTOGRAMS: {
+
+        hint.reserve(nsz+4);
 
         node_iterator i   = g_target->nbegin();
         node_iterator end = g_target->nend();
@@ -167,39 +184,58 @@ namespace hashimoto_ut {
           hint.push_back(dnp.get_size());
         }
 
-      } else if (get_layout_algorithm()==LayoutAlgorithm::KAMADA_KAWAI_METHOD) {
-        hint.push_back(double(get_layout_frame_size()));
+        if (get_layout_algorithm()==LayoutAlgorithm::CARTOGRAMS) {
+          Vector2<float> const& pos = get_layout_frame_position();
+          float const sz = get_layout_frame_size();
+          hint.push_back(pos.x-sz);
+          hint.push_back(pos.y-sz);
+          hint.push_back(pos.x+sz);
+          hint.push_back(pos.y+sz);
+        }
 
-      } else if (get_layout_algorithm()
-                 ==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2) {
-        hint.push_back(1);
-
-      } else if (get_layout_algorithm()
-                 ==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3) {
-        hint.push_back(2);
-
-      } else if (get_layout_algorithm()
-                 ==LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3) {
-        hint.push_back(3);
+        break;
       }
 
-      assert(g_target->nsize()==position_target.size());
+      case LayoutAlgorithm::KAMADA_KAWAI_METHOD:
+        hint.push_back(double(get_layout_frame_size()));
+        break;
+
+      case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2:
+        hint.push_back(1);
+        break;
+
+      case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3:
+        hint.push_back(2);
+        break;
+
+      case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3:
+        hint.push_back(3);
+        break;
+
+      default:
+        assert(g_target->nsize()==position_target.size());
+      }
 
       // --------------------------------------------------------------------------------
       // Load a layout module.
 
-      FuncLayout layout = sociarium_project_module_layout::get(get_layout_algorithm());
+      FuncLayout layout = 0;
 
-      if (layout==0) {
+      try {
+        layout = sociarium_project_module_layout::get(get_layout_algorithm());
+      } catch (wchar_t const* errmsg) {
+        show_last_error(hwnd, errmsg);
         ts->read_unlock();
         return terminate();
       }
 
+      assert(layout!=0);
+
       // --------------------------------------------------------------------------------
       // Execute the module.
 
-      layout(this,
-             status,
+      layout(*this,
+             status[1],
              get_message_object(),
              position_target,
              g_target,
@@ -276,13 +312,15 @@ namespace hashimoto_ut {
       terminate();
     }
 
+  private:
+    World const* world_;
   };
 
 
   ////////////////////////////////////////////////////////////////////////////////
   // Functory function of LayoutThread.
-  shared_ptr<LayoutThread> LayoutThread::create(void) {
-    return shared_ptr<LayoutThread>(new LayoutThreadImpl);
+  shared_ptr<LayoutThread> LayoutThread::create(World const* world) {
+    return shared_ptr<LayoutThread>(new LayoutThreadImpl(world));
   }
 
 } // The end of the namespace "hashimoto_ut"

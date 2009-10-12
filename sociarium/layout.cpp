@@ -31,6 +31,7 @@
 
 #include <vector>
 #include <memory>
+#include "flag_operation.h"
 #include "layout.h"
 #include "sociarium_graph.h"
 

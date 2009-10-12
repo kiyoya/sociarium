@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: language.h
+﻿// s.o.c.i.a.r.i.u.m: menu_and_message.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_LANGUAGE_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_LANGUAGE_H
+#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_MENU_AND_MESSAGE_H
+#define INCLUDE_GUARD_SOCIARIUM_PROJECT_MENU_AND_MESSAGE_H
 
 #include <cassert>
 #include <vector>
@@ -46,8 +46,6 @@ namespace hashimoto_ut {
     enum {
       /////////////////////////////////////////////////////////////////////////////
       QUIT = 0,
-      IS_NOT_TEXTFILE,
-
 
       /////////////////////////////////////////////////////////////////////////////
       CALCULATING_CLOSENESS_CENTRALITY,
@@ -61,11 +59,9 @@ namespace hashimoto_ut {
       CALCULATING_3_CLIQUE_COMMUNITIES,
       CALCULATING_DEGREE_CENTRALITY,
 
-
       /////////////////////////////////////////////////////////////////////////////;
       GRAPH_EXTRACTOR_EXTRACTING_NODES,
       GRAPH_EXTRACTOR_EXTRACTING_EDGES,
-
 
       /////////////////////////////////////////////////////////////////////////////;
       GLEW_FAILED_TO_INITIALIZE,
@@ -74,29 +70,24 @@ namespace hashimoto_ut {
       GLEW_MSAA_2,
       GLEW_FAILED_TO_ENABLE_MSAA,
 
-
       /////////////////////////////////////////////////////////////////////////////;
       FAILED_TO_CREATE_TEXTURE,
-
 
       /////////////////////////////////////////////////////////////////////////////;
       REMOVE_ELEMENTS,
 
-
       /////////////////////////////////////////////////////////////////////////////;
       CLEAR_COMMUNITY,
-
 
       /////////////////////////////////////////////////////////////////////////////;
       GRAPH_IS_LOCKED,
       ANOTHER_THREAD_IS_RUNNING,
       CANCEL_RUNNING_THREAD,
 
-
       /////////////////////////////////////////////////////////////////////////////;
       READING_DATA_FILE,
       CHECKING_TEXT_ENCODING,
-      CONVERTING_INTO_SJIS_ENCODING,
+      CONVERTING_INTO_UTF16_ENCODING,
       UNKNOWN_CHARACTER_ENCODING,
       PARSING_DATA,
       MAKING_GRAPH_TIME_SERIES,
@@ -112,17 +103,16 @@ namespace hashimoto_ut {
       NODE_IDENTIFIER_DUPLICATION,
       EDGE_IDENTIFIER_DUPLICATION,
 
-
       /////////////////////////////////////////////////////////////////////////////;
+      LAYOUTING,
       KAMADA_KAWAI_METHOD,
       KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH,
-      KAMADA_KAWAI_METHOD_ITERATING,
       HDE,
       HDE_CALCULATING_GRAPH_DISTANCE,
       HDE_CALCULATING_MATRIX,
       HDE_CALCULATING_PRINCIPAL_COMPONENTS,
       HDE_CALCULATING_POSITION,
-
+      CARTOGRAMS,
 
       /////////////////////////////////////////////////////////////////////////////;
       DETECTING_COMMUNITIES,
@@ -132,17 +122,19 @@ namespace hashimoto_ut {
       BETWEENNESS_CENTRALITY_SEPARATION,
       INFORMATION_FLOW_MAPPING,
 
-
       /////////////////////////////////////////////////////////////////////////////;
       UPDATING_NODE_SIZE,
       UPDATING_EDGE_WIDTH,
-
 
       /////////////////////////////////////////////////////////////////////////////
       FTGL_ERROR_CHARMAP,
       FTGL_ERROR_FACESIZE,
       FTGL_ERROR_CREATE,
 
+      /////////////////////////////////////////////////////////////////////////////
+      FAILED_TO_CREATE_CAMERA_CAPTURE,
+      FAILED_TO_CREATE_FILE_CAPTURE,
+      FAILED_TO_LOAD_MASKING_IMAGE,
 
       /////////////////////////////////////////////////////////////////////////////
       NUMBER_OF_MESSAGES
@@ -165,14 +157,16 @@ namespace hashimoto_ut {
   };
 
 
-  namespace sociarium_project_language {
+  namespace sociarium_project_menu_and_message {
 
-    void initialize(HWND hwnd, wchar_t const* filename);
-    Message const* get_message_object(void);
+    void set_menu(HWND hwnd, wchar_t const* filename);
+
+    void set_message(wchar_t const* filename);
+    Message const& get_message_object(void);
     wchar_t const* get_message(int message_id);
 
-  } // The end of the namespace "sociarium_project_language"
+  } // The end of the namespace "sociarium_project_menu_and_message"
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_MESSAGE_H
+#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_MENU_AND_MESSAGE_H

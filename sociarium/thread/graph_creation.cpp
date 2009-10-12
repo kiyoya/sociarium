@@ -41,20 +41,22 @@
 #include "node_size_update.h"
 #include "edge_width_update.h"
 #include "detail/read_file.h"
-#include "../module/graph_creation.h"
-#include "../common.h"
-#include "../language.h"
-#include "../color.h"
-#include "../thread.h"
-#include "../layout.h"
-#include "../texture.h"
 #include "../algorithm_selector.h"
+#include "../color.h"
+#include "../common.h"
+#include "../flag_operation.h"
+#include "../menu_and_message.h"
+#include "../layout.h"
 #include "../sociarium_graph_time_series.h"
+#include "../texture.h"
+#include "../thread.h"
 #include "../update_predefined_parameters.h"
-#include "../../shared/general.h"
-#include "../../shared/win32api.h"
+#include "../world.h"
+#include "../module/graph_creation.h"
 #include "../../shared/msgbox.h"
 #include "../../shared/predefined_color.h"
+#include "../../shared/util.h"
+#include "../../shared/win32api.h"
 
 namespace hashimoto_ut {
 
@@ -71,12 +73,12 @@ namespace hashimoto_ut {
   using std::tr1::unordered_map;
   using std::tr1::unordered_set;
 
-  using namespace sociarium_project_thread;
-  using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_common;
+  using namespace sociarium_project_menu_and_message;
+  using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_texture;
+  using namespace sociarium_project_thread;
   using namespace sociarium_project_thread_detail_read_file;
-  using namespace sociarium_project_language;
 
   typedef SociariumGraphTimeSeries::StaticNodePropertySet StaticNodePropertySet;
   typedef SociariumGraphTimeSeries::StaticEdgePropertySet StaticEdgePropertySet;
@@ -84,8 +86,8 @@ namespace hashimoto_ut {
   class GraphCreationThreadImpl : public GraphCreationThread {
   public:
     ////////////////////////////////////////////////////////////////////////////////
-    GraphCreationThreadImpl(wchar_t const* filename)
-         : filename_(filename),
+    GraphCreationThreadImpl(World const* world, wchar_t const* filename)
+         : world_(world), filename_(filename),
            is_completed_(false) {}
 
 
@@ -98,8 +100,7 @@ namespace hashimoto_ut {
 
       initialize_texture_folder_path();
 
-      if (wglMakeCurrent(0, 0)==FALSE)
-        show_last_error(L"GraphCreationThread::terminate/wglMakeCurrent");
+      wglMakeCurrent(0, 0);
 
       // Clear the progress message.
       deque<wstring>& status = get_status(GRAPH_CREATION);
@@ -118,6 +119,8 @@ namespace hashimoto_ut {
     ////////////////////////////////////////////////////////////////////////////////
     void operator()(void) {
 
+      HWND hwnd = world_->get_window_handle();
+
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
@@ -131,11 +134,13 @@ namespace hashimoto_ut {
       // --------------------------------------------------------------------------------
       // Read and parse a given file.
 
-      unordered_map<string, pair<string, int> > params;
-      vector<pair<string, int> > data;
-      string const filename_mb = wcs2mbcs(filename_.c_str(), filename_.size());
+      unordered_map<wstring, pair<wstring, int> > params;
+      vector<pair<wstring, int> > data;
 
-      if (read_file(this, filename_mb.c_str(), params, data)==false) {
+      try {
+        read_file(this, filename_.c_str(), params, data);
+      } catch (wchar_t const* errmsg) {
+        if (errmsg!=0) message_box(hwnd, mb_error, APPLICATION_TITLE, errmsg);
         ts->read_unlock();
         return terminate();
       }
@@ -148,11 +153,11 @@ namespace hashimoto_ut {
       // --------------------------------------------------------------------------------
       // Load a graph creation module.
 
-      unordered_map<string, pair<string, int> >::const_iterator pos_format
-        = params.find("format");
+      unordered_map<wstring, pair<wstring, int> >::const_iterator pos_format
+        = params.find(L"format");
 
-      unordered_map<string, pair<string, int> >::const_iterator pos_module
-        = params.find("module");
+      unordered_map<wstring, pair<wstring, int> >::const_iterator pos_module
+        = params.find(L"module");
 
       int data_format = DataFormat::UNSUPPORTED;
       wstring module_filename;
@@ -163,27 +168,22 @@ namespace hashimoto_ut {
           ts->read_unlock();
           return terminate();
         } else {
-          string const s = pos_module->second.first;
-          module_filename = mbcs2wcs(s.c_str(), s.size());
+          module_filename = pos_module->second.first;
           data_format = DataFormat::USER_DEFINED_MODULE;
           params.erase(pos_module);
         }
       } else {
 
-        if (pos_format->second.first=="AdjacencyMatrix")
+        if (pos_format->second.first==L"AdjacencyMatrix")
           data_format = DataFormat::ADJACENCY_MATRIX;
-        else if (pos_format->second.first=="AdjacencyList")
+        else if (pos_format->second.first==L"AdjacencyList")
           data_format = DataFormat::ADJACENCY_LIST;
-        else if (pos_format->second.first=="EdgeList")
+        else if (pos_format->second.first==L"EdgeList")
           data_format = DataFormat::EDGE_LIST;
         else {
-          message_box(
-            get_window_handle(),
-            MessageType::CRITICAL,
-            APPLICATION_TITLE,
-            L"%s: %s",
-            get_message(Message::UNSUPPORTED_DATA_FORMAT),
-            filename_.c_str());
+          message_box(hwnd, mb_error, APPLICATION_TITLE,
+                      L"%s: %s", get_message(Message::UNSUPPORTED_DATA_FORMAT),
+                      filename_.c_str());
           ts->read_lock();
           return terminate();
         }
@@ -191,45 +191,47 @@ namespace hashimoto_ut {
         params.erase(pos_format);
       }
 
-      FuncCreateGraphTimeSeries create_graph_time_series
-        = get(data_format, module_filename.c_str());
+      FuncCreateGraphTimeSeries create_graph_time_series = 0;
 
-      if (create_graph_time_series==0) {
+      try {
+        create_graph_time_series = get(data_format, module_filename.c_str());
+      } catch (wchar_t const* errmsg) {
+        show_last_error(hwnd, errmsg);
         ts->read_unlock();
         return terminate();
       }
 
-      HDC dc = get_device_context();
-      HGLRC rc = get_rendering_context(RenderingContext::LOAD_TEXTURES);
+      assert(create_graph_time_series!=0);
+
+      HDC dc = world_->get_device_context();
+      HGLRC rc = world_->get_rendering_context(RenderingContext::LOAD_TEXTURES);
 
       if (wglMakeCurrent(dc, rc)==FALSE)
-        show_last_error(L"GraphCreationThread::operator()/wglMakeCurrent");
+        show_last_error(hwnd, L"GraphCreationThread::operator()/wglMakeCurrent");
 
       // --------------------------------------------------------------------------------
       // Execute the module.
 
       vector<shared_ptr<Graph> > graph_base;
 
-      vector<vector<NodeProperty> >
-        node_property;
-
-      vector<vector<EdgeProperty> >
-        edge_property;
+      vector<vector<NodeProperty> > node_property;
+      vector<vector<EdgeProperty> > edge_property;
 
       vector<wstring> layer_name;
 
-      create_graph_time_series(
-        this,
-        status,
-        get_message_object(),
-        graph_base,
-        node_property,
-        edge_property,
-        layer_name,
-        params, data,
-        filename_);
-
-      if (graph_base.empty()) {
+      try {
+        create_graph_time_series(
+          *this,
+          status,
+          get_message_object(),
+          graph_base,
+          node_property,
+          edge_property,
+          layer_name,
+          params, data,
+          filename_);
+      } catch (wstring message) {
+        message_box(hwnd, mb_error, APPLICATION_TITLE, message.c_str());
         ts->read_unlock();
         return terminate();
       }
@@ -265,8 +267,7 @@ namespace hashimoto_ut {
         } else {
           status[0]
             = (boost::wformat(L"%s")
-               %get_message(Message::MAKING_GRAPH_ATTRIBUTES)
-               ).str();
+               %get_message(Message::MAKING_GRAPH_ATTRIBUTES)).str();
         }
 
         shared_ptr<SociariumGraph> g = graph[layer] = SociariumGraph::create();
@@ -302,13 +303,10 @@ namespace hashimoto_ut {
 
           if (check_node_id_duplication.find(np.identifier)
               !=check_node_id_duplication.end()) {
-            message_box(
-              get_window_handle(),
-              MessageType::CRITICAL,
-              APPLICATION_TITLE,
-              L"%s: %s [%s]",
-              get_message(Message::NODE_IDENTIFIER_DUPLICATION),
-              filename_.c_str(), np.identifier.c_str());
+            message_box(hwnd, mb_error, APPLICATION_TITLE,
+                        L"%s: %s [%s]",
+                        get_message(Message::NODE_IDENTIFIER_DUPLICATION),
+                        filename_.c_str(), np.identifier.c_str());
             ts->read_unlock();
             return terminate();
           }
@@ -335,14 +333,14 @@ namespace hashimoto_ut {
             }{
               // Set texture.
               if (np.texture_file_name.empty()) {
-                GLTexture const* texture = get_texture_by_name(np.name);
+                Texture const* texture = get_texture_by_name(np.name);
                 if (texture) {
                   snp->set_texture(texture);
                   snp->set_flag(snp->get_flag()|ElementFlag::TEXTURE_IS_SPECIFIED);
                 } else
                   snp->set_texture(get_default_node_texture_tmp());
               } else {
-                GLTexture const* texture = get_texture(np.texture_file_name);
+                Texture const* texture = get_texture(np.texture_file_name);
                 if (texture) snp->set_texture(texture);
                 else         snp->set_texture(get_default_node_texture_tmp());
               }
@@ -402,13 +400,10 @@ namespace hashimoto_ut {
 
           if (check_edge_id_duplication.find(ep.identifier)
               !=check_edge_id_duplication.end()) {
-            message_box(
-              get_window_handle(),
-              MessageType::CRITICAL,
-              APPLICATION_TITLE,
-              L"%s: %s [%s]",
-              get_message(Message::EDGE_IDENTIFIER_DUPLICATION),
-              filename_.c_str(), ep.identifier.c_str());
+            message_box(hwnd, mb_error, APPLICATION_TITLE,
+                        L"%s: %s [%s]",
+                        get_message(Message::EDGE_IDENTIFIER_DUPLICATION),
+                        filename_.c_str(), ep.identifier.c_str());
             ts->read_unlock();
             return terminate();
           }
@@ -466,6 +461,7 @@ namespace hashimoto_ut {
     }
 
   private:
+    World const* world_;
     wstring const filename_;
     bool is_completed_;
   };
@@ -473,8 +469,10 @@ namespace hashimoto_ut {
 
   ////////////////////////////////////////////////////////////////////////////////
   // Factory function of GraphCreationThread.
-  shared_ptr<GraphCreationThread> GraphCreationThread::create(wchar_t const* filename) {
-    return shared_ptr<GraphCreationThread>(new GraphCreationThreadImpl(filename));
-  }
+  shared_ptr<GraphCreationThread>
+    GraphCreationThread::create(World const* world, wchar_t const* filename) {
+      return shared_ptr<GraphCreationThread>(
+        new GraphCreationThreadImpl(world, filename));
+    }
 
 } // The end of the namespace "hashimoto_ut"

@@ -179,10 +179,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\agent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\algorithm_selector.cpp"
 				>
 			</File>
@@ -196,14 +192,6 @@
 			</File>
 			<File
 				RelativePath="..\community_transition_diagram.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\cvframe.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\designtide.cpp"
 				>
 			</File>
 			<File
@@ -231,15 +219,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\language.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\layout.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\menu_and_message.cpp"
 				>
 			</File>
 			<File
@@ -318,44 +306,8 @@
 				Name="shared"
 				>
 				<File
-					RelativePath="..\..\shared\general.cpp"
+					RelativePath="..\..\shared\gl\fbo.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\shared\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\shared\"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\shared\GL\gltexture.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\shared\"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)\shared\"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\shared\GL\glview.cpp"
@@ -400,6 +352,46 @@
 				<File
 					RelativePath="..\..\shared\mutex.cpp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\shared\GL\texture.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\shared\util.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\shared\"
+						/>
+					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
 						>
@@ -508,10 +500,6 @@
 							ObjectFile="$(IntDir)\thread\"
 						/>
 					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\thread\graph_retouch.cpp"
-					>
 				</File>
 				<File
 					RelativePath="..\thread\layout.cpp"
@@ -629,10 +617,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\agent.h"
-				>
-			</File>
-			<File
 				RelativePath="..\algorithm_selector.h"
 				>
 			</File>
@@ -646,14 +630,6 @@
 			</File>
 			<File
 				RelativePath="..\community_transition_diagram.h"
-				>
-			</File>
-			<File
-				RelativePath="..\cvframe.h"
-				>
-			</File>
-			<File
-				RelativePath="..\designtide.h"
 				>
 			</File>
 			<File
@@ -685,15 +661,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\language.h"
-				>
-			</File>
-			<File
 				RelativePath="..\layout.h"
 				>
 			</File>
 			<File
 				RelativePath="..\main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\menu_and_message.h"
 				>
 			</File>
 			<File
@@ -736,19 +712,19 @@
 				RelativePath="..\world.h"
 				>
 			</File>
+			<File
+				RelativePath="..\world_impl.h"
+				>
+			</File>
 			<Filter
 				Name="shared"
 				>
 				<File
+					RelativePath="..\..\shared\gl\fbo.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\shared\fps.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\shared\general.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\shared\GL\gltexture.h"
 					>
 				</File>
 				<File
@@ -776,11 +752,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\shared\GL\texture.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\shared\thread.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\shared\timer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\shared\util.h"
 					>
 				</File>
 				<File
@@ -837,10 +821,6 @@
 				</File>
 				<File
 					RelativePath="..\thread\graph_creation.h"
-					>
-				</File>
-				<File
-					RelativePath="..\thread\graph_retouch.h"
 					>
 				</File>
 				<File

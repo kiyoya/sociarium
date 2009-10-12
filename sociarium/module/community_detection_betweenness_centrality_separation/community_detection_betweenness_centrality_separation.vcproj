@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="community_detection_betweenness_centrality_clustering"
+	Name="community_detection_betweenness_centrality_separation"
 	ProjectGUID="{72AB6078-6490-4C9A-B2E7-35943A37BFC6}"
 	RootNamespace="kamada_kawai_method"
 	Keyword="Win32Proj"
@@ -40,9 +40,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHs"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KAMADA_KAWAI_METHOD_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;"
 				MinimalRebuild="true"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -113,9 +115,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHs"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KAMADA_KAWAI_METHOD_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;"
+				ExceptionHandling="0"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -173,14 +177,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\common.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\community_detection.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\community_detection_betweenness_centrality_separation.cpp"
 				>
 			</File>
@@ -190,18 +186,6 @@
 			</File>
 			<File
 				RelativePath="..\..\graph_utility.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\language.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\msgbox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\shared\msgbox.h"
 				>
 			</File>
 			<File
@@ -215,10 +199,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\common.h"
-				>
-			</File>
-			<File
 				RelativePath="..\community_detection.h"
 				>
 			</File>
@@ -227,7 +207,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\language.h"
+				RelativePath="..\..\menu_and_message.h"
 				>
 			</File>
 			<File

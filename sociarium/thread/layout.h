@@ -37,11 +37,14 @@
 
 namespace hashimoto_ut {
 
+  class World;
+
   ////////////////////////////////////////////////////////////////////////////////
   class LayoutThread : public Thread {
   public:
     virtual ~LayoutThread() {}
-    static std::tr1::shared_ptr<LayoutThread> create(void);
+    static std::tr1::shared_ptr<LayoutThread>
+      create(World const* world);
   };
 }
 

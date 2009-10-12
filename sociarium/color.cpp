@@ -30,6 +30,7 @@
  */
 
 #include "color.h"
+#include "sociarium_graph.h"
 #include "../shared/predefined_color.h"
 
 namespace hashimoto_ut {
@@ -42,7 +43,6 @@ namespace hashimoto_ut {
     namespace {
       array<float, 4> const color_array[ColorCategory::NUMBER_OF_CATEGORIES] = {
         { 0.92f, 0.93f, 0.93f, 1.00f },  // BACKGROUND
-        { 0.70f, 0.70f, 0.70f, 1.00f },  // BACKGROUND2
         { 0.80f, 0.80f, 0.60f, 0.90f },  // LAYOUT_FRAME_BORDER
         { 0.80f, 0.80f, 0.60f, 0.30f },  // LAYOUT_FRAME_AREA
         { 0.00f, 0.00f, 0.00f, 0.60f },  // GRID
@@ -66,8 +66,8 @@ namespace hashimoto_ut {
       int const default_community_color_id      = PredefinedColor::GRAY;
       int const default_community_edge_color_id = PredefinedColor::GRAY;
 
-      int const isolated_node_color_id = PredefinedColor::LIGHT_GRAY;
-      int const isolated_edge_color_id = PredefinedColor::LIGHT_GRAY;
+      int const independent_node_color_id = PredefinedColor::LIGHT_GRAY;
+      int const independent_edge_color_id = PredefinedColor::LIGHT_GRAY;
 
       int const default_node_name_color_id           = PredefinedColor::BLACK;
       int const default_edge_name_color_id           = PredefinedColor::BLACK;
@@ -120,16 +120,6 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    int get_independent_node_color_id(void) {
-      return isolated_node_color_id;
-    }
-
-    int get_independent_edge_color_id(void) {
-      return isolated_edge_color_id;
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
     void highlight_effect(array<float, 4>& rgba) {
       rgba[0] = 0.9f;
       rgba[1] *= 0.5f;
@@ -150,6 +140,45 @@ namespace hashimoto_ut {
       rgba[1] *= 0.4f;
       rgba[2] *= 0.4f;
       rgba[3] = 0.7f;
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    namespace {
+
+      template <typename DynamicProperty>
+      int get_independent_color_id(void);
+
+      template <>
+      int get_independent_color_id<DynamicNodeProperty>(void) {
+        return independent_node_color_id;
+      }
+
+      template <>
+      int get_independent_color_id<DynamicEdgeProperty>(void) {
+        return independent_edge_color_id;
+      }
+
+      template <typename DynamicProperty>
+      void set_color(DynamicProperty& dp) {
+        if (dp.number_of_upper_nodes()==0)
+          // If the graph element doesn't belong to any community.
+          dp.set_color_id(get_independent_color_id<DynamicProperty>());
+        else if (dp.number_of_upper_nodes()==1)
+          // If the graph element belongs to only one community.
+          dp.set_color_id((*dp.upper_nbegin())->get_color_id());
+        else
+          // If the edge belongs to multiple communities.
+          dp.set_color_id(PredefinedColor::WHITE);
+      }
+    }
+
+    void update_color_under_community_information(DynamicNodeProperty& dnp) {
+      set_color<DynamicNodeProperty>(dnp);
+    }
+
+    void update_color_under_community_information(DynamicEdgeProperty& dep) {
+      set_color<DynamicEdgeProperty>(dep);
     }
 
   } // The end of the namespace "sociarium_project_color"

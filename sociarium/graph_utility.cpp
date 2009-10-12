@@ -35,7 +35,7 @@
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include "graph_utility.h"
-#include "language.h"
+#include "menu_and_message.h"
 #include "../graph/util/traverser.h"
 #include "../shared/thread.h"
 
@@ -51,7 +51,7 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
   using boost::numeric::ublas::mapped_matrix;
 
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_graph_utility {
 
@@ -72,10 +72,10 @@ namespace hashimoto_ut {
       for (size_t i=0; i<nsz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, vector<double>());
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %d%%")
                %message->get(Message::CALCULATING_CLOSENESS_CENTRALITY)
@@ -91,7 +91,7 @@ namespace hashimoto_ut {
         for (; !t->end(); t->advance()) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, vector<double>());
 
           retval[i] += pow(2.0, -t->distance());
@@ -122,10 +122,10 @@ namespace hashimoto_ut {
       for (size_t count=0; first!=last; ++first) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, 0.0);
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %d%%")
                %message->get(Message::CALCULATING_MEAN_SHORTEST_PATH_LENGTH)
@@ -142,7 +142,7 @@ namespace hashimoto_ut {
         for (; !t->end(); t->advance()) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, 0.0);
 
           distance_sum += t->distance();
@@ -174,10 +174,10 @@ namespace hashimoto_ut {
       for (; i!=end; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, vector<vector<Node*> >());
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %d%%")
                %message->get(Message::CALCULATING_CONNECTED_COMPONENTS)
@@ -188,7 +188,7 @@ namespace hashimoto_ut {
         for (t->start(*i); !t->end(); t->advance()) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, vector<vector<Node*> >());
 
           c.push_back(const_cast<Node*>(t->node()));
@@ -233,7 +233,7 @@ namespace hashimoto_ut {
 
         for (; i!=end; ++i) {
 
-          if (status!=0 && message!=0)
+          if (status && message)
             *status
               = (boost::wformat(L"%s: %d%%")
                  %message->get(Message::CALCULATING_STRONGLY_CONNECTED_COMPONENTS)
@@ -249,10 +249,10 @@ namespace hashimoto_ut {
         for (i=g->nbegin(); i!=end; ++i) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, vector<vector<Node*> >());
 
-          if (status!=0 && message!=0)
+          if (status && message)
             *status
               = (boost::wformat(L"%s: %d%%")
                  %message->get(Message::CALCULATING_STRONGLY_CONNECTED_COMPONENTS)
@@ -273,10 +273,10 @@ namespace hashimoto_ut {
           for (; !t_backward->end(); t_backward->advance()) {
 
             // **********  Catch a termination signal  **********
-            if (parent->cancel_check())
+            if (parent && parent->cancel_check())
               return make_pair(false, vector<vector<Node*> >());
 
-            if (status!=0 && message!=0)
+            if (status && message)
               *status
                 = (boost::wformat(L"%s: %d%%")
                    %message->get(Message::CALCULATING_STRONGLY_CONNECTED_COMPONENTS)
@@ -311,10 +311,10 @@ namespace hashimoto_ut {
       for (t->start(n); !t->end(); t->advance()) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, vector<Node*>());
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %.2f")
                %message->get(Message::CALCULATING_CONNECTED_COMPONENTS)
@@ -346,11 +346,11 @@ namespace hashimoto_ut {
       for (node_iterator i=g->nbegin(), nend=g->nend(); i!=nend; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, make_pair(vector<double>(), vector<double>()));
 
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %d%%")
                %message->get(Message::CALCULATING_BETWEENNESS_CENTRALITY)
@@ -369,7 +369,7 @@ namespace hashimoto_ut {
         for (; !t->end(); t->advance()) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, make_pair(vector<double>(), vector<double>()));
 
           src_array.push_back(t->node());
@@ -389,7 +389,7 @@ namespace hashimoto_ut {
         for (; s!=send; ++s) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, make_pair(vector<double>(), vector<double>()));
 
           Node const* src = *s;
@@ -434,6 +434,10 @@ namespace hashimoto_ut {
         Node const* n = g->node(i);
         size_t const odeg = n->odegree();
 
+        // **********  Catch a termination signal  **********
+        if (parent && parent->cancel_check())
+          return make_pair(false, vector<double>());
+
         if (odeg) {
           double const p = dumping_factor/odeg;
           adjacency_list_iterator c = n->obegin();
@@ -458,7 +462,7 @@ namespace hashimoto_ut {
       for (;;) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, vector<double>());
 
         boost::numeric::ublas::vector<double, vector<double> > v_tmp(v);
@@ -476,7 +480,7 @@ namespace hashimoto_ut {
 
         if (e<err) break; // Calculation converged.
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %.3f")
                %message->get(Message::CALCULATING_PAGERANK)
@@ -520,10 +524,10 @@ namespace hashimoto_ut {
         for (; i!=end; ++i) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, 0.0);
 
-          if (status!=0 && message!=0)
+          if (status && message)
             *status
               = (boost::wformat(L"%s: %d%%")
                  %message->get(Message::CALCULATING_MODULARITY)
@@ -544,7 +548,7 @@ namespace hashimoto_ut {
         for (size_t i=0; i<csz; ++i) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, 0.0);
 
           double const a = (0.5*ai[i])/esz;
@@ -563,10 +567,10 @@ namespace hashimoto_ut {
         for (; i!=end; ++i) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, 0.0);
 
-          if (status!=0 && message!=0)
+          if (status && message)
             *status
               = (boost::wformat(L"%s: %d%%")
                  %message->get(Message::CALCULATING_MODULARITY)
@@ -590,7 +594,7 @@ namespace hashimoto_ut {
         for (size_t i=0; i<csz; ++i) {
 
           // **********  Catch a termination signal  **********
-          if (parent!=0 && parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, 0.0);
 
           double const a = (0.5*ai[i])/w_sum;
@@ -677,10 +681,10 @@ namespace hashimoto_ut {
       for (; i!=end; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent!=0 && parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, vector<vector<Node*> >());
 
-        if (status!=0 && message!=0)
+        if (status && message)
           *status
             = (boost::wformat(L"%s: %d%%")
                %message->get(Message::CALCULATING_LARGEST_CLIQUES)
@@ -699,7 +703,7 @@ namespace hashimoto_ut {
           for (; c!=cend; ++c) {
 
             // **********  Catch a termination signal  **********
-            if (parent!=0 && parent->cancel_check())
+            if (parent && parent->cancel_check())
               return make_pair(false, vector<vector<Node*> >());
 
             Node* m = get_pair(n, c);
@@ -751,7 +755,7 @@ namespace hashimoto_ut {
       for (size_t i=0; i<esz; ++i) {
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check())
+        if (parent && parent->cancel_check())
           return make_pair(false, vector<vector<Node*> >());
 
         if (eflag[i]!=-1) continue;
@@ -768,7 +772,7 @@ namespace hashimoto_ut {
         while (!estack.empty()) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check())
+          if (parent && parent->cancel_check())
             return make_pair(false, vector<vector<Node*> >());
 
           e = estack.back();
@@ -776,7 +780,7 @@ namespace hashimoto_ut {
 
           eflag[e->index()] = cid;
 
-          if (status!=0 && message!=0)
+          if (status && message)
             *status
               = (boost::wformat(L"%s: %d%%")
                  %message->get(Message::CALCULATING_3_CLIQUE_COMMUNITIES)
@@ -791,7 +795,7 @@ namespace hashimoto_ut {
           for (; j!=send; ++j) {
 
             // **********  Catch a termination signal  **********
-            if (parent->cancel_check())
+            if (parent && parent->cancel_check())
               return make_pair(false, vector<vector<Node*> >());
 
             Edge const* e0 = *j;
@@ -806,7 +810,7 @@ namespace hashimoto_ut {
             for (; k!=tend; ++k) {
 
               // **********  Catch a termination signal  **********
-              if (parent->cancel_check())
+              if (parent && parent->cancel_check())
                 return make_pair(false, vector<vector<Node*> >());
 
               Edge const* e1 = *k;

@@ -33,8 +33,8 @@
 #include <deque>
 #include <array>
 #include <string>
+#include "menu_and_message.h"
 #include "thread.h"
-#include "language.h"
 #include "../shared/thread.h"
 
 namespace hashimoto_ut {
@@ -44,7 +44,7 @@ namespace hashimoto_ut {
   using std::tr1::array;
   using std::tr1::shared_ptr;
 
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace sociarium_project_thread {
 

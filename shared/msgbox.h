@@ -34,15 +34,6 @@
 
 namespace hashimoto_ut {
 
-  namespace MessageType {
-    enum {
-      CRITICAL = 0,
-      ALERT,
-      INFO,
-      QUESTION,
-    };
-  }
-
   ////////////////////////////////////////////////////////////////////////////////
   // char
   bool message_box(HWND hwnd, int type, char const* title, char const* fmt, ...);

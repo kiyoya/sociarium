@@ -36,7 +36,7 @@
 #include <boost/format.hpp>
 #include <boost/random.hpp>
 #include "community_detection.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"
 
@@ -54,10 +54,10 @@ namespace hashimoto_ut {
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_module_community_detection;
-  using namespace sociarium_project_language;
+  using namespace sociarium_project_menu_and_message;
 
   namespace {
-    int const alpha = 50;
+    int const alpha = 10;
 
     // fitness
     vector<double> calc_fitness(
@@ -113,9 +113,9 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
 
-      Thread* parent,
-      wstring* status,
-      Message const* message,
+      Thread& parent,
+      wstring& status,
+      Message const& message,
       vector<vector<Node*> >& community,
       bool& is_canceled,
       shared_ptr<Graph const> g,
@@ -160,7 +160,7 @@ namespace hashimoto_ut {
         vector<int> grouping_max; // the best grouping maximizing the modularity
 
         // **********  Catch a termination signal  **********
-        if (parent->cancel_check()) {
+        if (parent.cancel_check()) {
           is_canceled = true;
           return;
         }
@@ -184,17 +184,15 @@ namespace hashimoto_ut {
         for (int trial=0, number_of_trials=alpha*csz; trial<number_of_trials; ++trial) {
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }
 
-          if (status) {
-            *status
-              = (boost::wformat(L"%s: Q=%.3f [%d]")
-                 %message->get(Message::MODULARITY_MAXIMIZATION_USING_TEO_METHOD)
-                 %(0.5*q_max/g->esize())%community.size()).str();
-          }
+          status
+            = (boost::wformat(L"%s: Q=%.03f [%d]")
+               %message.get(Message::MODULARITY_MAXIMIZATION_USING_TEO_METHOD)
+               %(0.5*q_max/g->esize())%community.size()).str();
 
           // Calculate the rank from the fitness;
           // worse the fitness, smaller the rank.
@@ -214,8 +212,8 @@ namespace hashimoto_ut {
           // smaller the rank, higher the probability.
           double p_cum = 0.0;
 
-          //double const exp = 1.0+1.0/log(double(csz)); ??
-          double const exp = 1.0+1.0/log(double(nsz));
+          double const exp = 1.0+1.0/log(double(csz)); // ??
+          // double const exp = 1.0+1.0/log(double(nsz));
 
           for (int i=0; i<csz; ++i) {
             p[i] = pow(p[i], -exp);
@@ -235,7 +233,7 @@ namespace hashimoto_ut {
           // and if the value is the highest in past, memorize the value.
 
           // **********  Catch a termination signal  **********
-          if (parent->cancel_check()) {
+          if (parent.cancel_check()) {
             is_canceled = true;
             return;
           }

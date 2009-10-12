@@ -45,25 +45,7 @@ namespace hashimoto_ut {
     boost::shared_array<char> buf(new char [len]);
     vsprintf_s(buf.get(), len, fmt, ap);
     va_end(ap);
-
-    UINT t;
-    switch (type) {
-      case MessageType::ALERT:
-        t = MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL;
-        break;
-      case MessageType::INFO:
-        t = MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL;
-        break;
-      case MessageType::QUESTION:
-        t = MB_OK|MB_ICONERROR|MB_SYSTEMMODAL;
-        break;
-      case MessageType::CRITICAL:
-      default:
-        t = MB_OKCANCEL|MB_ICONQUESTION|MB_SYSTEMMODAL;
-        break;
-    }
-
-    return MessageBoxA(hwnd, buf.get(), title, t) == IDOK;
+    return MessageBoxA(hwnd, buf.get(), title, type) == IDOK;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -75,25 +57,7 @@ namespace hashimoto_ut {
     boost::shared_array<wchar_t> buf(new wchar_t [len]);
     vswprintf_s(buf.get(), len, fmt, ap);
     va_end(ap);
-
-    UINT t;
-    switch (type) {
-      case MessageType::ALERT:
-        t = MB_OK|MB_ICONEXCLAMATION|MB_SYSTEMMODAL;
-        break;
-      case MessageType::INFO:
-        t = MB_OK|MB_ICONASTERISK|MB_SYSTEMMODAL;
-        break;
-      case MessageType::QUESTION:
-        t = MB_OK|MB_ICONERROR|MB_SYSTEMMODAL;
-        break;
-      case MessageType::CRITICAL:
-      default:
-        t = MB_OKCANCEL|MB_ICONQUESTION|MB_SYSTEMMODAL;
-        break;
-    }
-
-    return MessageBoxW(hwnd, buf.get(), title, t) == IDOK;
+    return MessageBoxW(hwnd, buf.get(), title, type) == IDOK;
   }
 
 } // The end of the namespace "hashimoto_ut"

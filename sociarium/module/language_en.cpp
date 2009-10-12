@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <windows.h>
 #include "../resource.h"
-#include "../language.h"
+#include "../menu_and_message.h"
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
@@ -215,10 +215,10 @@ namespace hashimoto_ut {
         = L"&Edit";
       menu[IDM_EDIT_MARK_ON_CURRENT_LAYER]
         = L"Select on the current layer(&1)";
-      menu[IDM_EDIT_MARK_NODES_ON_CURRENT_LAYER]
-        = L"Select nodes(&1)";
-      menu[IDM_EDIT_MARK_EDGES_ON_CURRENT_LAYER]
-        = L"Select edges(&2)";
+      menu[IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER]
+        = L"Select all nodes(&1)";
+      menu[IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER]
+        = L"Select all edges(&2)";
       menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
         = L"Select nodes inside communities(&3)";
       menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
@@ -231,6 +231,12 @@ namespace hashimoto_ut {
         = L"Select edges outside communities(&7)";
       menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
         = L"Select nodes+edges outside communities(&8)";
+      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"Select nodes in selected communities(&9)";
+      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"Select edges in selected communities(&9)";
+      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"Select elements in selected communities(&9)";
       menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
         = L"Select all elements(&A)\tCtrl+A";
       menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
@@ -238,10 +244,10 @@ namespace hashimoto_ut {
 
       menu[IDM_EDIT_MARK_ON_EACH_LAYER]
         = L"Select on each layer(&2)";
-      menu[IDM_EDIT_MARK_NODES_ON_EACH_LAYER]
-        = L"Select nodes(&1)";
-      menu[IDM_EDIT_MARK_EDGES_ON_EACH_LAYER]
-        = L"Select edges(&2)";
+      menu[IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER]
+        = L"Select all nodes(&1)";
+      menu[IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER]
+        = L"Select all edges(&2)";
       menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER]
         = L"Select nodes inside communities(&3)";
       menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER]
@@ -254,6 +260,12 @@ namespace hashimoto_ut {
         = L"Select edges outside communities(&7)";
       menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
         = L"Select nodes+edges outside communities(&8)";
+      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"Select nodes in selected community-continuums(&9)";
+      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"Select edges in selected community-continuums(&9)";
+      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"Select elements in selected community-continuums(&9)";
       menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
         = L"Select all elements(&A)\tShift+Ctrl+A";
       menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
@@ -326,13 +338,13 @@ namespace hashimoto_ut {
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
         = L"Remove elements identical to selected edges on the current layer(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"Remove elements identical to selected nodes+edges on the current layer(&A)\tDel";
+        = L"Remove elements identical to selected nodes+edges on the current layer(&A)";
       menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
         = L"Remove elements identical to selected nodes on each layer(&N)";
       menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
         = L"Remove elements identical to selected edges on each layer(&E)";
       menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"Remove elements identical to selected nodes+edges on each layer(&A)\tCtrl+Del";
+        = L"Remove elements identical to selected nodes+edges on each layer(&A)";
 
 
       /////////////////////////////////////////////////////////////////////////////
@@ -355,11 +367,13 @@ namespace hashimoto_ut {
       menu[IDM_LAYOUT_CIRCLE]
         = L"Circle: Initial arrangement(&3)";
       menu[IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER]
-        = L"Circle: in size order(&4)";
+        = L"Circle: In size order(&4)";
       menu[IDM_LAYOUT_LATTICE]
         = L"Lattice(&5)";
       menu[IDM_LAYOUT_RANDOM]
         = L"Random(&6)";
+      menu[IDM_LAYOUT_CARTOGRAMS]
+        = L"Cartograms(&7)";
       menu[IDM_LAYOUT_FORCE_DIRECTION]
         = L"Real-time force direction(&0)";
       menu[IDM_LAYOUT_FORCE_DIRECTION_RUN]
@@ -399,12 +413,6 @@ namespace hashimoto_ut {
         = L"&Update\tEnter";
       menu[IDM_COMMUNITY_DETECTION_CANCEL]
         = L"&Cancel";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
-        = L"Show Community Transition &Diagram\tD";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
-        = L"Wider range(&X)\tCtrl+Left";
-      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
-        = L"Narrower range(&Z)\tCtrl+Right";
       menu[IDM_COMMUNITY_DETECTION_CONNECTED_COMPONENTS]
         = L"Connected components(&1)";
       menu[IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS]
@@ -433,6 +441,12 @@ namespace hashimoto_ut {
         = L"Betweenness Centrality Separation(&1)";
       menu[IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING]
         = L"Information Flow Mapping(&2)";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM]
+        = L"Show Community Transition &Diagram\tD";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER]
+        = L"Wider range(&X)\tCtrl+Left";
+      menu[IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER]
+        = L"Narrower range(&Z)\tCtrl+Right";
       menu[IDM_COMMUNITY_DETECTION_CLEAR]
         = L"Clear(&0)";
 
@@ -472,15 +486,13 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl load_message(vector<wstring>& message) {
 
-      using namespace sociarium_project_language;
+      using namespace sociarium_project_menu_and_message;
 
       assert(message.size()==Message::NUMBER_OF_MESSAGES);
 
       /////////////////////////////////////////////////////////////////////////////
       message[Message::QUIT]
         = L"Do you really quit?";
-      message[Message::IS_NOT_TEXTFILE]
-        = L"Not a text-file";
 
 
       /////////////////////////////////////////////////////////////////////////////
@@ -552,8 +564,8 @@ namespace hashimoto_ut {
         =  L"Reading data";
       message[Message::CHECKING_TEXT_ENCODING]
         = L"Checking text encoing";
-      message[Message::CONVERTING_INTO_SJIS_ENCODING]
-        = L"Converting text into Shift_JIS";
+      message[Message::CONVERTING_INTO_UTF16_ENCODING]
+        = L"Converting text into UTF-16";
       message[Message::UNKNOWN_CHARACTER_ENCODING]
         = L"Unknown text encoding";
       message[Message::PARSING_DATA]
@@ -585,22 +597,24 @@ namespace hashimoto_ut {
 
 
       /////////////////////////////////////////////////////////////////////////////
+      message[Message::LAYOUTING]
+        = L"Layouting selected elements";
       message[Message::KAMADA_KAWAI_METHOD]
         = L"Kamada-Kawai Method";
       message[Message::KAMADA_KAWAI_METHOD_CALCULATING_SPRING_STRENGTH]
-        = L"Calculating spring coefficients from geodesic distances";
-      message[Message::KAMADA_KAWAI_METHOD_ITERATING]
-        = L"Iterating";
+        = L"Kamada-Kawai Method [Calculating spring coefficients]";
       message[Message::HDE]
         = L"High Dimensional Embedding";
       message[Message::HDE_CALCULATING_GRAPH_DISTANCE]
-        = L"Calculating geodesic distances of all nodes from reference points";
+        = L"High Dimensional Embedding [Calculating base distances]";
       message[Message::HDE_CALCULATING_MATRIX]
-        = L"Calculating variance-covariance matrix on geodesic distance";
+        = L"High Dimensional Embedding [Calculating variance-covariance matrix]";
       message[Message::HDE_CALCULATING_PRINCIPAL_COMPONENTS]
-        = L"Calculating the principal components of the matrix";
+        = L"High Dimensional Embedding [Calculating the principal components]";
       message[Message::HDE_CALCULATING_POSITION]
-        = L"Calculating positions by accumulating the component's weight";
+        = L"High Dimensional Embedding [Calculating positions]";
+      message[Message::CARTOGRAMS]
+        = L"Cartograms";
 
 
       /////////////////////////////////////////////////////////////////////////////

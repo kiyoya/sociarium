@@ -36,13 +36,15 @@
 
 namespace hashimoto_ut {
 
+  class DynamicNodeProperty;
+  class DynamicEdgeProperty;
+
   namespace sociarium_project_color {
 
     ////////////////////////////////////////////////////////////////////////////////
     namespace ColorCategory {
       enum {
         BACKGROUND = 0,
-        BACKGROUND2,
         LAYOUT_FRAME_BORDER,
         LAYOUT_FRAME_AREA,
         GRID,
@@ -79,13 +81,13 @@ namespace hashimoto_ut {
     int get_default_community_edge_name_color_id(void);
 
     ////////////////////////////////////////////////////////////////////////////////
-    int get_independent_node_color_id(void);
-    int get_independent_edge_color_id(void);
-
-    ////////////////////////////////////////////////////////////////////////////////
     void highlight_effect(std::tr1::array<float, 4>& rgba);
     void selection_effect(std::tr1::array<float, 4>& rgba);
     void marking_effect(std::tr1::array<float, 4>& rgba);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void update_color_under_community_information(DynamicNodeProperty& dnp);
+    void update_color_under_community_information(DynamicEdgeProperty& dep);
 
   } // The end of the namespace "sociarium_project_color"
 
