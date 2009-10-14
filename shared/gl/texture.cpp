@@ -199,7 +199,8 @@ namespace hashimoto_ut {
           CFRelease(imageSourceRef);
           return UNSUPPORTED_FILE_FORMAT;
         default:
-          CFRelease(imageSourceRef);
+          if (imageSourceRef)
+            CFRelease(imageSourceRef);
           return FAILED_TO_LOAD_IMAGE;
       }
       
