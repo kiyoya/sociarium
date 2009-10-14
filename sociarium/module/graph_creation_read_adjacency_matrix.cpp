@@ -66,7 +66,7 @@ namespace hashimoto_ut {
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
 #else
-  void create_graph_time_series(
+  extern "C" void create_graph_time_series(
 #endif
       Thread& parent,
       deque<wstring>& status,
