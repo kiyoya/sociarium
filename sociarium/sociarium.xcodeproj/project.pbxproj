@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		6C0F9AE41085CF9600B09C24 /* libboost_thread-mt-d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */; };
+		6C0F9AEA1085CFD800B09C24 /* libboost_thread-mt-d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */; };
 		6C3ACB19105FC02300FD0003 /* mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3ACB17105FC02300FD0003 /* mutex.cpp */; };
 		6C3ACB3D105FC05500FD0003 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3ACB1C105FC05500FD0003 /* color.cpp */; };
 		6C3ACB3E105FC05500FD0003 /* community_transition_diagram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3ACB1D105FC05500FD0003 /* community_transition_diagram.cpp */; };
@@ -36,9 +38,7 @@
 		6C3AD19F1060A0A300FD0003 /* SociariumAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C3AD19E1060A0A300FD0003 /* SociariumAppDelegate.mm */; };
 		6C3AD3211060D37700FD0003 /* language_en.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3AD3201060D37700FD0003 /* language_en.cpp */; };
 		6C3AD37C1060D5B000FD0003 /* LanguageEn.plugin in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6C3AD2F71060D19B00FD0003 /* LanguageEn.plugin */; };
-		6C4A818010563C4700830512 /* libboost_thread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4A817F10563C4700830512 /* libboost_thread.dylib */; };
 		6C5693581061480D0020ACFA /* graph_creation_read_adjacency_matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C569342106146F70020ACFA /* graph_creation_read_adjacency_matrix.cpp */; };
-		6C5693631061486F0020ACFA /* libboost_thread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4A817F10563C4700830512 /* libboost_thread.dylib */; };
 		6C5EA8571053842C003BC47D /* SociariumView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8561053842C003BC47D /* SociariumView.mm */; };
 		6C5EA8D21053871B003BC47D /* community_detection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8851053871A003BC47D /* community_detection.cpp */; };
 		6C5EA8F01053871B003BC47D /* layout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C5EA8B41053871A003BC47D /* layout.cpp */; };
@@ -122,6 +122,7 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt-d.dylib"; path = "/usr/local/lib/libboost_thread-mt-d.dylib"; sourceTree = "<absolute>"; };
 		6C3ACB16105FC02300FD0003 /* fps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fps.h; sourceTree = "<group>"; };
 		6C3ACB17105FC02300FD0003 /* mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mutex.cpp; sourceTree = "<group>"; };
 		6C3ACB18105FC02300FD0003 /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -167,7 +168,6 @@
 		6C3AD2E41060D0DE00FD0003 /* LanguageEn-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LanguageEn-Info.plist"; sourceTree = "<group>"; };
 		6C3AD2F71060D19B00FD0003 /* LanguageEn.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LanguageEn.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C3AD3201060D37700FD0003 /* language_en.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_en.cpp; sourceTree = "<group>"; };
-		6C4A817F10563C4700830512 /* libboost_thread.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_thread.dylib; path = /usr/local/lib/libboost_thread.dylib; sourceTree = "<absolute>"; };
 		6C569342106146F70020ACFA /* graph_creation_read_adjacency_matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graph_creation_read_adjacency_matrix.cpp; sourceTree = "<group>"; };
 		6C5693531061479F0020ACFA /* GraphCreationReadAdjacencyMatrix.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphCreationReadAdjacencyMatrix.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C5693541061479F0020ACFA /* GraphCreationReadAdjacencyMatrix-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GraphCreationReadAdjacencyMatrix-Info.plist"; sourceTree = "<group>"; };
@@ -260,7 +260,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6C5693631061486F0020ACFA /* libboost_thread.dylib in Frameworks */,
+				6C0F9AEA1085CFD800B09C24 /* libboost_thread-mt-d.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,8 +273,8 @@
 				6C5EAE431053DC07003BC47D /* OpenGL.framework in Frameworks */,
 				6C5EAE501053DD8E003BC47D /* libftgl.dylib in Frameworks */,
 				6C5EAE571053DDC8003BC47D /* libfreetype.dylib in Frameworks */,
-				6C4A818010563C4700830512 /* libboost_thread.dylib in Frameworks */,
 				6C3ACEE3105FF42900FD0003 /* libGLEW.dylib in Frameworks */,
+				6C0F9AE41085CF9600B09C24 /* libboost_thread-mt-d.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,8 +284,8 @@
 		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */,
 				6C3ACEE2105FF42900FD0003 /* libGLEW.dylib */,
-				6C4A817F10563C4700830512 /* libboost_thread.dylib */,
 				6C5EAE561053DDC8003BC47D /* libfreetype.dylib */,
 				6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
