@@ -33,7 +33,9 @@
 #include <sstream>
 #include <iostream>
 #include <boost/format.hpp>
-#ifdef _MSC_VER
+#ifdef __APPLE__
+#include <fstream>
+#elif _MSC_VER
 #include <mlang.h>
 #endif
 #include "read_file.h"
@@ -55,6 +57,7 @@ namespace hashimoto_ut {
   using std::getline;
   using std::pair;
   using std::make_pair;
+  using std::wifstream;
   using std::wstringstream;
   using std::tr1::unordered_map;
 
@@ -82,9 +85,17 @@ namespace hashimoto_ut {
        */
 
       ////////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
       void convert2utf16(wchar_t const* filename, wstringstream& ss, wstring& status) {
-
+#ifdef __APPLE__
+#warning Not implemented UTF16 conversion
+        wifstream ifs(wcs2mbcs(filename, wcslen(filename)).c_str());
+        if (ifs.fail())
+          throw 0;
+        
+        wstring line;
+        while (getline(ifs, line))
+          ss << line << std::endl;
+#elif _MSC_VER
         CoInitialize(NULL);
 
         HANDLE hfile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL,
@@ -160,8 +171,10 @@ namespace hashimoto_ut {
 
         is_src->Release();
         CoUninitialize();
-      }
+#else
+#error Not implemented
 #endif
+      }
 
     } // The end of the anonymous namespace
 
@@ -184,13 +197,7 @@ namespace hashimoto_ut {
 
       wstringstream ss;
 
-#ifdef __APPLE__
-#warning Not implemented
-#elif _MSC_VER
       convert2utf16(filename, ss, status[0]);
-#else
-#error Not implemented
-#endif
       
       wstring line;
 
