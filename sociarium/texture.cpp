@@ -88,7 +88,13 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     wstring get_full_path_of_texture_folder(void) {
+#ifdef __APPLE__
+      return get_module_path()+L"texture/"+texture_folder_path;
+#elif _MSC_VER
       return get_module_path()+L"texture\\"+texture_folder_path;
+#else
+#error Not implemented
+#endif
     }
 
     ////////////////////////////////////////////////////////////////////////////////
