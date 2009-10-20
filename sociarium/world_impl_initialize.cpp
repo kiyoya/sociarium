@@ -47,8 +47,8 @@
 #include "world_impl.h"
 #include "thread/force_direction.h"
 #include "../shared/msgbox.h"
-#include "../shared/GL/glview.h"
-#include "../shared/GL/texture.h"
+#include "../shared/gl/glview.h"
+#include "../shared/gl/texture.h"
 
 // #include "cvframe.h"
 // #include "designtide.h"

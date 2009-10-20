@@ -46,8 +46,8 @@
 #include "texture.h"
 #include "thread.h"
 #include "../shared/predefined_color.h"
-#include "../shared/GL/glview.h"
-#include "../shared/GL/texture.h"
+#include "../shared/gl/glview.h"
+#include "../shared/gl/texture.h"
 
 namespace hashimoto_ut {
 

@@ -42,7 +42,7 @@
 #include "algorithm_selector.h"
 #include "sociarium_graph_time_series.h"
 #include "thread/force_direction.h"
-#include "../shared/GL/glview.h"
+#include "../shared/gl/glview.h"
 #include "../graph/graphex.h"
 #include "../graph/util/traverser.h"
 

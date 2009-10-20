@@ -37,7 +37,7 @@
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
 #include "world_impl.h"
-#include "../shared/GL/glview.h"
+#include "../shared/gl/glview.h"
 
 namespace hashimoto_ut {
 

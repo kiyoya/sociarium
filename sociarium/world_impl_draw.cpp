@@ -42,7 +42,7 @@
 #include "sociarium_graph_time_series.h"
 #include "view.h"
 #include "world_impl.h"
-#include "../shared/GL/glview.h"
+#include "../shared/gl/glview.h"
 
 //#include "cvframe.h"
 //#include "designtide.h"

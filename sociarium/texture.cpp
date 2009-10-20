@@ -38,7 +38,7 @@
 #include "menu_and_message.h"
 #include "texture.h"
 #include "../shared/msgbox.h"
-#include "../shared/GL/texture.h"
+#include "../shared/gl/texture.h"
 
 #define SOCIARIUM_PROJECT_USE_MIPMAP_TEXTURE
 

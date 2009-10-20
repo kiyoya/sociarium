@@ -31,7 +31,7 @@
 
 #include "view.h"
 #include "world_impl.h"
-#include "../shared/GL/glview.h"
+#include "../shared/gl/glview.h"
 
 namespace hashimoto_ut {
 
