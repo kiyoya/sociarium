@@ -31,6 +31,7 @@
 
 #include <cassert>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <windows.h>
 #include "graph_creation.h"
