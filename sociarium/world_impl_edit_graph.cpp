@@ -1231,8 +1231,8 @@ namespace hashimoto_ut {
       return;
     }
 
-    if (message_box(hwnd_, mb_ok_cancel, APPLICATION_TITLE,
-                    L"%s", get_message(Message::REMOVE_ELEMENTS))==IDCANCEL)
+    if (!message_box(hwnd_, mb_ok_cancel, APPLICATION_TITLE,
+                    L"%s", get_message(Message::REMOVE_ELEMENTS)))
       return;
 
     // --------------------------------------------------------------------------------
