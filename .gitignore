@@ -1,0 +1,13 @@
+sociarium/build
+sociarium/Debug
+sociarium/Release
+sociarium/module/*/Debug
+sociarium/module/*/Release
+sociarium/module/*/*.vcproj.*.user
+sociarium/sociarium.ncb
+sociarium/sociarium.suo
+sociarium/sociarium/Debug
+sociarium/sociarium/Release
+sociarium/sociarium/sociarium.vcproj.*.user
+sociarium/sociarium.xcodeproj/*.mode1v3
+sociarium/sociarium.xcodeproj/*.pbxuser
