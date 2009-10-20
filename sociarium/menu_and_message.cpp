@@ -65,9 +65,7 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
-#warning Not implemented
-    void set_menu(void* window, wchar_t const* filename) {
-    }
+    // Implementation is at menu_and_message.mm
 #elif _MSC_VER
     void set_menu(HWND hwnd, wchar_t const* filename) {
 
@@ -2129,6 +2127,7 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
+    // Implementation is at menu_and_message.mm
 #elif _MSC_VER
     void set_message(wchar_t const* filename) {
 
