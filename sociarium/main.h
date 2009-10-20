@@ -34,6 +34,7 @@
 
 #include <memory>
 #include <windowsx.h>
+#include "selection.h"
 #include "../shared/wndbase.h"
 #include "../shared/vector2.h"
 

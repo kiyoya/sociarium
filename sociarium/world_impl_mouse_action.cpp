@@ -257,7 +257,7 @@ namespace hashimoto_ut {
         set_captured_object((void*)dep);
       }
 
-      else if (!(wp&MK_CONTROL)) {
+      else if (!(modifier&MouseModifier::CONTROL)) {
         // --------------------------------------------------------------------------------
         // Move the layout frame.
         if (is_selected(SelectionCategory::LAYOUT_FRAME)) {
@@ -290,7 +290,7 @@ namespace hashimoto_ut {
       if (mpos==mpos_LBUTTONDOWN) {
         // --------------------------------------------------------------------------------
         // Clear all highlight.
-        if (!(wp&MK_CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
+        if (!(modifier&MouseModifier::CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
           for_each(g0->edge_property_begin(), g0->edge_property_end(),
@@ -301,7 +301,7 @@ namespace hashimoto_ut {
 #ifdef CLICK_WITHOUT_CTRL_KEY_CLEAR_MARKING
         // --------------------------------------------------------------------------------
         // Clear all marking.
-        if (!(wp&MK_CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
+        if (!(modifier&MouseModifier::CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
 
@@ -416,7 +416,7 @@ namespace hashimoto_ut {
       if (mpos==mpos_RBUTTONDOWN) {
         // --------------------------------------------------------------------------------
         // Clear all highlight.
-        if (!(wp&MK_CONTROL)) {
+        if (!(modifier&MouseModifier::CONTROL)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
                    boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
 
@@ -478,8 +478,7 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     // Mouse move.
-    else if (action==MouseAction::MOVE) {
-      if (wp&MK_LBUTTON) {
+      if (action==MouseAction::LBUTTON_DRAG) {
         // --------------------------------------------------------------------------------
         // Scroll the time slider.
         if (is_selected(SelectionCategory::TIME_SLIDER)) {
@@ -516,7 +515,7 @@ namespace hashimoto_ut {
 
         // --------------------------------------------------------------------------------
         // Resize the marking region.
-        else if (wp&MK_CONTROL) {
+        else if (modifier&MouseModifier::CONTROL) {
           set_drag_status(true);
 
           { // Store for drawing.
@@ -672,12 +671,11 @@ namespace hashimoto_ut {
 
       // --------------------------------------------------------------------------------
       // Rotate a layer.
-      else if (wp&MK_RBUTTON) {
+      else if (action==MouseAction::RBUTTON_DRAG) {
         int const dx = 5*(mpos.x-mpos_RBUTTONDOWN.x);
         int const dy = 5*(mpos.y-mpos_RBUTTONDOWN.y);
         view_->set_angle(angleH_prev+dx, angleV_prev-dy);
       }
-    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Left double click.
@@ -768,16 +766,15 @@ namespace hashimoto_ut {
     // Wheel click.
     else if (action==MouseAction::MBUTTON_DOWN) {
       initialize_view();
-      if (wp&MK_CONTROL) set_layout_frame_size(get_layout_frame_default_size());
+      if (modifier&MouseModifier::CONTROL) set_layout_frame_size(get_layout_frame_default_size());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Wheel rotation.
     else if (action==MouseAction::WHEEL) {
       // zoom in or out.
-      int const delta = short(HIWORD(wp))/120; // ±120 per 1 notch.
-      double const mag = 1.0f+(delta>0?delta:-delta)/16.0f;
-      if (delta>0) zoom(mag);
+      double const mag = 1.0f+(modifier>0?modifier:-modifier)/16.0f;
+      if (modifier>0) zoom(mag);
       else zoom(1.0/mag);
     }
 
