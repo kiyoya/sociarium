@@ -372,5 +372,5 @@ namespace hashimoto_ut {
   template class DynamicPropertyBase<Edge, StaticEdgeProperty>;
   template class StaticPropertyBase<DynamicNodeProperty>;
   template class StaticPropertyBase<DynamicEdgeProperty>;
-  
+
 } // The end of the namespace "hashimoto_ut"

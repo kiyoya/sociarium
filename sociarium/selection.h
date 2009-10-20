@@ -74,7 +74,7 @@ namespace hashimoto_ut {
       SHIFT = 1 << 1,
     };
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   namespace SelectionCategory {
     enum {

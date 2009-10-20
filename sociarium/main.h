@@ -109,8 +109,12 @@ namespace hashimoto_ut {
     }
 
     int mousemodifier(WPARAM wp) const {
-      return (wp&MK_CONTROL) ? MouseModifier::CONTROL
-                             : (wp&MK_SHIFT) ? MouseModifier::SHIFT : MouseModifier::NONE;
+      if (wp&MK_CONTROL)
+        return MouseModifier::CONTROL;
+      else if (wp&MK_SHIFT)
+        return MouseModifier::SHIFT;
+      else
+        return MouseModifier::NONE;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
