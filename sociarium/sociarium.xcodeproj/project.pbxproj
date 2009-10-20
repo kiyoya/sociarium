@@ -49,6 +49,7 @@
 		6C5EAE431053DC07003BC47D /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE421053DC07003BC47D /* OpenGL.framework */; };
 		6C5EAE501053DD8E003BC47D /* libftgl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */; };
 		6C5EAE571053DDC8003BC47D /* libfreetype.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE561053DDC8003BC47D /* libfreetype.dylib */; };
+		6C7402AF108E079C00840F20 /* texture in Resources */ = {isa = PBXBuildFile; fileRef = 6C7402A4108E079C00840F20 /* texture */; };
 		6C8BC103108D807A00B8B9B7 /* msgbox.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C8BC102108D807A00B8B9B7 /* msgbox.mm */; };
 		6CAC10C1104EDC8F0022B602 /* algorithm_selector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */; };
 		6CAC10C2104EDC8F0022B602 /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1097104EDC8F0022B602 /* common.cpp */; };
@@ -187,6 +188,7 @@
 		6C5EAE421053DC07003BC47D /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libftgl.dylib; path = /usr/local/lib/libftgl.dylib; sourceTree = "<absolute>"; };
 		6C5EAE561053DDC8003BC47D /* libfreetype.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.dylib; path = /usr/local/lib/libfreetype.dylib; sourceTree = "<absolute>"; };
+		6C7402A4108E079C00840F20 /* texture */ = {isa = PBXFileReference; lastKnownFileType = folder; name = texture; path = ../texture; sourceTree = "<group>"; };
 		6C8BC102108D807A00B8B9B7 /* msgbox.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = msgbox.mm; sourceTree = "<group>"; };
 		6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algorithm_selector.cpp; sourceTree = "<group>"; };
 		6CAC1095104EDC8F0022B602 /* algorithm_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = algorithm_selector.h; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 				6CAC1092104EDC330022B602 /* Sources (shared) */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
+				6C7402BA108E07C600840F20 /* Textures */,
 				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
 				19C28FB0FE9D524F11CA2CBB /* Products */,
 			);
@@ -419,6 +422,14 @@
 				6C3ACB5B105FC0C100FD0003 /* node_size_update.h */,
 			);
 			path = thread;
+			sourceTree = "<group>";
+		};
+		6C7402BA108E07C600840F20 /* Textures */ = {
+			isa = PBXGroup;
+			children = (
+				6C7402A4108E079C00840F20 /* texture */,
+			);
+			name = Textures;
 			sourceTree = "<group>";
 		};
 		6CAC0FEE104ED9C70022B602 /* Sources */ = {
@@ -646,6 +657,7 @@
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
 				6CAC1136104EDFE10022B602 /* SociariumDocument.xib in Resources */,
+				6C7402AF108E079C00840F20 /* texture in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

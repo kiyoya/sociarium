@@ -19,7 +19,9 @@ using namespace hashimoto_ut;
 {
   CFBundleRef mainBundle = CFBundleGetMainBundle();
   CFURLRef resourceURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-  sociarium_project_common::set_module_path(CFStringGetWString(CFURLGetString(resourceURL)));
+  CFURLRef resourceAbsoluteURL = CFURLCopyAbsoluteURL(resourceURL);
+  sociarium_project_common::set_module_path(CFStringGetWString(CFURLGetString(resourceAbsoluteURL)));
+  CFRelease(resourceAbsoluteURL);
   CFRelease(resourceURL);
   
 #warning Not implemented

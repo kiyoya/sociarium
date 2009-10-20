@@ -52,13 +52,19 @@ using namespace hashimoto_ut;
 
   [self.window setAcceptsMouseMovedEvents:YES];
 
+  CGLContextObj context = reinterpret_cast<CGLContextObj>([[self openGLContext] CGLContextObj]);
+
+  // Enable Multi-threaded OpenGL Execution
+  if (CGLEnable(context, kCGLCEMPEngine) != kCGLNoError)
+  { }
+
   @synchronized(world_mutex)
   {
     if (world_)
     {
       World::destroy(world_);
     }
-    world_ = World::create([self window], reinterpret_cast<CGLContextObj>([[self openGLContext] CGLContextObj]));
+    world_ = World::create([self window], context);
   }
   
   if (redrawTimer)
@@ -147,7 +153,6 @@ using namespace hashimoto_ut;
     if (0 <= pt.x && pt.x <= size.width && 0 <= pt.y && pt.y <= size.height) {
       [[self openGLContext] makeCurrentContext];
       world_->select(Vector2<int>((int)pt.x, (int)pt.y));
-      NSLog(@"%d %d", (int)pt.x, (int)pt.y);
     }
   }
 }

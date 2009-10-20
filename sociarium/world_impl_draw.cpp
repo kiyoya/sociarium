@@ -146,9 +146,11 @@ namespace hashimoto_ut {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+#ifdef _MSC_VER
     GLint mode;
     glGetIntegerv(GL_RENDER_MODE, &mode);
     assert(mode==GL_RENDER);
+#endif
 
     // Draw a perspective part.
     view_->push_matrix();

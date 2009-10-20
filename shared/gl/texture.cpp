@@ -106,7 +106,10 @@ namespace hashimoto_ut {
       }
       
       CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, NULL);
-      
+
+      if (!imageRef)
+        return FAILED_TO_LOAD_IMAGE;
+
       width_ = CGImageGetWidth(imageRef);
       height_ = CGImageGetHeight(imageRef);
 #elif _MSC_VER
@@ -186,7 +189,7 @@ namespace hashimoto_ut {
 
 #ifdef __APPLE__
       CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, wcs2mbcs(filename, wcslen(filename)).c_str(), kCFStringEncodingUTF8);
-      CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, FALSE);
+      CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, path, NULL);
       CGImageSourceRef imageSourceRef = CGImageSourceCreateWithURL(url, NULL);
       CFRelease(url);
       CFRelease(path);
@@ -205,6 +208,9 @@ namespace hashimoto_ut {
       }
       
       CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, NULL);
+      
+      if (!imageRef)
+        return FAILED_TO_LOAD_IMAGE;
       
       width_ = CGImageGetWidth(imageRef);
       height_ = CGImageGetHeight(imageRef);
@@ -293,7 +299,10 @@ namespace hashimoto_ut {
       }
       
       CGImageRef imageRef = CGImageSourceCreateImageAtIndex(imageSourceRef, 0, NULL);
-      
+
+      if (!imageRef)
+        return FAILED_TO_LOAD_IMAGE;
+
       GLsizei const w = CGImageGetWidth(imageRef);
       GLsizei const h = CGImageGetHeight(imageRef);
 #elif _MSC_VER
