@@ -30,6 +30,7 @@
  */
 
 #include <cassert>
+#include <iostream>
 #include <vector>
 #include <windows.h>
 #include "common.h"
