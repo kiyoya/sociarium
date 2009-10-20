@@ -1,3 +1,6 @@
+.DS_Store
+Thumbs.db
+sociarium/build
 sociarium/Debug
 sociarium/Release
 sociarium/module/*/Debug
