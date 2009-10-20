@@ -271,8 +271,8 @@ namespace hashimoto_ut {
 
   template <typename DynamicProperty>
   StaticPropertyBase<DynamicProperty>::~StaticPropertyBase() {
-    DynamicPropertyMap::iterator i   = dynamic_property_.begin();
-    DynamicPropertyMap::iterator end = dynamic_property_.end();
+    typename DynamicPropertyMap::iterator i   = dynamic_property_.begin();
+    typename DynamicPropertyMap::iterator end = dynamic_property_.end();
     for (; i!=end; ++i)
       i->first->set_static_property(0);
   }
