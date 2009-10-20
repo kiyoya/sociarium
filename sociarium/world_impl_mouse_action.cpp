@@ -126,7 +126,7 @@ namespace hashimoto_ut {
   } // The end of the anonymous namespace
 
 
-  void WorldImpl::do_mouse_action(int action, Vector2<int> const& mpos, WPARAM wp) {
+  void WorldImpl::do_mouse_action(int action, Vector2<int> const& mpos, int modifier) {
 
     using namespace sociarium_project_selection;
 

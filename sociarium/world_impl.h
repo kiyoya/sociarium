@@ -59,7 +59,7 @@ namespace hashimoto_ut {
     void select(Vector2<int> const& mpos) const;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void do_mouse_action(int action, Vector2<int> const& mpos, WPARAM wp);
+    void do_mouse_action(int action, Vector2<int> const& mpos, int modifier);
 
     ////////////////////////////////////////////////////////////////////////////////
     void resize_window(Vector2<int> const& size);

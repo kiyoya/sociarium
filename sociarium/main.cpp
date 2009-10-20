@@ -1736,7 +1736,7 @@ namespace hashimoto_ut {
     using namespace sociarium_project_selection;
     SetFocus(hwnd);
     SetCapture(hwnd);
-    world_->do_mouse_action(MouseAction::LBUTTON_DOWN, window2viewport(lp), wp);
+    world_->do_mouse_action(MouseAction::LBUTTON_DOWN, window2viewport(lp), mousemodifier(wp));
   }
 
 
@@ -1745,7 +1745,7 @@ namespace hashimoto_ut {
     using namespace sociarium_project_selection;
     SetFocus(hwnd);
     SetCapture(hwnd);
-    world_->do_mouse_action(MouseAction::RBUTTON_DOWN, window2viewport(lp), wp);
+    world_->do_mouse_action(MouseAction::RBUTTON_DOWN, window2viewport(lp), mousemodifier(wp));
   }
 
 
@@ -1754,7 +1754,7 @@ namespace hashimoto_ut {
     using namespace sociarium_project_selection;
     SetFocus(hwnd);
     SetCapture(hwnd);
-    world_->do_mouse_action(MouseAction::MBUTTON_DOWN, window2viewport(lp), wp);
+    world_->do_mouse_action(MouseAction::MBUTTON_DOWN, window2viewport(lp), mousemodifier(wp));
   }
 
 
@@ -1763,7 +1763,7 @@ namespace hashimoto_ut {
     using namespace sociarium_project_selection;
     if (GetCapture()==hwnd) {
       ReleaseCapture();
-      world_->do_mouse_action(MouseAction::LBUTTON_UP, window2viewport(lp), wp);
+      world_->do_mouse_action(MouseAction::LBUTTON_UP, window2viewport(lp), mousemodifier(wp));
     }
   }
 
@@ -1773,7 +1773,7 @@ namespace hashimoto_ut {
     using namespace sociarium_project_selection;
     if (GetCapture()==hwnd) {
       ReleaseCapture();
-      world_->do_mouse_action(MouseAction::RBUTTON_UP, window2viewport(lp), wp);
+      world_->do_mouse_action(MouseAction::RBUTTON_UP, window2viewport(lp), mousemodifier(wp));
       //timer_->start(ID_TIMER_SELECT);
     }
   }
@@ -1784,7 +1784,7 @@ namespace hashimoto_ut {
     using namespace sociarium_project_selection;
     if (GetCapture()==hwnd) {
       ReleaseCapture();
-      world_->do_mouse_action(MouseAction::MBUTTON_UP, window2viewport(lp), wp);
+      world_->do_mouse_action(MouseAction::MBUTTON_UP, window2viewport(lp), mousemodifier(wp));
     }
   }
 
@@ -1793,7 +1793,7 @@ namespace hashimoto_ut {
   void MainWindow::wmLButtonDBL(HWND hwnd, WPARAM wp, LPARAM lp) {
     using namespace sociarium_project_selection;
     timer_->stop(ID_TIMER_DRAW);
-    world_->do_mouse_action(MouseAction::LBUTTON_DBL, window2viewport(lp), wp);
+    world_->do_mouse_action(MouseAction::LBUTTON_DBL, window2viewport(lp), mousemodifier(wp));
     timer_->start(ID_TIMER_DRAW);
   }
 
@@ -1807,8 +1807,10 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmMouseMove(HWND hwnd, WPARAM wp, LPARAM lp) {
     using namespace sociarium_project_selection;
-    if (GetCapture()==hwnd && wp&(MK_LBUTTON|MK_RBUTTON))
-      world_->do_mouse_action(MouseAction::MOVE, window2viewport(lp), wp);
+    if (GetCapture()==hwnd && wp&MK_LBUTTON)
+      world_->do_mouse_action(MouseAction::LBUTTON_DRAG, window2viewport(lp), mousemodifier(wp));
+    else if (GetCapture()==hwnd && wp&MK_RBUTTON)
+      world_->do_mouse_action(MouseAction::RBUTTON_DRAG, window2viewport(lp), mousemodifier(wp));
     else
       world_->select(window2viewport(get_mouse_position(hwnd)));
   }
@@ -1817,7 +1819,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmMouseWheel(HWND hwnd, WPARAM wp, LPARAM lp) {
     using namespace sociarium_project_selection;
-    world_->do_mouse_action(MouseAction::WHEEL, window2viewport(lp), wp);
+    world_->do_mouse_action(MouseAction::WHEEL, window2viewport(lp), short(HIWORD(wp))/120); // ±120 per 1 notch.
   }
 
 

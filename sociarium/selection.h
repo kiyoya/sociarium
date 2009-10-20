@@ -50,9 +50,11 @@ namespace hashimoto_ut {
       LBUTTON_UP = 0,
       LBUTTON_DOWN,
       LBUTTON_DBL,
+      LBUTTON_DRAG,
       RBUTTON_UP,
       RBUTTON_DOWN,
       RBUTTON_DBL,
+      RBUTTON_DRAG,
       MBUTTON_UP,
       MBUTTON_DOWN,
       WHEEL,
@@ -60,6 +62,15 @@ namespace hashimoto_ut {
       NUMBER_OF_ACTIONS
     };
   }
+
+  namespace MouseModifier {
+    enum {
+      NONE = 0,
+      CONTROL = 1 << 0,
+      SHIFT = 1 << 1,
+    };
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////
   namespace SelectionCategory {
