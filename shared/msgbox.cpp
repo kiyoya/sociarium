@@ -41,11 +41,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   // char
 #ifdef __APPLE__
-#warning Not implemented
-  
-  bool message_box(void* window, int type, char const* title, char const* fmt, ...) {
-    return true;
-  }
+  // Implementation is at msgbox.mm
 #elif _MSC_VER
   bool message_box(HWND hwnd, int type, char const* title, char const* fmt, ...) {
     va_list ap;
@@ -63,11 +59,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   // wchar_t
 #ifdef __APPLE__
-#warning Not implemented
-  
-  bool message_box(void* hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...) {
-    return true;
-  }
+  // Implementation is at msgbox.mm
 #elif _MSC_VER
   bool message_box(HWND hwnd, int type, wchar_t const* title, wchar_t const* fmt, ...) {
     va_list ap;

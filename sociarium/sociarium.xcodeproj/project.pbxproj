@@ -49,6 +49,7 @@
 		6C5EAE431053DC07003BC47D /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE421053DC07003BC47D /* OpenGL.framework */; };
 		6C5EAE501053DD8E003BC47D /* libftgl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */; };
 		6C5EAE571053DDC8003BC47D /* libfreetype.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C5EAE561053DDC8003BC47D /* libfreetype.dylib */; };
+		6C8BC103108D807A00B8B9B7 /* msgbox.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C8BC102108D807A00B8B9B7 /* msgbox.mm */; };
 		6CAC10C1104EDC8F0022B602 /* algorithm_selector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */; };
 		6CAC10C2104EDC8F0022B602 /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1097104EDC8F0022B602 /* common.cpp */; };
 		6CAC10C3104EDC8F0022B602 /* draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC1099104EDC8F0022B602 /* draw.cpp */; };
@@ -186,6 +187,7 @@
 		6C5EAE421053DC07003BC47D /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		6C5EAE4F1053DD8E003BC47D /* libftgl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libftgl.dylib; path = /usr/local/lib/libftgl.dylib; sourceTree = "<absolute>"; };
 		6C5EAE561053DDC8003BC47D /* libfreetype.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.dylib; path = /usr/local/lib/libfreetype.dylib; sourceTree = "<absolute>"; };
+		6C8BC102108D807A00B8B9B7 /* msgbox.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = msgbox.mm; sourceTree = "<group>"; };
 		6CAC1094104EDC8F0022B602 /* algorithm_selector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algorithm_selector.cpp; sourceTree = "<group>"; };
 		6CAC1095104EDC8F0022B602 /* algorithm_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = algorithm_selector.h; sourceTree = "<group>"; };
 		6CAC1096104EDC8F0022B602 /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
@@ -489,6 +491,7 @@
 				6CAC1119104EDF9E0022B602 /* gl */,
 				6CAC1120104EDF9E0022B602 /* math.h */,
 				6CAC1121104EDF9E0022B602 /* msgbox.cpp */,
+				6C8BC102108D807A00B8B9B7 /* msgbox.mm */,
 				6CAC1122104EDF9E0022B602 /* msgbox.h */,
 				6CAC1123104EDF9E0022B602 /* mtrand.h */,
 				6C3ACB17105FC02300FD0003 /* mutex.cpp */,
@@ -725,6 +728,7 @@
 				6CD8DC2E1082F5DA00CD6666 /* util.cpp in Sources */,
 				6CD8DC331082F5EB00CD6666 /* fbo.cpp in Sources */,
 				6CD8DC341082F5EB00CD6666 /* texture.cpp in Sources */,
+				6C8BC103108D807A00B8B9B7 /* msgbox.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
