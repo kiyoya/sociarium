@@ -55,6 +55,37 @@ namespace hashimoto_ut {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    inline void create_menuitem(MENUITEMINFO& mii, HMENU hmenu, UINT& menu_pos, /*const */unordered_map<int, wstring>& menu, int menu_id) {
+      ZeroMemory(&mii, sizeof(mii));
+      mii.cbSize = sizeof(mii);
+      mii.fMask = MIIM_TYPE|MIIM_ID;
+      mii.fType = MFT_STRING;
+      mii.wID = menu_id;
+      mii.dwTypeData = (LPWSTR)menu[menu_id].c_str();
+      InsertMenuItem(hmenu, ++menu_pos, FALSE, &mii);
+    }
+
+    inline void create_separator(MENUITEMINFO& mii, HMENU hmenu, UINT& menu_pos) {
+      ZeroMemory(&mii, sizeof(mii));
+      mii.cbSize = sizeof(mii);
+      mii.fMask = MIIM_TYPE;
+      mii.fType = MFT_SEPARATOR;
+      InsertMenuItem(hmenu, ++menu_pos, FALSE, &mii);
+    }
+
+    inline HMENU create_submenu(MENUITEMINFO& mii, HMENU hmenu, UINT& menu_pos, /*const */unordered_map<int, wstring>& menu, int menu_id) {
+      HMENU hsubmenu = CreateMenu();
+      ZeroMemory(&mii, sizeof(mii));
+      mii.cbSize = sizeof(mii);
+      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
+      mii.fType = MFT_STRING;
+      mii.hSubMenu = hsubmenu;
+      mii.dwTypeData = (LPWSTR)menu[menu_id].c_str();
+      InsertMenuItem(hmenu, ++menu_pos, FALSE, &mii);
+      return hsubmenu;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
     void set_menu(HWND hwnd, wchar_t const* filename) {
 
       wstring path = wstring(L"dll\\")+filename;
@@ -70,14 +101,7 @@ namespace hashimoto_ut {
 
       func(menu);
 
-      HMENU hmenu           = CreateMenu();
-      HMENU hmenu_file      = CreateMenu();
-      HMENU hmenu_edit      = CreateMenu();
-      HMENU hmenu_view      = CreateMenu();
-      HMENU hmenu_string    = CreateMenu();
-      HMENU hmenu_layout    = CreateMenu();
-      HMENU hmenu_community = CreateMenu();
-      HMENU hmenu_timeline  = CreateMenu();
+      HMENU hmenu = CreateMenu();
 
       UINT main_menu_id = 0;
 
@@ -86,676 +110,195 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // FILE
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_file;
-      mii.dwTypeData = (LPWSTR)menu[IDM_FILE].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_file = create_submenu(mii, hmenu, main_menu_id, menu, IDM_FILE);
 
       {
         UINT pos = 0;
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_FILE_CANCEL;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_file, pos, menu, IDM_FILE_CANCEL);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_file, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_FILE_QUIT;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_file, pos, menu, IDM_FILE_QUIT);
       }
 
 
       ////////////////////////////////////////////////////////////////////////////////
       // EDIT
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_edit;
-      mii.dwTypeData = (LPWSTR)menu[IDM_EDIT].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_edit = create_submenu(mii, hmenu, main_menu_id, menu, IDM_EDIT);
 
       {
         UINT pos = 0;
 
-        HMENU hmenu_edit_select_current = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_select_current;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_MARK_ON_CURRENT_LAYER].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_select_current = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_MARK_ON_CURRENT_LAYER);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_current, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_current, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_current, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_current, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_current, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_current, pos, menu, IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER);
         }
 
-        HMENU hmenu_edit_select_all = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_select_all;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_MARK_ON_EACH_LAYER].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_select_all = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_MARK_ON_EACH_LAYER);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_all, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_all, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_all, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_select_all, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_INVERT_MARK_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_select_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_select_all, pos, menu, IDM_EDIT_INVERT_MARK_ON_EACH_LAYER);
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_edit, pos);
 
-        HMENU hmenu_edit_hide = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_hide;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_HIDE_MARKED_ELEMENTS].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_hide = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_HIDE_MARKED_ELEMENTS);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide, pos, menu, IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide, pos, menu, IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide, pos, menu, IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_hide, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide, pos, menu, IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide, pos, menu, IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide, pos, menu, IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER);
         }
 
-        HMENU hmenu_edit_hide_all = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_hide_all;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_hide_all = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide_all, pos, menu, IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide_all, pos, menu, IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide_all, pos, menu, IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_hide_all, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide_all, pos, menu, IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide_all, pos, menu, IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_hide_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_hide_all, pos, menu, IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL);
         }
 
-        HMENU hmenu_edit_show = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_show;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_show = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_SHOW_HIDDEN_ELEMENTS);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_show, pos, menu, IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_show, pos, menu, IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_show, pos, menu, IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_show, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_show, pos, menu, IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_show, pos, menu, IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_show, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_show, pos, menu, IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER);
         }
 
+        create_separator(mii, hmenu_edit, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
-
-        HMENU hmenu_edit_remove = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_remove;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_remove = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_REMOVE_MARKED_ELEMENTS);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove, pos, menu, IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove, pos, menu, IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove, pos, menu, IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_remove, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove, pos, menu, IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove, pos, menu, IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove, pos, menu, IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER);
         }
 
-        HMENU hmenu_edit_remove_all = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_edit_remove_all;
-        mii.dwTypeData = (LPWSTR)menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL].c_str();
-        InsertMenuItem(hmenu_edit, ++pos, FALSE, &mii);
+        HMENU hmenu_edit_remove_all = create_submenu(mii, hmenu_edit, pos, menu, IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove_all, pos, menu, IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove_all, pos, menu, IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove_all, pos, menu, IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_edit_remove_all, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove_all, pos, menu, IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove_all, pos, menu, IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_edit_remove_all, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_edit_remove_all, pos, menu, IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL);
         }
       }
 
@@ -763,319 +306,93 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // VIEW
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_view;
-      mii.dwTypeData = (LPWSTR)menu[IDM_VIEW].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_view = create_submenu(mii, hmenu, main_menu_id, menu, IDM_VIEW);
 
       {
         UINT pos = 0;
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_VIEW_SHOW_NODE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_view, pos, menu, IDM_VIEW_SHOW_NODE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_VIEW_SHOW_EDGE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_view, pos, menu, IDM_VIEW_SHOW_EDGE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_VIEW_SHOW_COMMUNITY;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_view, pos, menu, IDM_VIEW_SHOW_COMMUNITY);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_VIEW_SHOW_COMMUNITY_EDGE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_view, pos, menu, IDM_VIEW_SHOW_COMMUNITY_EDGE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_view, pos);
 
-        HMENU hmenu_view_node_size = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_view_node_size;
-        mii.dwTypeData = (LPWSTR)menu[IDM_VIEW_NODE_SIZE].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        HMENU hmenu_view_node_size = create_submenu(mii, hmenu_view, pos, menu, IDM_VIEW_NODE_SIZE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_UPDATE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_UPDATE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_CANCEL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_CANCEL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_view_node_size, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_UNIFORM;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_UNIFORM);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_WEIGHT;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_WEIGHT);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_DEGREE_CENTRALITY;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_DEGREE_CENTRALITY);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_CLOSENESS_CENTRALITY;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_CLOSENESS_CENTRALITY);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_BETWEENNESS_CENTRALITY;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_BETWEENNESS_CENTRALITY);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_PAGERANK;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_PAGERANK);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_SIZE_POINT;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_size, pos, menu, IDM_VIEW_NODE_SIZE_POINT);
         }
 
-        HMENU hmenu_view_edge_width = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_view_edge_width;
-        mii.dwTypeData = (LPWSTR)menu[IDM_VIEW_EDGE_WIDTH].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        HMENU hmenu_view_edge_width = create_submenu(mii, hmenu_view, pos, menu, IDM_VIEW_EDGE_WIDTH);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_WIDTH_UPDATE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_width, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_width, pos, menu, IDM_VIEW_EDGE_WIDTH_UPDATE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_WIDTH_CANCEL;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_width, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_width, pos, menu, IDM_VIEW_EDGE_WIDTH_CANCEL);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_view_edge_width, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_view_edge_width, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_WIDTH_UNIFORM;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_width, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_width, pos, menu, IDM_VIEW_EDGE_WIDTH_UNIFORM);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_WIDTH_WEIGHT;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_width, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_width, pos, menu, IDM_VIEW_EDGE_WIDTH_WEIGHT);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_WIDTH_BETWEENNESS_CENTRALITY;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_width, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_width, pos, menu, IDM_VIEW_EDGE_WIDTH_BETWEENNESS_CENTRALITY);
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
-
-        HMENU hmenu_view_node_style = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_view_node_style;
-        mii.dwTypeData = (LPWSTR)menu[IDM_VIEW_NODE_STYLE].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_view, pos);
+        
+        HMENU hmenu_view_node_style = create_submenu(mii, hmenu_view, pos, menu, IDM_VIEW_NODE_STYLE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_STYLE_POLYGON;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_style, pos, menu, IDM_VIEW_NODE_STYLE_POLYGON);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_NODE_STYLE_TEXTURE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_node_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_node_style, pos, menu, IDM_VIEW_NODE_STYLE_TEXTURE);
         }
 
-        HMENU hmenu_view_edge_style = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_view_edge_style;
-        mii.dwTypeData = (LPWSTR)menu[IDM_VIEW_EDGE_STYLE].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        HMENU hmenu_view_edge_style = create_submenu(mii, hmenu_view, pos, menu, IDM_VIEW_EDGE_STYLE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_STYLE_LINE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_style, pos, menu, IDM_VIEW_EDGE_STYLE_LINE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_EDGE_STYLE_POLYGON;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_edge_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_edge_style, pos, menu, IDM_VIEW_EDGE_STYLE_POLYGON);
         }
 
-        HMENU hmenu_view_community_style = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_view_community_style;
-        mii.dwTypeData = (LPWSTR)menu[IDM_VIEW_COMMUNITY_STYLE].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        HMENU hmenu_view_community_style = create_submenu(mii, hmenu_view, pos, menu, IDM_VIEW_COMMUNITY_STYLE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_COMMUNITY_STYLE_POLYGON_CIRCLE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_community_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_community_style, pos, menu, IDM_VIEW_COMMUNITY_STYLE_POLYGON_CIRCLE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_COMMUNITY_STYLE_TEXTURE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_community_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_community_style, pos, menu, IDM_VIEW_COMMUNITY_STYLE_TEXTURE);
         }
 
-        HMENU hmenu_view_community_edge_style = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_view_community_edge_style;
-        mii.dwTypeData = (LPWSTR)menu[IDM_VIEW_COMMUNITY_EDGE_STYLE].c_str();
-        InsertMenuItem(hmenu_view, ++pos, FALSE, &mii);
+        HMENU hmenu_view_community_edge_style = create_submenu(mii, hmenu_view, pos, menu, IDM_VIEW_COMMUNITY_EDGE_STYLE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_COMMUNITY_EDGE_STYLE_LINE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_community_edge_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_community_edge_style, pos, menu, IDM_VIEW_COMMUNITY_EDGE_STYLE_LINE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_VIEW_COMMUNITY_EDGE_STYLE_POLYGON;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_view_community_edge_style, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_view_community_edge_style, pos, menu, IDM_VIEW_COMMUNITY_EDGE_STYLE_POLYGON);
         }
       }
 
@@ -1083,1027 +400,306 @@ namespace hashimoto_ut {
       ////////////////////////////////////////////////////////////////////////////////
       // STRING
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_string;
-      mii.dwTypeData = (LPWSTR)menu[IDM_STRING].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_string = create_submenu(mii, hmenu, main_menu_id, menu, IDM_STRING);
 
       {
         UINT pos = 0;
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_STRING_SHOW_NODE_NAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_string, pos, menu, IDM_STRING_SHOW_NODE_NAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_STRING_SHOW_EDGE_NAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_string, pos, menu, IDM_STRING_SHOW_EDGE_NAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_STRING_SHOW_COMMUNITY_NAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_string, pos, menu, IDM_STRING_SHOW_COMMUNITY_NAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_STRING_SHOW_COMMUNITY_EDGE_NAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_string, pos, menu, IDM_STRING_SHOW_COMMUNITY_EDGE_NAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_string, pos);
 
-        HMENU hmenu_string_node_name_size = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_string_node_name_size;
-        mii.dwTypeData = (LPWSTR)menu[IDM_STRING_NODE_NAME_SIZE].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        HMENU hmenu_string_node_name_size = create_submenu(mii, hmenu_string, pos, menu, IDM_STRING_NODE_NAME_SIZE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_NODE_NAME_SIZE_VARIABLE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_node_name_size, pos, menu, IDM_STRING_NODE_NAME_SIZE_VARIABLE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_string_node_name_size, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_NODE_NAME_SIZE_0;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_node_name_size, pos, menu, IDM_STRING_NODE_NAME_SIZE_0);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_NODE_NAME_SIZE_1;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_node_name_size, pos, menu, IDM_STRING_NODE_NAME_SIZE_1);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_NODE_NAME_SIZE_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_node_name_size, pos, menu, IDM_STRING_NODE_NAME_SIZE_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_NODE_NAME_SIZE_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_node_name_size, pos, menu, IDM_STRING_NODE_NAME_SIZE_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_NODE_NAME_SIZE_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_node_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_node_name_size, pos, menu, IDM_STRING_NODE_NAME_SIZE_4);
         }
 
-        HMENU hmenu_string_edge_name_size = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_string_edge_name_size;
-        mii.dwTypeData = (LPWSTR)menu[IDM_STRING_EDGE_NAME_SIZE].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        HMENU hmenu_string_edge_name_size = create_submenu(mii, hmenu_string, pos, menu, IDM_STRING_EDGE_NAME_SIZE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_EDGE_NAME_SIZE_VARIABLE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_edge_name_size, pos, menu, IDM_STRING_EDGE_NAME_SIZE_VARIABLE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_string_edge_name_size, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_EDGE_NAME_SIZE_0;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_edge_name_size, pos, menu, IDM_STRING_EDGE_NAME_SIZE_0);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_EDGE_NAME_SIZE_1;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_edge_name_size, pos, menu, IDM_STRING_EDGE_NAME_SIZE_1);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_EDGE_NAME_SIZE_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_edge_name_size, pos, menu, IDM_STRING_EDGE_NAME_SIZE_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_EDGE_NAME_SIZE_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_edge_name_size, pos, menu, IDM_STRING_EDGE_NAME_SIZE_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_EDGE_NAME_SIZE_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_edge_name_size, pos, menu, IDM_STRING_EDGE_NAME_SIZE_4);
         }
 
-        HMENU hmenu_string_community_name_size = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_string_community_name_size;
-        mii.dwTypeData = (LPWSTR)menu[IDM_STRING_COMMUNITY_NAME_SIZE].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        HMENU hmenu_string_community_name_size = create_submenu(mii, hmenu_string, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_NAME_SIZE_VARIABLE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_name_size, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE_VARIABLE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_string_community_name_size, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_NAME_SIZE_0;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_name_size, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE_0);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_NAME_SIZE_1;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_name_size, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE_1);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_NAME_SIZE_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_name_size, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_NAME_SIZE_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_name_size, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_NAME_SIZE_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_name_size, pos, menu, IDM_STRING_COMMUNITY_NAME_SIZE_4);
         }
 
-        HMENU hmenu_string_community_edge_name_size = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_string_community_edge_name_size;
-        mii.dwTypeData = (LPWSTR)menu[IDM_STRING_COMMUNITY_EDGE_NAME_SIZE].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        HMENU hmenu_string_community_edge_name_size = create_submenu(mii, hmenu_string, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_VARIABLE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_edge_name_size, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_VARIABLE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_string_community_edge_name_size, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_0;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_edge_name_size, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_0);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_1;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_edge_name_size, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_1);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_edge_name_size, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_edge_name_size, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_community_edge_name_size, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_community_edge_name_size, pos, menu, IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_4);
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_string, pos);
 
-        HMENU hmenu_string_type = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_string_type;
-        mii.dwTypeData = (LPWSTR)menu[IDM_STRING_FONT_TYPE].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        HMENU hmenu_string_type = create_submenu(mii, hmenu_string, pos, menu, IDM_STRING_FONT_TYPE);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_FONT_TYPE_POLYGON;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_type, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_type, pos, menu, IDM_STRING_FONT_TYPE_POLYGON);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_STRING_FONT_TYPE_TEXTURE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_string_type, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_string_type, pos, menu, IDM_STRING_FONT_TYPE_TEXTURE);
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_string, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_STRING_SHOW_LAYER_NAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_string, pos, menu, IDM_STRING_SHOW_LAYER_NAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_STRING_SHOW_FPS;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_string, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_string, pos, menu, IDM_STRING_SHOW_FPS);
       }
 
 
       ////////////////////////////////////////////////////////////////////////////////
       // LAYOUT
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_layout;
-      mii.dwTypeData = (LPWSTR)menu[IDM_LAYOUT].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_layout = create_submenu(mii, hmenu, main_menu_id, menu, IDM_LAYOUT);
 
       {
         UINT pos = 0;
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_UPDATE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_UPDATE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_CANCEL;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_CANCEL);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_layout, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_KAMADA_KAWAI_METHOD;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_KAMADA_KAWAI_METHOD);
 
-        HMENU hmenu_layout_hde = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_layout_hde;
-        mii.dwTypeData = (LPWSTR)menu[IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        HMENU hmenu_layout_hde = create_submenu(mii, hmenu_layout, pos, menu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_hde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_hde, pos, menu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_hde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_hde, pos, menu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_1_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_2_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_hde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_hde, pos, menu, IDM_LAYOUT_HIGH_DIMENSIONAL_EMBEDDING_2_3);
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_layout, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_CIRCLE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_CIRCLE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_CIRCLE_IN_SIZE_ORDER);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_LATTICE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_LATTICE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_RANDOM;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_RANDOM);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_CARTOGRAMS;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_CARTOGRAMS);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_layout, pos);
 
-        HMENU hmenu_layout_fde = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_layout_fde;
-        mii.dwTypeData = (LPWSTR)menu[IDM_LAYOUT_FORCE_DIRECTION].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        HMENU hmenu_layout_fde = create_submenu(mii, hmenu_layout, pos, menu, IDM_LAYOUT_FORCE_DIRECTION);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_RUN;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_RUN);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_layout_fde, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_KAMADA_KAWAI_METHOD_WITH_COMMUNITY_SEPARATION);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_COMMUNITY_ORIENTED;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_COMMUNITY_ORIENTED);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_layout_fde, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_SPRING_AND_REPULSIVE_FORCE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_SPRING_AND_REPULSIVE_FORCE);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_LATTICE_GAS_METHOD;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_LATTICE_GAS_METHOD);
 #if 0
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_LAYOUT_FORCE_DIRECTION_DESIGNTIDE;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_layout_fde, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_layout_fde, pos, menu, IDM_LAYOUT_FORCE_DIRECTION_DESIGNTIDE);
 #endif
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_layout, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_SHOW_LAYOUT_FRAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_SHOW_LAYOUT_FRAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_INITIALIZE_LAYOUT_FRAME;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_INITIALIZE_LAYOUT_FRAME);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_layout, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_SHOW_GRID;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_SHOW_GRID);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_SHOW_CENTER;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_SHOW_CENTER);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_layout, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_INITIALIZE_EYEPOINT;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_INITIALIZE_EYEPOINT);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_ZOOM_IN;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_ZOOM_IN);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_LAYOUT_ZOOM_OUT;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_layout, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_layout, pos, menu, IDM_LAYOUT_ZOOM_OUT);
       }
 
 
       ////////////////////////////////////////////////////////////////////////////////
       // COMMUNITY
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_community;
-      mii.dwTypeData = (LPWSTR)menu[IDM_COMMUNITY_DETECTION].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_community = create_submenu(mii, hmenu, main_menu_id, menu, IDM_COMMUNITY_DETECTION);
 
       {
         UINT pos = 0;
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_COMMUNITY_DETECTION_UPDATE;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_UPDATE);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_COMMUNITY_DETECTION_CANCEL;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_CANCEL);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_community, pos);
 
-        HMENU hmenu_community_connected_components = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_community_connected_components;
-        mii.dwTypeData = (LPWSTR)menu[IDM_COMMUNITY_DETECTION_CONNECTED_COMPONENTS].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        HMENU hmenu_community_connected_components = create_submenu(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_CONNECTED_COMPONENTS);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_connected_components, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_connected_components, pos, menu, IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_STRONGLY_CONNECTED_COMPONENTS;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_connected_components, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_connected_components, pos, menu, IDM_COMMUNITY_DETECTION_STRONGLY_CONNECTED_COMPONENTS);
         }
 
-        HMENU hmenu_community_modularity_maximization = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_community_modularity_maximization;
-        mii.dwTypeData = (LPWSTR)menu[IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        HMENU hmenu_community_modularity_maximization = create_submenu(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_modularity_maximization, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_modularity_maximization, pos, menu, IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_TEO_METHOD;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_modularity_maximization, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_modularity_maximization, pos, menu, IDM_COMMUNITY_DETECTION_MODULARITY_MAXIMIZATION_USING_TEO_METHOD);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_community_modularity_maximization, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_community_modularity_maximization, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_modularity_maximization, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_modularity_maximization, pos, menu, IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY);
         }
 
-        HMENU hmenu_community_clique_percolaion = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_community_clique_percolaion;
-        mii.dwTypeData = (LPWSTR)menu[IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        HMENU hmenu_community_clique_percolaion = create_submenu(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_clique_percolaion, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_clique_percolaion, pos, menu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_clique_percolaion, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_clique_percolaion, pos, menu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_4);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_5;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_clique_percolaion, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_clique_percolaion, pos, menu, IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_5);
         }
 
-        HMENU hmenu_community_others = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_community_others;
-        mii.dwTypeData = (LPWSTR)menu[IDM_COMMUNITY_DETECTION_OTHERS].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        HMENU hmenu_community_others = create_submenu(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_OTHERS);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_others, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_others, pos, menu, IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION);
 #if 0
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_community_others, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_community_others, pos, menu, IDM_COMMUNITY_DETECTION_INFORMATION_FLOW_MAPPING);
 #endif
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_community, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_community, pos, menu, IDM_COMMUNITY_TRANSITION_DIAGRAM);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_community, pos, menu, IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_WIDER);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_community, pos, menu, IDM_COMMUNITY_TRANSITION_DIAGRAM_SCOPE_NARROWER);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_community, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_COMMUNITY_DETECTION_CLEAR;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_community, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_community, pos, menu, IDM_COMMUNITY_DETECTION_CLEAR);
       }
 
 
       ////////////////////////////////////////////////////////////////////////////////
       // TIMELINE
 
-      ZeroMemory(&mii, sizeof(mii));
-      mii.cbSize = sizeof(mii);
-      mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-      mii.fType = MFT_STRING;
-      mii.hSubMenu = hmenu_timeline;
-      mii.dwTypeData = (LPWSTR)menu[IDM_TIMELINE].c_str();
-      InsertMenuItem(hmenu, ++main_menu_id, FALSE, &mii);
+      HMENU hmenu_timeline = create_submenu(mii, hmenu, main_menu_id, menu, IDM_TIMELINE);
 
       {
         UINT pos = 0;
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_TIMELINE_NEXT;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_timeline, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_timeline, pos, menu, IDM_TIMELINE_NEXT);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_TIMELINE_PREV;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_timeline, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_timeline, pos, menu, IDM_TIMELINE_PREV);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_timeline, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_timeline, pos);
 
-        HMENU hmenu_timeline_auto = CreateMenu();
-
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_SUBMENU;
-        mii.fType = MFT_STRING;
-        mii.hSubMenu = hmenu_timeline_auto;
-        mii.dwTypeData = (LPWSTR)menu[IDM_TIMELINE_AUTO_RUN].c_str();
-        InsertMenuItem(hmenu_timeline, ++pos, FALSE, &mii);
+        HMENU hmenu_timeline_auto = create_submenu(mii, hmenu_timeline, pos, menu, IDM_TIMELINE_AUTO_RUN);
 
         {
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_STOP;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_STOP);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_timeline_auto, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_FORWARD_1;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_FORWARD_1);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_FORWARD_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_FORWARD_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_FORWARD_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_FORWARD_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_FORWARD_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_FORWARD_4);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE;
-          mii.fType = MFT_SEPARATOR;
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_separator(mii, hmenu_timeline_auto, pos);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_BACKWARD_1;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_BACKWARD_1);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_BACKWARD_2;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_BACKWARD_2);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_BACKWARD_3;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_BACKWARD_3);
 
-          ZeroMemory(&mii, sizeof(mii));
-          mii.cbSize = sizeof(mii);
-          mii.fMask = MIIM_TYPE|MIIM_ID;
-          mii.fType = MFT_STRING;
-          mii.wID = IDM_TIMELINE_BACKWARD_4;
-          mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-          InsertMenuItem(hmenu_timeline_auto, ++pos, FALSE, &mii);
+          create_menuitem(mii, hmenu_timeline_auto, pos, menu, IDM_TIMELINE_BACKWARD_4);
         }
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE;
-        mii.fType = MFT_SEPARATOR;
-        InsertMenuItem(hmenu_timeline, ++pos, FALSE, &mii);
+        create_separator(mii, hmenu_timeline, pos);
 
-        ZeroMemory(&mii, sizeof(mii));
-        mii.cbSize = sizeof(mii);
-        mii.fMask = MIIM_TYPE|MIIM_ID;
-        mii.fType = MFT_STRING;
-        mii.wID = IDM_TIMELINE_SHOW_SLIDER;
-        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
-        InsertMenuItem(hmenu_timeline, ++pos, FALSE, &mii);
+        create_menuitem(mii, hmenu_timeline, pos, menu, IDM_TIMELINE_SHOW_SLIDER);
       }
 
       SetMenu(hwnd, hmenu);
