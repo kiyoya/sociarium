@@ -27,9 +27,22 @@ namespace hashimoto_ut {
   namespace sociarium_project_menu_and_message {
     
     NSString *stringWithWString(const wstring& str) {
+      static NSCharacterSet* separatorSet = nil;
+      if (!separatorSet) {
+        separatorSet = [[NSCharacterSet characterSetWithCharactersInString:@"\t("] retain];
+      }
+
       string s = wcs2mbcs(str.c_str(), str.length());
-      NSString* t = [[[NSString alloc] initWithCString:s.c_str() encoding:NSUTF8StringEncoding] autorelease];
-      return [t stringByReplacingOccurrencesOfString:@"&" withString:@""];
+      NSString* t;
+      t = [[[NSString alloc] initWithCString:s.c_str() encoding:NSUTF8StringEncoding] autorelease];
+      t = [t stringByReplacingOccurrencesOfString:@"&" withString:@""];
+
+      NSRange r = [t rangeOfCharacterFromSet:separatorSet];
+      if (r.location != NSNotFound) {
+        t = [t substringToIndex:r.location];
+      }
+
+      return t;
     }
     
     HMENU get_file_menu(HMENU hmenu) {
