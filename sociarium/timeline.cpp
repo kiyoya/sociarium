@@ -39,7 +39,7 @@ namespace hashimoto_ut {
     namespace {
 
       // The unit is msec.
-      UINT latency[AutoRun::NUMBER_OF_OPTIONS]
+      unsigned int latency[AutoRun::NUMBER_OF_OPTIONS]
         = {
         0,    // not used.
         1000, // FORWARD_1
@@ -57,7 +57,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    UINT get_latency(void) {
+    unsigned int get_latency(void) {
       assert(0<=auto_run_id && auto_run_id<AutoRun::NUMBER_OF_OPTIONS);
       return latency[auto_run_id];
     }
