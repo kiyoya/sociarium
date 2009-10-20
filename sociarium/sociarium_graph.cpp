@@ -40,12 +40,6 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::tr1::unordered_map;
 
-  // Explicit instantiation of template specialization.
-  template class DynamicPropertyBase<Node, StaticNodeProperty>;
-  template class DynamicPropertyBase<Edge, StaticEdgeProperty>;
-  template class StaticPropertyBase<DynamicNodeProperty>;
-  template class StaticPropertyBase<DynamicEdgeProperty>;
-
 
   ////////////////////////////////////////////////////////////////////////////////
   // DynamicPropertyBase
@@ -348,7 +342,7 @@ namespace hashimoto_ut {
   template <typename DynamicProperty>
   void StaticPropertyBase<DynamicProperty>::unregister_dynamic_property(
     DynamicProperty* dp) {
-    DynamicPropertyMap::iterator i = dynamic_property_.find(dp);
+    typename DynamicPropertyMap::iterator i = dynamic_property_.find(dp);
     assert(i!=dynamic_property_.end());
     dynamic_property_.erase(i);
   }
@@ -371,5 +365,12 @@ namespace hashimoto_ut {
 
   /* no implementation.
    */
+
+
+  // Explicit instantiation of template specialization.
+  template class DynamicPropertyBase<Node, StaticNodeProperty>;
+  template class DynamicPropertyBase<Edge, StaticEdgeProperty>;
+  template class StaticPropertyBase<DynamicNodeProperty>;
+  template class StaticPropertyBase<DynamicEdgeProperty>;
 
 } // The end of the namespace "hashimoto_ut"
