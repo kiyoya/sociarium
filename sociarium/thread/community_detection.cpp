@@ -479,7 +479,7 @@ namespace hashimoto_ut {
 
             assert(pp.second);
 
-            StaticNodeProperty* snp = &*pp.first;
+            StaticNodeProperty* snp = const_cast<StaticNodeProperty*>(&*pp.first);
 
             DynamicNodeProperty& dnp = i->second;
             link_dynamic_and_static_properties(current_layer, &dnp, snp);
@@ -510,7 +510,7 @@ namespace hashimoto_ut {
 
             assert(pp.second);
 
-            StaticEdgeProperty* sep = &*pp.first;
+            StaticEdgeProperty* sep = const_cast<StaticEdgeProperty*>(&*pp.first);
 
             DynamicEdgeProperty& dep = i->second;
             link_dynamic_and_static_properties(current_layer, &dep, sep);
@@ -637,7 +637,7 @@ namespace hashimoto_ut {
 
             assert(pp.second);
 
-            StaticNodeProperty* snp = &*pp.first;
+            StaticNodeProperty* snp = const_cast<StaticNodeProperty*>(&*pp.first);
 
             DynamicNodeProperty& dnp = i->second;
 
@@ -676,7 +676,7 @@ namespace hashimoto_ut {
 
             assert(pp.second);
 
-            StaticEdgeProperty* sep = &*pp.first;
+            StaticEdgeProperty* sep = const_cast<StaticEdgeProperty*>(&*pp.first);
 
             link_dynamic_and_static_properties(layer, &dep, sep);
 
@@ -699,7 +699,7 @@ namespace hashimoto_ut {
 
               assert(pp.second);
 
-              StaticEdgeProperty* sep = &*pp.first;
+              StaticEdgeProperty* sep = const_cast<StaticEdgeProperty*>(&*pp.first);
 
               link_dynamic_and_static_properties(layer, &dep, sep);
 
