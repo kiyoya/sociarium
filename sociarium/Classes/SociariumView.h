@@ -16,8 +16,10 @@
   NSTimer * redrawTimer;
   
   hashimoto_ut::World *world_;
+  NSObject * world_mutex;
 }
 
+- (void) destroy;
 - (void) timerDidFireRedraw:(NSTimer *)timer;
 
 @property (nonatomic, copy) NSURL * fileURL;

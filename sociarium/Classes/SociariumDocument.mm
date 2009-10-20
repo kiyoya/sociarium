@@ -289,6 +289,7 @@ using namespace hashimoto_ut;
 
 - (void)dealloc
 {
+  [sociarium destroy];
   [super dealloc];
   [fileURL release];
 }
