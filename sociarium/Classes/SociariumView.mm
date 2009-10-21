@@ -82,9 +82,15 @@ using std::tr1::shared_ptr;
     {
       World::destroy(world_);
     }
-    world_ = World::create([self window], context);
+    hashimoto_ut::World *wo = World::create([self window], context);
+    if (fileURL)
+    {
+      std::wstring filename(CFStringGetWString((CFStringRef)[fileURL path]));
+      wo->create_graph(filename.c_str());
+    }
+    world_ = wo;
   }
-  
+
   if (redrawTimer)
   {
     [redrawTimer invalidate];
@@ -92,12 +98,6 @@ using std::tr1::shared_ptr;
   }
   redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.001f target:self selector:@selector(timerDidFireRedraw:) userInfo:nil repeats:YES];
   [redrawTimer retain];
-  
-  if (fileURL)
-  {
-    std::wstring filename(CFStringGetWString((CFStringRef)[fileURL path]));
-    world_->create_graph(filename.c_str());
-  }
 }
 
 - (void)reshape
