@@ -92,7 +92,10 @@ namespace hashimoto_ut {
       CGImageSourceRef imageSourceRef = CGImageSourceCreateWithURL(url, NULL);
       CFRelease(url);
       CFRelease(path);
-      
+
+      if (!imageSourceRef)
+        return FAILED_TO_LOAD_IMAGE;
+
       switch (CGImageSourceGetStatus(imageSourceRef))
       {
         case kCGImageStatusComplete:
@@ -193,7 +196,10 @@ namespace hashimoto_ut {
       CGImageSourceRef imageSourceRef = CGImageSourceCreateWithURL(url, NULL);
       CFRelease(url);
       CFRelease(path);
-      
+
+      if (!imageSourceRef)
+        return FAILED_TO_LOAD_IMAGE;
+
       switch (CGImageSourceGetStatus(imageSourceRef))
       {
         case kCGImageStatusComplete:
@@ -202,8 +208,7 @@ namespace hashimoto_ut {
           CFRelease(imageSourceRef);
           return UNSUPPORTED_FILE_FORMAT;
         default:
-          if (imageSourceRef)
-            CFRelease(imageSourceRef);
+          CFRelease(imageSourceRef);
           return FAILED_TO_LOAD_IMAGE;
       }
       
@@ -285,7 +290,10 @@ namespace hashimoto_ut {
       CGImageSourceRef imageSourceRef = CGImageSourceCreateWithURL(url, NULL);
       CFRelease(url);
       CFRelease(path);
-      
+
+      if (!imageSourceRef)
+        return FAILED_TO_LOAD_IMAGE;
+
       switch (CGImageSourceGetStatus(imageSourceRef))
       {
         case kCGImageStatusComplete:
