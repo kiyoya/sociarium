@@ -68,6 +68,7 @@ namespace hashimoto_ut {
     virtual void draw(void) const = 0;
     virtual void select(Vector2<int> const& mpos) const = 0;
 
+    virtual void do_command(int action) = 0;
     virtual void do_mouse_action(int action, Vector2<int> const& mpos, int modifier) = 0;
 
     virtual void resize_window(Vector2<int> const& size) = 0;
