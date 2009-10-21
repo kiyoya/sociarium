@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: module/language_jp.cpp
+﻿// s.o.c.i.a.r.i.u.m: module/language_en.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.

@@ -45,7 +45,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_clique_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community_detection_clique_percolation_5", "module\community_detection_clique_percolation_5\community_detection_clique_percolation_5.vcproj", "{19DE9D99-B078-4332-8698-5AF836CA0FEA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_jp", "module\language_jp\language_jp.vcproj", "{21DC7709-3C85-48A5-977A-C905134E7C28}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_ja", "module\language_ja\language_ja.vcproj", "{21DC7709-3C85-48A5-977A-C905134E7C28}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "language_en", "module\language_en\language_en.vcproj", "{F3F3B0C9-EEBB-403A-BFFB-55D41EB622F2}"
 EndProject
