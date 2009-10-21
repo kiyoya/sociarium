@@ -19,220 +19,69 @@ using namespace hashimoto_ut;
 
 @synthesize fileURL;
 
-#pragma mark IBActions
+#pragma mark IBAction
 
-- (IBAction)cancelRunningThread:(id)sender
+// http://www.cocoadev.com/index.pl?CreatingPDFsFromNSOpenGLView
+- (IBAction) copyScreenshotToClipboard:(id)sender
 {
+  NSSize imageSize = [sociarium bounds].size;
+  imageSize.width = ( imageSize.width - ( ((int)imageSize.width) % 4 ));
+  
+  int imageWidth = imageSize.width;
+  int imageHeight = imageSize.height;
+  int bytesPerPixel = 4;
+  int bytesPerImage = imageWidth * imageHeight * bytesPerPixel;
+  unsigned char *imageBuffer = (unsigned char *)malloc(bytesPerImage);
+  
+  [[sociarium openGLContext] makeCurrentContext];
+  glReadPixels(0, 0, imageWidth, imageHeight, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
+  
+  NSBitmapImageRep *rep = [[NSBitmapImageRep alloc]
+                           initWithBitmapDataPlanes:nil
+                           pixelsWide:imageWidth
+                           pixelsHigh:imageHeight
+                           bitsPerSample:8
+                           samplesPerPixel:3
+                           hasAlpha:NO
+                           isPlanar:NO
+                           colorSpaceName:NSCalibratedRGBColorSpace
+                           bytesPerRow:0
+                           bitsPerPixel:0];
+  
+  unsigned char *src, *end, *dest;
+  src = imageBuffer;
+  end = src + bytesPerImage;
+  dest = [rep bitmapData];
+  
+  while ( src < end )
+  {
+    *dest = *src; dest++; src++; //R
+    *dest = *src; dest++; src++; //G
+    *dest = *src; dest++; src++; //B
+    ++src;                       //A
+  }
+  
+  NSImage *image = [[NSImage alloc] init];
+  [image addRepresentation:rep];
+  
+  [image setFlipped:YES];
+  [image lockFocusOnRepresentation:rep];
+  [image unlockFocus];
+  
+  NSImage *flipped = [[NSImage alloc] initWithData:[image TIFFRepresentation]];
+  NSPasteboard *pb = [NSPasteboard generalPasteboard];
+  [pb declareTypes:[NSArray arrayWithObjects:NSTIFFPboardType, nil] owner:nil];
+  [pb setData:[flipped TIFFRepresentation] forType:NSTIFFPboardType];
+  
+  [rep release];
+  [image release];
+  free( imageBuffer );
+  [flipped release];
 }
 
-- (IBAction)clearCommunityDetection:(id)sender
+- (IBAction) doCommand:(int)tag
 {
-  sociarium.world->clear_community();
-}
-
-- (IBAction)executeLayout:(id)sender
-{
-  sociarium.world->layout();
-}
-
-- (IBAction)executeCommunityDetection:(id)sender
-{
-  sociarium.world->detect_community();
-}
-
-- (IBAction)initializeView:(id)sender
-{
-  sociarium.world->initialize_view();
-}
-
-- (IBAction)initializeViewport:(id)sender
-{
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToConnectedComponents:(id)sender
-{
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::CONNECTED_COMPONENTS);
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToStronglyConnectedComponents:(id)sender
-{
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::STRONGLY_CONNECTED_COMPONENTS);
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToCliquePercolation3:(id)sender
-{
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3);
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToCliquePercolation4:(id)sender
-{
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToCliquePercolation5:(id)sender
-{
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToModularityMaximizationUsingGreedyMethod:(id)sender
-{
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD);
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToModularityMaximizationUsingTauEoMethod:(id)sender
-{
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_TEO_METHOD);
-}
-
-- (IBAction)setAlgoritumOfCommunityDetectionToBetweennessCentralityClustering:(id)sender
-{
-  sociarium_project_algorithm_selector::set_community_detection_algorithm(sociarium_project_algorithm_selector::CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_SEPARATION);
-}
-
-- (IBAction)setAlgoritumOfGraphLayoutToKamadaKawaiMethod:(id)sender
-{
-  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::KAMADA_KAWAI_METHOD);
-}
-
-/*
-- (IBAction)setAlgoritumOfGraphLayoutToHighDimensionalEmbedding:(id)sender
-{
-  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::HDE);
-}
- */
-
-- (IBAction)setAlgoritumOfGraphLayoutToCircle:(id)sender
-{
-  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE);
-}
-
-- (IBAction)setAlgoritumOfGraphLayoutToCircleInSizeOrder:(id)sender
-{
-  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER);
-}
-
-/*
-- (IBAction)setAlgoritumOfGraphLayoutToArray:(id)sender
-{
-  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::ARRAY);
-}
- */
-
-- (IBAction)setAlgoritumOfGraphLayoutToRandom:(id)sender
-{
-  sociarium_project_algorithm_selector::set_layout_algorithm(sociarium_project_algorithm_selector::LayoutAlgorithm::RANDOM);
-}
-
-- (IBAction)setFontSizeOfCommunity:(id)sender
-{
-}
-
-- (IBAction)setFontSizeOfCommunityEdge:(id)sender
-{
-}
-
-- (IBAction)setFontSizeOfEdge:(id)sender
-{
-}
-
-- (IBAction)setFontSizeOfNode:(id)sender
-{
-}
-
-- (IBAction)setSizeOfNode:(id)sender
-{
-}
-
-- (IBAction)setStyleOfCommunityEdgeToLine:(id)sender
-{  
-  sociarium_project_view::set_community_edge_style(CommunityEdgeStyle::LINE);
-}
-
-- (IBAction)setStyleOfCommunityEdgeToPolygon:(id)sender
-{
-  sociarium_project_view::set_community_edge_style(CommunityEdgeStyle::POLYGON);
-}
-
-- (IBAction)setStyleOfCommunityToPolygon:(id)sender
-{
-  sociarium_project_view::set_community_style(CommunityStyle::POLYGON_CIRCLE);  
-}
-
-- (IBAction)setStyleOfCommunityToTexture:(id)sender
-{  
-  sociarium_project_view::set_community_style(CommunityStyle::TEXTURE);
-}
-
-- (IBAction)setStyleOfEdgeToLine:(id)sender
-{
-  sociarium_project_view::set_edge_style(EdgeStyle::LINE);  
-}
-
-- (IBAction)setStyleOfEdgeToPolygon:(id)sender
-{  
-  sociarium_project_view::set_edge_style(EdgeStyle::POLYGON);
-}
-
-- (IBAction)setStyleOfNodeToPolygon:(id)sender
-{
-  sociarium_project_view::set_node_style(NodeStyle::POLYGON);
-}
-
-- (IBAction)setStyleOfNodeToTexture:(id)sender
-{
-  sociarium_project_view::set_node_style(NodeStyle::TEXTURE);
-}
-
-- (IBAction)shiftStyle:(id)sender
-{
-}
-
-- (IBAction)toggleFullscreen:(id)sender
-{
-}
-
-- (IBAction)toggleUseOfWeightedModularity:(id)sender
-{
-  sociarium_project_algorithm_selector::use_weighted_modularity(!sociarium_project_algorithm_selector::use_weighted_modularity());
-}
-
-- (IBAction)toggleLabelVisibilityOfEdge:(id)sender
-{
-  sociarium_project_view::set_show_edge_name(!sociarium_project_view::get_show_edge_name());
-}
-
-- (IBAction)toggleLabelVisibilityOfNode:(id)sender
-{
-  sociarium_project_view::set_show_node_name(!sociarium_project_view::get_show_node_name());
-}
-
-- (IBAction)toggleLabelVisibilityOfCommunity:(id)sender
-{
-  sociarium_project_view::set_show_community_name(!sociarium_project_view::get_show_community_name());
-}
-
-- (IBAction)toggleLabelVisibilityOfCommunityEdge:(id)sender
-{
-  sociarium_project_view::set_show_community_edge_name(!sociarium_project_view::get_show_community_edge_name());
-}
-
-- (IBAction)toggleVisibilityOfEdge:(id)sender
-{
-}
-
-- (IBAction)toggleVisibilityOfNode:(id)sender
-{
-}
-
-- (IBAction)toggleVisibilityOfFPS:(id)sender
-{
-  sociarium_project_view::set_show_fps(!sociarium_project_view::get_show_fps());
-}
-
-- (IBAction)toggleVisibilityOfCommunity:(id)sender
-{
-}
-
-- (IBAction)toggleVisibilityOfCommunityEdge:(id)sender
-{
+  [sociarium doCommand:tag];
 }
 
 #pragma mark NSDocument

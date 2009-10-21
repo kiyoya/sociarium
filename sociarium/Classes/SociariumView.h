@@ -19,6 +19,8 @@
   NSObject * world_mutex;
 }
 
+- (IBAction) doCommand:(int)tag;
+
 - (void) destroy;
 - (void) timerDidFireRedraw:(NSTimer *)timer;
 

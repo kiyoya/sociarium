@@ -7,6 +7,7 @@
 //
 
 #import "SociariumAppDelegate.h"
+#import "SociariumDocument.h"
 #import "common.h"
 #import "menu_and_message.h"
 #import "win32api.h"
@@ -14,6 +15,21 @@
 using namespace hashimoto_ut;
 
 @implementation SociariumAppDelegate
+
+#pragma mark IBAction
+
+- (IBAction) doCommand:(NSMenuItem *)menuItem;
+{
+  NSDocument *doc = [[NSDocumentController sharedDocumentController] currentDocument];
+  if (doc) {
+    SociariumDocument *d = reinterpret_cast<SociariumDocument *>(doc);
+    if (d) {
+      [d doCommand:menuItem.tag];
+    }
+  }
+}
+
+#pragma mark NSApplicationDelegate
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
@@ -37,6 +53,20 @@ using namespace hashimoto_ut;
   } catch (wchar_t const* errmsg) {
     exit(1);
   }
+}
+
+#pragma mark NSMenuValidationProtocol
+
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+{
+  NSDocument *doc = [[NSDocumentController sharedDocumentController] currentDocument];
+  if (doc) {
+    SociariumDocument *d = reinterpret_cast<SociariumDocument *>(doc);
+    if (d) {
+      return YES;
+    }
+  }
+  return FALSE;
 }
 
 @end

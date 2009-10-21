@@ -7,7 +7,8 @@
 //
 
 #ifdef __APPLE__
-#include <CoreFoundation/CoreFoundation.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import "SociariumAppDelegate.h"
 
 #define FILE_MENU_TAG 1
 
@@ -58,9 +59,14 @@ namespace hashimoto_ut {
     }
     
     void create_menuitem(int mii, HMENU hmenu, unsigned int& menu_pos, /*const */unordered_map<int, wstring>& menu, int menu_id) {
-#warning Not implemented
       NSString* title = stringWithWString(menu[menu_id]);
       NSMenuItem* menuItem = [[[NSMenuItem alloc] initWithTitle:title action:NULL keyEquivalent:@""] autorelease];
+      [menuItem setTag:menu_id];
+      SociariumAppDelegate *d = reinterpret_cast<SociariumAppDelegate *>([NSApp delegate]);
+      if (d) {
+        [menuItem setAction:@selector(doCommand:)];
+        [menuItem setTarget:d]; 
+      }
       [hmenu insertItem:menuItem atIndex:menu_pos];
       ++menu_pos;
     }
@@ -73,6 +79,7 @@ namespace hashimoto_ut {
     HMENU create_submenu(int mii, HMENU hmenu, unsigned int& menu_pos, /*const */unordered_map<int, wstring>& menu, int menu_id) {
       NSString* title = stringWithWString(menu[menu_id]);
       NSMenu* subMenu = [[[NSMenu alloc] initWithTitle:title] autorelease];
+      [subMenu setAutoenablesItems:YES];
       NSMenuItem* subMenuItem = [[[NSMenuItem alloc] initWithTitle:title action:NULL keyEquivalent:@""] autorelease];
       [subMenuItem setSubmenu:subMenu];
       [hmenu insertItem:subMenuItem atIndex:menu_pos];

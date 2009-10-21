@@ -10,4 +10,6 @@
 {
 }
 
+- (IBAction) doCommand:(NSMenuItem *)menuItem;
+
 @end

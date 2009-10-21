@@ -6,17 +6,31 @@
 //  Copyright 2009 YAMAGUCHI Kiyohiro. All rights reserved.
 //
 
+#import <tr1/memory>
 #import "SociariumView.h"
+#import "common.h"
+#import "menu_and_message.h"
+#import "msgbox.h"
+#import "resource.h"
+#import "thread.h"
 #import "selection.h"
 #import "win32api.h"
+#import "../../shared/thread.h"
 #import <string>
 
 using namespace hashimoto_ut;
+using namespace sociarium_project_common;
+using namespace sociarium_project_menu_and_message;
+using std::tr1::shared_ptr;
 
 @implementation SociariumView
 
 @synthesize fileURL;
 @synthesize world = world_;
+
+- (IBAction) doCommand:(int)tag
+{
+}
 
 - (void) destroy
 {
