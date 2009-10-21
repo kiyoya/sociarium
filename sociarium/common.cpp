@@ -32,10 +32,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#ifdef __APPLE__
-#include <CoreFoundation/CoreFoundation.h>
-#include "win32api.h"
-#elif _MSC_VER
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
 #include "common.h"
@@ -80,12 +77,7 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
-#warning Not implemented
-    void show_last_error(void* window, wchar_t const* text) {
-      CFStringRef buf = CFStringCreateWithWString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
-      CFShow(buf);
-      CFRelease(buf);
-    }
+    // Implemented at common.mm
 #elif _MSC_VER
     void show_last_error(HWND hwnd, wchar_t const* text) {
       LPVOID buf;

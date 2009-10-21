@@ -30,6 +30,10 @@ using std::tr1::shared_ptr;
 
 - (IBAction) doCommand:(int)tag
 {
+  if (world_)
+  {
+    world_->do_command(tag);
+  }
 }
 
 - (void) destroy

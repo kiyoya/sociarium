@@ -29,7 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "algorithm_selector.h"
 #include "common.h"
 #include "community_transition_diagram.h"
@@ -145,14 +147,25 @@ namespace hashimoto_ut {
           join(GRAPH_CREATION);
         } else
           tf->resume();
-      } else
+      } else {
+#ifdef __APPLE__
+#elif _MSC_VER
         SendMessage(hwnd_, WM_CLOSE, 0, 0);
+#else
+#error Not implemented
+#endif
+      }
 
       break;
     }
 
     case IDM_FILE_QUIT:
+#ifdef __APPLE__
+#elif _MSC_VER
       SendMessage(hwnd_, WM_CLOSE, 0, 0);
+#else
+#error Not implemented
+#endif
       break;
 
     case IDM_FILE_CANCEL: {

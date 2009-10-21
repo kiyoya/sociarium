@@ -63,7 +63,7 @@ using namespace hashimoto_ut;
   if (doc) {
     SociariumDocument *d = reinterpret_cast<SociariumDocument *>(doc);
     if (d) {
-      return YES;
+      return [d validateMenuItem:menuItem];
     }
   }
   return FALSE;

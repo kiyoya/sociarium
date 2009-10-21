@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		6C094680108F28E30008C48D /* world_impl_command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C09467F108F28E30008C48D /* world_impl_command.cpp */; };
+		6C0946AB108F2A220008C48D /* common.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6C0946AA108F2A220008C48D /* common.mm */; };
 		6C0F9AE41085CF9600B09C24 /* libboost_thread-mt-d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */; };
 		6C0F9AEA1085CFD800B09C24 /* libboost_thread-mt-d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */; };
 		6C3ACB19105FC02300FD0003 /* mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3ACB17105FC02300FD0003 /* mutex.cpp */; };
@@ -124,6 +126,8 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		6C09467F108F28E30008C48D /* world_impl_command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = world_impl_command.cpp; sourceTree = "<group>"; };
+		6C0946AA108F2A220008C48D /* common.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = common.mm; sourceTree = "<group>"; };
 		6C0F9AE31085CF9600B09C24 /* libboost_thread-mt-d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt-d.dylib"; path = "/usr/local/lib/libboost_thread-mt-d.dylib"; sourceTree = "<absolute>"; };
 		6C3ACB16105FC02300FD0003 /* fps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fps.h; sourceTree = "<group>"; };
 		6C3ACB17105FC02300FD0003 /* mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mutex.cpp; sourceTree = "<group>"; };
@@ -442,6 +446,7 @@
 				6CAC1096104EDC8F0022B602 /* color.h */,
 				6C3ACB1C105FC05500FD0003 /* color.cpp */,
 				6CAC1097104EDC8F0022B602 /* common.cpp */,
+				6C0946AA108F2A220008C48D /* common.mm */,
 				6CAC1098104EDC8F0022B602 /* common.h */,
 				6C3ACB1D105FC05500FD0003 /* community_transition_diagram.cpp */,
 				6C3ACB1E105FC05500FD0003 /* community_transition_diagram.h */,
@@ -480,6 +485,8 @@
 				6CAC10B6104EDC8F0022B602 /* view.cpp */,
 				6CAC10B7104EDC8F0022B602 /* view.h */,
 				6CAC10C0104EDC8F0022B602 /* world.h */,
+				6C3ACB3B105FC05500FD0003 /* world_impl.h */,
+				6C09467F108F28E30008C48D /* world_impl_command.cpp */,
 				6C3ACB31105FC05500FD0003 /* world_impl_draw_orthogonal_part.cpp */,
 				6C3ACB32105FC05500FD0003 /* world_impl_draw_perspective_part.cpp */,
 				6C3ACB33105FC05500FD0003 /* world_impl_draw.cpp */,
@@ -490,7 +497,6 @@
 				6C3ACB38105FC05500FD0003 /* world_impl_select.cpp */,
 				6C3ACB39105FC05500FD0003 /* world_impl_thread.cpp */,
 				6C3ACB3A105FC05500FD0003 /* world_impl_view.cpp */,
-				6C3ACB3B105FC05500FD0003 /* world_impl.h */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -741,6 +747,8 @@
 				6CD8DC331082F5EB00CD6666 /* fbo.cpp in Sources */,
 				6CD8DC341082F5EB00CD6666 /* texture.cpp in Sources */,
 				6C8BC103108D807A00B8B9B7 /* msgbox.mm in Sources */,
+				6C094680108F28E30008C48D /* world_impl_command.cpp in Sources */,
+				6C0946AB108F2A220008C48D /* common.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
