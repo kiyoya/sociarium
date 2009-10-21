@@ -34,16 +34,20 @@
 #include <boost/random.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "graph_creation.h"
 #include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -58,9 +62,12 @@ namespace hashimoto_ut {
   using namespace sociarium_project_module_graph_creation;
   using namespace sociarium_project_menu_and_message;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
-
+#else
+  extern "C" void create_graph_time_series(
+#endif
       Thread& parent,
       deque<wstring>& status,
       Message const& message,

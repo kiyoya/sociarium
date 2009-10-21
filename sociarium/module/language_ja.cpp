@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: module/language_jp.cpp
+﻿// s.o.c.i.a.r.i.u.m: module/language_ja.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -32,14 +32,20 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#ifdef _MSC_VER
 #include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "../resource.h"
 #include "../menu_and_message.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -47,9 +53,12 @@ namespace hashimoto_ut {
   using std::wstring;
   using std::tr1::unordered_map;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl load_menu(unordered_map<int, wstring>& menu) {
-
+#else
+  extern "C" void load_menu(unordered_map<int, wstring>& menu) {
+#endif
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_FILE]
         = L"ファイル(&F)";
@@ -483,8 +492,12 @@ namespace hashimoto_ut {
     }
 
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl load_message(vector<wstring>& message) {
+#else
+  extern "C" void load_message(vector<wstring>& message) {
+#endif
 
       using namespace sociarium_project_menu_and_message;
 

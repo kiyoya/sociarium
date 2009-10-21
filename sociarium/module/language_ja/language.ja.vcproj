@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="language_jp"
+	Name="language_ja"
 	ProjectGUID="{21DC7709-3C85-48A5-977A-C905134E7C28}"
 	RootNamespace="kamada_kawai_method"
 	Keyword="Win32Proj"
@@ -177,7 +177,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\language_jp.cpp"
+				RelativePath="..\language_ja.cpp"
 				>
 			</File>
 		</Filter>

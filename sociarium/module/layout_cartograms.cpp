@@ -32,16 +32,20 @@
 #include <cassert>
 #include <vector>
 #include <map>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "layout.h"
 #include "../menu_and_message.h"
 #include "../../cartograms/cartograms.h"
 #include "../../shared/thread.h"
 #include "../../graph/graph.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -56,9 +60,12 @@ namespace hashimoto_ut {
 
   using namespace sociarium_project_menu_and_message;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl layout(
-
+#else
+  extern "C" void layout(
+#endif
       Thread& parent,
       wstring& status,
       Message const& message,

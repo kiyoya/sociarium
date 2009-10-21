@@ -34,9 +34,11 @@
 #include "../graph_utility.h"
 #include "../../graph/util/traverser.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -45,9 +47,12 @@ namespace hashimoto_ut {
   using std::pair;
   using std::tr1::shared_ptr;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl detect_community(
-
+#else
+  extern "C" void detect_community(
+#endif
       Thread& parent,
       wstring& status,
       Message const& message,

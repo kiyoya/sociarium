@@ -5,7 +5,11 @@
  * See http://www.umich.edu/~mejn/
  */
 
+#ifdef _MSC_VER
 #include <array>
+#else
+#include <tr1/array>
+#endif
 #include <fftw3.h>
 #include <boost/format.hpp>
 #include "cartograms.h"

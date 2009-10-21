@@ -31,17 +31,22 @@
 
 #include <cassert>
 #include <map>
-#include <unordered_map>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+#ifdef _MSC_VER
+#include <unordered_map>
 #include <windows.h>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "graph_creation.h"
 #include "../menu_and_message.h"
 #include "../../shared/thread.h"
 #include "../../shared/util.h"
 #include "../../graph/graph.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
@@ -50,6 +55,7 @@ BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
 #pragma comment(lib, "libboost_regex-vc90-mt-1_37.lib")
 #else
 #pragma comment(lib, "libboost_regex-vc90-mt-gd-1_37.lib")
+#endif
 #endif
 
 namespace hashimoto_ut {
@@ -66,9 +72,12 @@ namespace hashimoto_ut {
   using namespace sociarium_project_menu_and_message;
   using namespace sociarium_project_module_graph_creation;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl create_graph_time_series(
-
+#else
+  extern "C" void create_graph_time_series(
+#endif
       Thread& parent,
       deque<wstring>& status,
       Message const& message,
@@ -566,7 +575,11 @@ namespace hashimoto_ut {
         // Set a layer name.
 
         struct tm tm0;
+#ifdef _MSC_VER
         localtime_s(&tm0, &t);
+#else
+        localtime_r(&t, &tm0);
+#endif
         if (time_format.empty()) {
           layer_name.push_back(
             title+L": "

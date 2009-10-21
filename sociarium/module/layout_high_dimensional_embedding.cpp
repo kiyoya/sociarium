@@ -53,6 +53,8 @@
 #include "../../shared/thread.h"
 #include "../../graph/util/traverser.h"
 
+#ifdef _MSC_VER
+
 #ifdef NDEBUG
 #pragma comment(lib, "libf2c.lib")
 #pragma comment(lib, "BLAS.lib")
@@ -67,6 +69,8 @@
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+
+#endif
 
 namespace hashimoto_ut {
 
@@ -86,9 +90,12 @@ namespace hashimoto_ut {
   namespace ublas = boost::numeric::ublas;
   namespace lapack = boost::numeric::bindings::lapack;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl layout(
-
+#else
+  extern "C" void layout(
+#endif
       Thread& parent,
       wstring& status,
       Message const& message,

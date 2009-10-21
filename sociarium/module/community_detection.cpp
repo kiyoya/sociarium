@@ -105,7 +105,7 @@ namespace hashimoto_ut {
           else if (method==CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_GREEDY_METHOD)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionModularityMaximizationUsingGreedyMethod.plugin"), FALSE);
           else if (method==CommunityDetectionAlgorithm::MODULARITY_MAXIMIZATION_USING_TEO_METHOD)
-            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionModularityMaximizationUsingT-EOMethod.plugin"), FALSE);
+            path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionModularityMaximizationUsingTEOMethod.plugin"), FALSE);
           else if (method==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3)
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("CommunityDetectionCliquePercolation3.plugin"), FALSE);
           else if (method==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_4)

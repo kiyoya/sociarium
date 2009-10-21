@@ -103,6 +103,7 @@ namespace hashimoto_ut {
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, CFSTR("GraphCreationReadEdgeList.plugin"), FALSE);
           else if (data_format==DataFormat::USER_DEFINED_MODULE)
           {
+#warning Not implemented
             CFStringRef str = CFStringCreateWithWString(NULL, module_filename, kCFStringEncodingUTF8);
             path = CFURLCreateCopyAppendingPathComponent(NULL, pluginURL, str, FALSE);
             CFRelease(str);

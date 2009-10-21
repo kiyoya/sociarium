@@ -32,15 +32,19 @@
 #include <ctime>
 #include <vector>
 #include <boost/random.hpp>
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
 #include "layout.h"
 #include "../../shared/thread.h"
 #include "../../shared/math.h"
 #include "../../graph/graph.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -50,9 +54,12 @@ namespace hashimoto_ut {
   using std::pair;
   using std::tr1::shared_ptr;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl layout(
-
+#else
+  extern "C" void layout(
+#endif
       Thread& parent,
       wstring& status,
       Message const& message,

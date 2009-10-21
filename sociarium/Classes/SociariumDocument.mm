@@ -143,12 +143,11 @@ using namespace hashimoto_ut;
   
   switch (menuItem.tag)
   {
-    case IDM_COMMUNITY_DETECTION_CANCEL:
-    case IDM_COMMUNITY_DETECTION_UPDATE:
-      return (joinable(COMMUNITY_DETECTION));
     case IDM_COMMUNITY_DETECTION_BETWEENNESS_CENTRALITY_SEPARATION:
       [menuItem setState:(get_community_detection_algorithm()==CommunityDetectionAlgorithm::BETWEENNESS_CENTRALITY_SEPARATION ? NSOnState : NSOffState)];
       break;
+    case IDM_COMMUNITY_DETECTION_CANCEL:
+      return joinable(COMMUNITY_DETECTION);
     case IDM_COMMUNITY_DETECTION_CLIQUE_PERCOLATION_3:
       [menuItem setState:(get_community_detection_algorithm()==CommunityDetectionAlgorithm::CLIQUE_PERCOLATION_3 ? NSOnState : NSOffState)];
       break;
@@ -173,6 +172,8 @@ using namespace hashimoto_ut;
     case IDM_COMMUNITY_DETECTION_USE_WEIGHTED_MODULARITY:
       [menuItem setState:(use_weighted_modularity() ? NSOnState : NSOffState)];
       break;
+    case IDM_COMMUNITY_DETECTION_UPDATE:
+      return !joinable(COMMUNITY_DETECTION);
     case IDM_COMMUNITY_DETECTION_WEAKLY_CONNECTED_COMPONENTS:
       [menuItem setState:(get_community_detection_algorithm()==CommunityDetectionAlgorithm::CONNECTED_COMPONENTS ? NSOnState : NSOffState)];
       break;
@@ -182,8 +183,7 @@ using namespace hashimoto_ut;
     case IDM_FILE_CANCEL:
       return (joinable(GRAPH_CREATION) || joinable(GRAPH_RETOUCH));
     case IDM_LAYOUT_CANCEL:
-    case IDM_LAYOUT_UPDATE:
-      return (joinable(LAYOUT));
+      return joinable(LAYOUT);
     case IDM_LAYOUT_CARTOGRAMS:
       [menuItem setState:(get_layout_algorithm()==LayoutAlgorithm::CARTOGRAMS ? NSOnState : NSOffState)];
       break;
@@ -226,11 +226,11 @@ using namespace hashimoto_ut;
     case IDM_LAYOUT_KAMADA_KAWAI_METHOD:
       [menuItem setState:(get_layout_algorithm()==LayoutAlgorithm::KAMADA_KAWAI_METHOD ? NSOnState : NSOffState)];
       break;
-    case IDM_LAYOUT_RANDOM:
-      [menuItem setState:(get_layout_algorithm()==LayoutAlgorithm::RANDOM ? NSOnState : NSOffState)];
-      break;
     case IDM_LAYOUT_LATTICE:
       [menuItem setState:(get_layout_algorithm()==LayoutAlgorithm::LATTICE ? NSOnState : NSOffState)];
+      break;
+    case IDM_LAYOUT_RANDOM:
+      [menuItem setState:(get_layout_algorithm()==LayoutAlgorithm::RANDOM ? NSOnState : NSOffState)];
       break;
     case IDM_LAYOUT_SHOW_CENTER:
       [menuItem setState:(get_show_center() ? NSOnState : NSOffState)];
@@ -241,6 +241,8 @@ using namespace hashimoto_ut;
     case IDM_LAYOUT_SHOW_LAYOUT_FRAME:
       [menuItem setState:(get_show_layout_frame() ? NSOnState : NSOffState)];
       break;
+    case IDM_LAYOUT_UPDATE:
+      return !joinable(LAYOUT);
     case IDM_STRING_COMMUNITY_EDGE_NAME_SIZE_0:
       [menuItem setState:(get_font_scale(FontCategory::COMMUNITY_EDGE_NAME)==get_default_font_scale(0) ? NSOnState : NSOffState)];
       break;
@@ -388,18 +390,21 @@ using namespace hashimoto_ut;
     case IDM_VIEW_EDGE_WIDTH_BETWEENNESS_CENTRALITY:
       [menuItem setState:(get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::BETWEENNESS_CENTRALITY ? NSOnState : NSOffState)];
       break;
+    case IDM_VIEW_EDGE_WIDTH_CANCEL:
+      return joinable(EDGE_WIDTH_UPDATE);
     case IDM_VIEW_EDGE_WIDTH_UNIFORM:
       [menuItem setState:(get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::UNIFORM ? NSOnState : NSOffState)];
       break;
+    case IDM_VIEW_EDGE_WIDTH_UPDATE:
+      return !joinable(EDGE_WIDTH_UPDATE);
     case IDM_VIEW_EDGE_WIDTH_WEIGHT:
       [menuItem setState:(get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::WEIGHT ? NSOnState : NSOffState)];
       break;
-    case IDM_VIEW_NODE_SIZE_CANCEL:
-    case IDM_VIEW_NODE_SIZE_UPDATE:
-      return (joinable(NODE_SIZE_UPDATE));
     case IDM_VIEW_NODE_SIZE_BETWEENNESS_CENTRALITY:
       [menuItem setState:(get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::BETWEENNESS_CENTRALITY ? NSOnState : NSOffState)];
       break;
+    case IDM_VIEW_NODE_SIZE_CANCEL:
+      return joinable(NODE_SIZE_UPDATE);
     case IDM_VIEW_NODE_SIZE_CLOSENESS_CENTRALITY:
       [menuItem setState:(get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::CLOSENESS_CENTRALITY ? NSOnState : NSOffState)];
       break;
@@ -415,6 +420,8 @@ using namespace hashimoto_ut;
     case IDM_VIEW_NODE_SIZE_UNIFORM:
       [menuItem setState:(get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::UNIFORM ? NSOnState : NSOffState)];
       break;
+    case IDM_VIEW_NODE_SIZE_UPDATE:
+      return !joinable(NODE_SIZE_UPDATE);
     case IDM_VIEW_NODE_SIZE_WEIGHT:
       [menuItem setState:(get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::WEIGHT ? NSOnState : NSOffState)];
       break;

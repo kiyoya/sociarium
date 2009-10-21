@@ -40,9 +40,11 @@
 #include "../../shared/thread.h"
 #include "../../graph/util/traverser.h"
 
+#ifdef _MSC_VER
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved) {
   return TRUE;
 }
+#endif
 
 namespace hashimoto_ut {
 
@@ -58,9 +60,12 @@ namespace hashimoto_ut {
   using namespace sociarium_project_module_layout;
   using namespace sociarium_project_menu_and_message;
 
+#ifdef _MSC_VER
   extern "C" __declspec(dllexport)
     void __cdecl layout(
-
+#else
+  extern "C" void layout(
+#endif
       Thread& parent,
       wstring& status,
       Message const& message,
