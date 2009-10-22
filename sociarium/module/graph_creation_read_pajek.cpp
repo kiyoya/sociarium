@@ -32,6 +32,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <windows.h>
 #include "graph_creation.h"
 #include "../menu_and_message.h"
