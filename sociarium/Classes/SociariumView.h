@@ -11,6 +11,8 @@
 
 @interface SociariumView : NSOpenGLView
 {
+  NSOpenGLContext *fullScreenContext;
+  
   NSURL * fileURL;
   
   NSTimer * redrawTimer;
@@ -23,6 +25,7 @@
 
 - (void) destroy;
 - (void) timerDidFireRedraw:(NSTimer *)timer;
+- (void) toggleFullscreen;
 
 @property (nonatomic, copy) NSURL * fileURL;
 @property (nonatomic, readonly) hashimoto_ut::World * world;

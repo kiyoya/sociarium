@@ -52,6 +52,68 @@ using std::tr1::shared_ptr;
   [self setNeedsDisplay:YES];
 }
 
+- (void) toggleFullscreen
+{
+  if (fullScreenContext)
+  {
+    NSOpenGLContext *c = fullScreenContext;
+    fullScreenContext = nil;
+    
+    [c makeCurrentContext];
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    [c flushBuffer];
+    glClear(GL_COLOR_BUFFER_BIT);
+    [c flushBuffer];
+    [NSOpenGLContext clearCurrentContext];
+    
+    [c clearDrawable];
+    [c release];
+    
+    CGReleaseAllDisplays();
+  }
+  else
+  {
+    NSOpenGLPixelFormatAttribute attrs[] = {
+      NSOpenGLPFAFullScreen,
+      NSOpenGLPFAScreenMask, CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay),
+      NSOpenGLPFADoubleBuffer,
+      NSOpenGLPFASamples, 16,
+      NSOpenGLPFAMultisample,
+      NSOpenGLPFAAllowOfflineRenderers,
+      0,
+    };
+    
+    GLint rendererID;
+    NSOpenGLContext *c;
+    {
+      NSOpenGLPixelFormat *pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+      [pf getValues:&rendererID forAttribute:NSOpenGLPFARendererID forVirtualScreen:0];
+      
+      c = [[NSOpenGLContext alloc] initWithFormat:pf shareContext:[self openGLContext]];
+      // Enable Multi-threaded OpenGL Execution
+      if (CGLEnable(reinterpret_cast<CGLContextObj>([c CGLContextObj]), kCGLCEMPEngine) != kCGLNoError)
+      { }
+      
+      [pf release];
+    }
+    
+    /*
+    CGDisplayErr err = CGCaptureAllDisplays();
+    if (err != CGDisplayNoErr)
+    {
+      [c release];
+      fullScreenContext = nil;
+      return;
+    }
+     */
+    
+    [c setFullScreen];
+
+    fullScreenContext = c;
+  }
+}
+
 #pragma mark NSOpenGLView
 
 - (void)prepareOpenGL
@@ -227,7 +289,7 @@ using std::tr1::shared_ptr;
 
 #pragma mark NSObject
 
-- (void) dealloc
+- (void)dealloc
 {
   if (redrawTimer)
   {

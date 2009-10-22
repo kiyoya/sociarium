@@ -89,6 +89,11 @@ using namespace hashimoto_ut;
   [sociarium doCommand:tag];
 }
 
+- (IBAction) toggleFullscreen:(id)sender
+{
+  [sociarium toggleFullscreen];
+}
+
 #pragma mark NSDocument
 
 /*

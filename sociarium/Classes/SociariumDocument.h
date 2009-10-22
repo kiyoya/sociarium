@@ -18,6 +18,7 @@
 
 - (IBAction) copyScreenshotToClipboard:(id)sender;
 - (IBAction) doCommand:(int)tag;
+- (IBAction) toggleFullscreen:(id)sender;
 
 @property (nonatomic, readonly) NSURL * fileURL;
 

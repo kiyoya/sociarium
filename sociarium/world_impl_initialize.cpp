@@ -133,7 +133,7 @@ namespace hashimoto_ut {
     }
 
 #ifdef __APPLE__
-#warning Not implemented
+    // No needed
 #elif _MSC_VER
     PIXELFORMATDESCRIPTOR pfd = {
       sizeof(PIXELFORMATDESCRIPTOR),
@@ -291,7 +291,7 @@ namespace hashimoto_ut {
     glAlphaFunc(GL_ALWAYS, 0.0f);
 
 #ifdef __APPLE__
-#warning Not implemented
+    // No needed
 #elif _MSC_VER
     if (msaa_is_available) glEnable(GL_MULTISAMPLE);
 #else

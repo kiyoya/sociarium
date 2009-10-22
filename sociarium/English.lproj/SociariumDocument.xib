@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="5"/>
+			<integer value="6"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -352,6 +352,7 @@
 					<string>100034.IBPluginDependency</string>
 					<string>100035.IBPluginDependency</string>
 					<string>100036.IBPluginDependency</string>
+					<string>100037.IBPluginDependency</string>
 					<string>5.IBEditorWindowLastContentRect</string>
 					<string>5.IBPluginDependency</string>
 					<string>5.IBWindowTemplateEditedContentRect</string>
@@ -376,9 +377,10 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{119, 174}, {640, 480}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{119, 174}, {640, 480}}</string>
+					<string>{{51, 174}, {640, 480}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{51, 174}, {640, 480}}</string>
 					<integer value="1"/>
 					<string>{{201, 387}, {507, 413}}</string>
 					<integer value="1"/>
@@ -415,93 +417,11 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>cancelRunningThread:</string>
-							<string>clearCommunityDetection:</string>
-							<string>executeCommunityDetection:</string>
-							<string>executeLayout:</string>
-							<string>initializeView:</string>
-							<string>initializeViewport:</string>
-							<string>setAlgoritumOfCommunityDetectionToBetweennessCentralityClustering:</string>
-							<string>setAlgoritumOfCommunityDetectionToCliquePercolation3:</string>
-							<string>setAlgoritumOfCommunityDetectionToCliquePercolation4:</string>
-							<string>setAlgoritumOfCommunityDetectionToCliquePercolation5:</string>
-							<string>setAlgoritumOfCommunityDetectionToConnectedComponents:</string>
-							<string>setAlgoritumOfCommunityDetectionToModularityMaximizationUsingGreedyMethod:</string>
-							<string>setAlgoritumOfCommunityDetectionToModularityMaximizationUsingTauEoMethod:</string>
-							<string>setAlgoritumOfCommunityDetectionToStronglyConnectedComponents:</string>
-							<string>setAlgoritumOfGraphLayoutToCircle:</string>
-							<string>setAlgoritumOfGraphLayoutToCircleInSizeOrder:</string>
-							<string>setAlgoritumOfGraphLayoutToKamadaKawaiMethod:</string>
-							<string>setAlgoritumOfGraphLayoutToRandom:</string>
-							<string>setFontSizeOfCommunity:</string>
-							<string>setFontSizeOfCommunityEdge:</string>
-							<string>setFontSizeOfEdge:</string>
-							<string>setFontSizeOfNode:</string>
-							<string>setSizeOfNode:</string>
-							<string>setStyleOfCommunityEdgeToLine:</string>
-							<string>setStyleOfCommunityEdgeToPolygon:</string>
-							<string>setStyleOfCommunityToPolygon:</string>
-							<string>setStyleOfCommunityToTexture:</string>
-							<string>setStyleOfEdgeToLine:</string>
-							<string>setStyleOfEdgeToPolygon:</string>
-							<string>setStyleOfNodeToPolygon:</string>
-							<string>setStyleOfNodeToTexture:</string>
-							<string>shiftStyle:</string>
+							<string>copyScreenshotToClipboard:</string>
 							<string>toggleFullscreen:</string>
-							<string>toggleLabelVisibilityOfCommunity:</string>
-							<string>toggleLabelVisibilityOfCommunityEdge:</string>
-							<string>toggleLabelVisibilityOfEdge:</string>
-							<string>toggleLabelVisibilityOfNode:</string>
-							<string>toggleUseOfWeightedModularity:</string>
-							<string>toggleVisibilityOfCommunity:</string>
-							<string>toggleVisibilityOfCommunityEdge:</string>
-							<string>toggleVisibilityOfEdge:</string>
-							<string>toggleVisibilityOfFPS:</string>
-							<string>toggleVisibilityOfNode:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 						</object>
