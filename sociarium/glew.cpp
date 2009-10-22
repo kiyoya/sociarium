@@ -49,7 +49,6 @@ namespace hashimoto_ut {
     void initialize(void) {
 
 #ifdef _MSC_VER
-#warning Should it be called in each world instances?
       ////////////////////////////////////////////////////////////////////////////////
       // Make a dummy window, then initialize GLEW environment.
 
@@ -119,11 +118,13 @@ namespace hashimoto_ut {
       /*
        * The above code is just for calling "glewInit()" below validly.
        */
+#endif // _MSC_VER
 
       // --------------------------------------------------------------------------------
       // 5. Initialize the glew environment.
       GLenum err = glewInit();
 
+#ifdef _MSC_VER
       // --------------------------------------------------------------------------------
       // Termination.
       wglMakeCurrent(NULL, NULL);
