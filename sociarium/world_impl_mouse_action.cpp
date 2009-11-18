@@ -46,11 +46,6 @@
 #include "../graph/graphex.h"
 #include "../graph/util/traverser.h"
 
-#if 0
-#include <fstream>
-std::ofstream logfile("pos.csv");
-#endif
-
 namespace hashimoto_ut {
 
   using std::vector;
@@ -81,8 +76,13 @@ namespace hashimoto_ut {
     Vector2<double> mpos_world_prev;
 
     ////////////////////////////////////////////////////////////////////////////////
+    // Angles of viewpoint.
+    int angleH_prev;
+    int angleV_prev;
+
+    ////////////////////////////////////////////////////////////////////////////////
     int const ALL_MARKED
-      = ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED;
+      = ElementFlag::MARKED|ElementFlag::TEMPORARY_MARKED|ElementFlag::TEMPORARY_UNMARKED;
 
     int const HIGHLIGHT_AND_CAPTURED
       = ElementFlag::CAPTURED|ElementFlag::HIGHLIGHT;
@@ -91,9 +91,24 @@ namespace hashimoto_ut {
       = ElementFlag::MARKED|ElementFlag::HIGHLIGHT;
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Angles of viewpoint.
-    int angleH_prev;
-    int angleV_prev;
+    struct SetFlagIfMarked {
+      template <typename T>
+      void operator()(T& p, unsigned int flag) const {
+        typename T::second_type& elm = p.second;
+        if (is_active(elm) && elm.get_flag()&HIGHLIGHT_AND_MARKED)
+          elm.set_flag(elm.get_flag()|flag);
+      }
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////
+    struct UnsetHighlight {
+      template <typename T>
+      void operator()(T& p) const {
+        typename T::second_type& elm = p.second;
+        if (is_active(elm) && elm.get_flag()&ElementFlag::HIGHLIGHT)
+          elm.set_flag(elm.get_flag()&~HIGHLIGHT_AND_MARKED);
+      }
+    };
 
     ////////////////////////////////////////////////////////////////////////////////
     // Marking by mouse dragging.
@@ -102,7 +117,7 @@ namespace hashimoto_ut {
       void operator()(T& p) const {
         typedef typename T::second_type DynamicProperty;
         DynamicProperty& dp = p.second;
-        if (is_visible(dp)) {
+        if (is_active(dp)) {
           if (is_temporary_marked(dp))
             dp.set_flag((dp.get_flag()|ElementFlag::MARKED)&~ElementFlag::TEMPORARY_MARKED);
           else if (is_temporary_unmarked(dp))
@@ -117,7 +132,7 @@ namespace hashimoto_ut {
       void operator()(NodePropertyMap::value_type& p,
                       unsigned int flag, Vector2<double> const& diff) const {
         DynamicNodeProperty& dnp = p.second;
-        if (is_visible(dnp) && (dnp.get_flag()&flag))
+        if (is_active(dnp) && (dnp.get_flag()&flag))
           dnp.get_static_property()->set_position(
             dnp.get_static_property()->get_position()+diff);
       }
@@ -133,10 +148,7 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
 
-    ts->read_lock();
-    /*
-     * Don't forget to call read_unlock().
-     */
+    TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
     shared_ptr<SociariumGraph const> g0
       = ts->get_graph(0, ts->index_of_current_layer());
@@ -152,10 +164,6 @@ namespace hashimoto_ut {
       select(mpos);
       mpos_LBUTTONDOWN = mpos;
       mpos_world_LBUTTONDOWN = mpos_world;
-
-#if 0
-      logfile << mpos_world.x << ',' << mpos_world.y<< std::endl;
-#endif
 
       // --------------------------------------------------------------------------------
       // Capture the time slider.
@@ -184,7 +192,7 @@ namespace hashimoto_ut {
         dnp->set_flag(dnp->get_flag()|ElementFlag::CAPTURED);
 
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(ActivateFlagIfMarked(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlagIfMarked(), _1, ElementFlag::CAPTURED));
 
         set_captured_object((void*)dnp);
       }
@@ -205,7 +213,7 @@ namespace hashimoto_ut {
         dnp1.set_flag(dnp1.get_flag()|ElementFlag::CAPTURED);
 
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(ActivateFlagIfMarked(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlagIfMarked(), _1, ElementFlag::CAPTURED));
 
         set_captured_object((void*)dep);
       }
@@ -222,10 +230,10 @@ namespace hashimoto_ut {
         dnp->set_flag(dnp->get_flag()|ElementFlag::CAPTURED);
 
         for_each(dnp->lower_nbegin(), dnp->lower_nend(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::CAPTURED));
 
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(ActivateFlagIfMarked(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlagIfMarked(), _1, ElementFlag::CAPTURED));
 
         set_captured_object((void*)dnp);
       }
@@ -246,13 +254,13 @@ namespace hashimoto_ut {
         dnp1.set_flag(dnp1.get_flag()|ElementFlag::CAPTURED);
 
         for_each(dnp0.lower_nbegin(), dnp0.lower_nend(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::CAPTURED));
 
         for_each(dnp1.lower_nbegin(), dnp1.lower_nend(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::CAPTURED));
 
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(ActivateFlagIfMarked(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(SetFlagIfMarked(), _1, ElementFlag::CAPTURED));
 
         set_captured_object((void*)dep);
       }
@@ -292,29 +300,26 @@ namespace hashimoto_ut {
         // Clear all highlight.
         if (!(wp&MK_CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::HIGHLIGHT));
           for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::HIGHLIGHT));
         }
 
-#define CLICK_WITHOUT_CTRL_KEY_CLEAR_MARKING
-#ifdef CLICK_WITHOUT_CTRL_KEY_CLEAR_MARKING
         // --------------------------------------------------------------------------------
         // Clear all marking.
         if (!(wp&MK_CONTROL)&&!is_selected(SelectionCategory::TIME_SLIDER)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
 
           for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
 
           for_each(g1->node_property_begin(), g1->node_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
 
           for_each(g1->edge_property_begin(), g1->edge_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
         }
-#endif
 
         // --------------------------------------------------------------------------------
         // Mark a node/community.
@@ -356,33 +361,31 @@ namespace hashimoto_ut {
         else if (is_selected(SelectionCategory::LAYOUT_FRAME_BORDER)) {
         }
 
-#ifndef CLICK_WITHOUT_CTRL_KEY_CLEAR_MARKING
         // --------------------------------------------------------------------------------
         // Clear all marking.
         else if (!(wp&MK_CONTROL)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
 
           for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
 
           for_each(g1->node_property_begin(), g1->node_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
 
           for_each(g1->edge_property_begin(), g1->edge_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::MARKED));
+                   boost::bind<void>(UnsetFlag(), _1, ElementFlag::MARKED));
         }
-#endif
       }
 
       // --------------------------------------------------------------------------------
       // Release captured object.
       if (get_captured_object()) {
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(DeactivateFlag(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(UnsetFlag(), _1, ElementFlag::CAPTURED));
 
         for_each(g1->node_property_begin(), g1->node_property_end(),
-                 boost::bind<void>(DeactivateFlag(), _1, ElementFlag::CAPTURED));
+                 boost::bind<void>(UnsetFlag(), _1, ElementFlag::CAPTURED));
 
         set_captured_object(0);
       }
@@ -418,10 +421,10 @@ namespace hashimoto_ut {
         // Clear all highlight.
         if (!(wp&MK_CONTROL)) {
           for_each(g0->node_property_begin(), g0->node_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
+                   UnsetHighlight());
 
           for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                   boost::bind<void>(DeactivateFlag(), _1, ElementFlag::HIGHLIGHT));
+                   UnsetHighlight());
         }
 
         // --------------------------------------------------------------------------------
@@ -441,7 +444,7 @@ namespace hashimoto_ut {
           transform(n->begin(), n->end(), edges.begin(),
                     boost::bind<DynamicEdgeProperty*>(GetDynamicProperty(), _1, g0));
           for_each(edges.begin(), edges.end(),
-                   boost::bind<void>(ActivateFlag(), _1, HIGHLIGHT_AND_MARKED));
+                   boost::bind<void>(SetFlag(), _1, HIGHLIGHT_AND_MARKED));
 
           // Adjacent nodes with the clicked node.
           vector<Node*> adjacent_nodes(n->degree());
@@ -454,7 +457,7 @@ namespace hashimoto_ut {
           transform(adjacent_nodes.begin(), adjacent_nodes.end(), nodes.begin(),
                     boost::bind<DynamicNodeProperty*>(GetDynamicProperty(), _1, g0));
           for_each(nodes.begin(), nodes.end(),
-                   boost::bind<void>(ActivateFlag(), _1, HIGHLIGHT_AND_MARKED));
+                   boost::bind<void>(SetFlag(), _1, HIGHLIGHT_AND_MARKED));
         }
 
         // --------------------------------------------------------------------------------
@@ -554,7 +557,10 @@ namespace hashimoto_ut {
             node_property_iterator end = g0->node_property_end();
 
             for (; i!=end; ++i) {
+
               DynamicNodeProperty& dnp = i->second;
+              if (is_inactive(dnp)) continue;
+
               StaticNodeProperty* snp = dnp.get_static_property();
 
               if (point_is_in_trapezoid<double>(snp->get_position()+center_, drag_region)) {
@@ -574,7 +580,10 @@ namespace hashimoto_ut {
             edge_property_iterator end = g0->edge_property_end();
 
             for (; i!=end; ++i) {
+
               DynamicEdgeProperty& dep = i->second;
+              if (is_inactive(dep)) continue;
+
               DynamicNodeProperty& dnp0 = g0->property(i->first->source());
               DynamicNodeProperty& dnp1 = g0->property(i->first->target());
 
@@ -595,7 +604,10 @@ namespace hashimoto_ut {
             node_property_iterator end = g1->node_property_end();
 
             for (; i!=end; ++i) {
+
               DynamicNodeProperty& dnp = i->second;
+              if (is_inactive(dnp)) continue;
+
               StaticNodeProperty* snp = dnp.get_static_property();
 
               if (point_is_in_trapezoid<double>(snp->get_position()+center_, drag_region)) {
@@ -615,7 +627,10 @@ namespace hashimoto_ut {
             edge_property_iterator end = g1->edge_property_end();
 
             for (; i!=end; ++i) {
+
               DynamicEdgeProperty& dep = i->second;
+              if (is_inactive(dep)) continue;
+
               DynamicNodeProperty& dnp0 = g1->property(i->first->source());
               DynamicNodeProperty& dnp1 = g1->property(i->first->target());
 
@@ -743,13 +758,13 @@ namespace hashimoto_ut {
         transform(nodes.begin(), nodes.end(), dnp.begin(),
                   boost::bind<DynamicNodeProperty*>(GetDynamicProperty(), _1, g0));
         for_each(dnp.begin(), dnp.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
         // Mark edges in the connected component.
         vector<DynamicEdgeProperty*> dep(edges.size());
         transform(edges.begin(), edges.end(), dep.begin(),
                   boost::bind<DynamicEdgeProperty*>(GetDynamicProperty(), _1, g0));
         for_each(dep.begin(), dep.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
 
       // --------------------------------------------------------------------------------
@@ -757,10 +772,10 @@ namespace hashimoto_ut {
       else if (c!=0) {
         // Mark member nodes.
         for_each(dnp->lower_nbegin(), dnp->lower_nend(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
         // Mark member edges.
         for_each(dnp->lower_ebegin(), dnp->lower_eend(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -783,8 +798,6 @@ namespace hashimoto_ut {
 
     mpos_prev = mpos;
     mpos_world_prev = mpos_world;
-
-    ts->read_unlock();
   }
 
 } // The end of the namespace "hashimoto_ut"

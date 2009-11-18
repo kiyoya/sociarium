@@ -53,10 +53,151 @@ namespace hashimoto_ut {
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_FILE]
         = L"&File";
+      menu[IDM_FILE_OUTPUT_DEGREE_DISTRIBUTION]
+        = L"Output &Degree Distribution";
+      menu[IDM_FILE_OUTPUT_COMMUNITY_INFORMATION]
+        = L"Output &Community Information";
       menu[IDM_FILE_CANCEL]
-        = L"&Cancel\tESC";
+        = L"Cancel\tESC";
       menu[IDM_FILE_QUIT]
         = L"&Quit\tESC";
+
+
+      /////////////////////////////////////////////////////////////////////////////
+      menu[IDM_EDIT]
+        = L"&Edit";
+      menu[IDM_EDIT_MARK_ON_CURRENT_LAYER]
+        = L"Select on the current layer(&1)";
+      menu[IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER]
+        = L"Select all nodes(&1)";
+      menu[IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER]
+        = L"Select all edges(&2)";
+      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"Select nodes inside communities(&3)";
+      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"Select edges inside communities(&4)";
+      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"Select nodes+edges inside communities(&5)";
+      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"Select nodes outside communities(&6)";
+      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"Select edges outside communities(&7)";
+      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
+        = L"Select nodes+edges outside communities(&8)";
+      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"Select nodes in selected communities(&X)";
+      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"Select edges in selected communities(&Y)";
+      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
+        = L"Select elements in selected communities(&Z)";
+      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
+        = L"Select all elements(&A)\tCtrl+A";
+      menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
+        = L"Select inverse(&I)\tCtrl+I";
+
+      menu[IDM_EDIT_MARK_ON_EACH_LAYER]
+        = L"Select on each layer(&2)";
+      menu[IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER]
+        = L"Select all nodes(&1)";
+      menu[IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER]
+        = L"Select all edges(&2)";
+      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"Select nodes inside communities(&3)";
+      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"Select edges inside communities(&4)";
+      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"Select nodes+edges inside communities(&5)";
+      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"Select nodes outside communities(&6)";
+      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"Select edges outside communities(&7)";
+      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
+        = L"Select nodes+edges outside communities(&8)";
+      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"Select nodes in selected community-continuums(&X)";
+      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"Select edges in selected community-continuums(&Y)";
+      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
+        = L"Select elements in selected community-continuums(&Z)";
+      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
+        = L"Select all elements(&A)\tShift+Ctrl+A";
+      menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
+        = L"Select inverse(&I)\tShift+Ctrl+I";
+
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS]
+        = L"Hide selected elements(&3)",
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER]
+        = L"Hide selected nodes on the current layer(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER]
+        = L"Hide selected edges on the current layer(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
+        = L"Hide selected nodes+edges on the current layer(&A)";
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER]
+        = L"Hide selected nodes on each layer(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER]
+        = L"Hide selected edges on each layer(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER]
+        = L"Hide selected nodes+edges on each layer(&A)";
+
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL]
+        = L"Hide elements identical to selected elements(&4)";
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
+        = L"Hide elements identical to selected nodes on the current layer(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
+        = L"Hide elements identical to selected edges on the current layer(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
+        = L"Hide elements identical to selected nodes+edges on the current layer(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL]
+        = L"Hide elements identical to selected nodes on each layer(&N)";
+      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL]
+        = L"Hide elements identical to selected edges on each layer(&E)";
+      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
+        = L"Hide elements identical to selected nodes+edges on each layer(&E)";
+
+      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS]
+        = L"Show hidden elements(&5)";
+      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER]
+        = L"Show hidden nodes on the current layer(&N)";
+      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER]
+        = L"Show hidden edges on the current layer(&E)";
+      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER]
+        = L"Show hidden nodes+edges on the current layer(&A)\tCtrl+U";
+      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER]
+        = L"Show hidden nodes on each layer(&N)";
+      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER]
+        = L"Show hidden edges on each layer(&E)";
+      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER]
+        = L"Show hidden nodes+edges on each layer(&A)\tShift+Ctrl+U";
+
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS]
+        = L"Remove selected elements(&6)";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER]
+        = L"Remove selected nodes on the current layer(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER]
+        = L"Remove selected edges on the current layer(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
+        = L"Remove selected nodes+edges on the current layer(&A)\tDel";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER]
+        = L"Remove selected nodes on each layer(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER]
+        = L"Remove selected edges on each layer(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER]
+        = L"Remove selected nodes+edges on each layer(&A)\tCtrl+Del";
+
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL]
+        = L"Remove elements identical to selected elements(&7)";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
+        = L"Remove elements identical to selected nodes on the current layer(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
+        = L"Remove elements identical to selected edges on the current layer(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
+        = L"Remove elements identical to selected nodes+edges on the current layer(&A)";
+      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
+        = L"Remove elements identical to selected nodes on each layer(&N)";
+      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
+        = L"Remove elements identical to selected edges on each layer(&E)";
+      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
+        = L"Remove elements identical to selected nodes+edges on each layer(&A)";
 
 
       /////////////////////////////////////////////////////////////////////////////
@@ -208,143 +349,6 @@ namespace hashimoto_ut {
         = L"Show FPS(&P)";
       menu[IDM_STRING_SHOW_LAYER_NAME]
         = L"Show &layer name\tL";
-
-
-      /////////////////////////////////////////////////////////////////////////////
-      menu[IDM_EDIT]
-        = L"&Edit";
-      menu[IDM_EDIT_MARK_ON_CURRENT_LAYER]
-        = L"Select on the current layer(&1)";
-      menu[IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER]
-        = L"Select all nodes(&1)";
-      menu[IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER]
-        = L"Select all edges(&2)";
-      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"Select nodes inside communities(&3)";
-      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"Select edges inside communities(&4)";
-      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"Select nodes+edges inside communities(&5)";
-      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"Select nodes outside communities(&6)";
-      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"Select edges outside communities(&7)";
-      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
-        = L"Select nodes+edges outside communities(&8)";
-      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
-        = L"Select nodes in selected communities(&9)";
-      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
-        = L"Select edges in selected communities(&9)";
-      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
-        = L"Select elements in selected communities(&9)";
-      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
-        = L"Select all elements(&A)\tCtrl+A";
-      menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
-        = L"Select inverse(&I)\tCtrl+I";
-
-      menu[IDM_EDIT_MARK_ON_EACH_LAYER]
-        = L"Select on each layer(&2)";
-      menu[IDM_EDIT_MARK_ALL_NODES_ON_EACH_LAYER]
-        = L"Select all nodes(&1)";
-      menu[IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER]
-        = L"Select all edges(&2)";
-      menu[IDM_EDIT_MARK_NODES_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"Select nodes inside communities(&3)";
-      menu[IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"Select edges inside communities(&4)";
-      menu[IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"Select nodes+edges inside communities(&5)";
-      menu[IDM_EDIT_MARK_NODES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"Select nodes outside communities(&6)";
-      menu[IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"Select edges outside communities(&7)";
-      menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
-        = L"Select nodes+edges outside communities(&8)";
-      menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
-        = L"Select nodes in selected community-continuums(&9)";
-      menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
-        = L"Select edges in selected community-continuums(&9)";
-      menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
-        = L"Select elements in selected community-continuums(&9)";
-      menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
-        = L"Select all elements(&A)\tShift+Ctrl+A";
-      menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
-        = L"Select inverse(&I)\tShift+Ctrl+I";
-
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS]
-        = L"Hide selected elements(&3)",
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER]
-        = L"Hide selected nodes on the current layer(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER]
-        = L"Hide selected edges on the current layer(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
-        = L"Hide selected nodes+edges on the current layer(&A)";
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER]
-        = L"Hide selected nodes on each layer(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER]
-        = L"Hide selected edges on each layer(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER]
-        = L"Hide selected nodes+edges on each layer(&A)";
-
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ALL]
-        = L"Hide elements identical to selected elements(&4)";
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
-        = L"Hide elements identical to selected nodes on the current layer(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
-        = L"Hide elements identical to selected edges on the current layer(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"Hide elements identical to selected nodes+edges on the current layer(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_NODES_ON_EACH_LAYER_ALL]
-        = L"Hide elements identical to selected nodes on each layer(&N)";
-      menu[IDM_EDIT_HIDE_MARKED_EDGES_ON_EACH_LAYER_ALL]
-        = L"Hide elements identical to selected edges on each layer(&E)";
-      menu[IDM_EDIT_HIDE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"Hide elements identical to selected nodes+edges on each layer(&E)";
-
-      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS]
-        = L"Show hidden elements(&5)";
-      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_CURRENT_LAYER]
-        = L"Show hidden nodes on the current layer(&N)";
-      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_CURRENT_LAYER]
-        = L"Show hidden edges on the current layer(&E)";
-      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_CURRENT_LAYER]
-        = L"Show hidden nodes+edges on the current layer(&A)\tCtrl+U";
-      menu[IDM_EDIT_SHOW_HIDDEN_NODES_ON_EACH_LAYER]
-        = L"Show hidden nodes on each layer(&N)";
-      menu[IDM_EDIT_SHOW_HIDDEN_EDGES_ON_EACH_LAYER]
-        = L"Show hidden edges on each layer(&E)";
-      menu[IDM_EDIT_SHOW_HIDDEN_ELEMENTS_ON_EACH_LAYER]
-        = L"Show hidden nodes+edges on each layer(&A)\tShift+Ctrl+U";
-
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS]
-        = L"Remove selected elements(&6)";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER]
-        = L"Remove selected nodes on the current layer(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER]
-        = L"Remove selected edges on the current layer(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER]
-        = L"Remove selected nodes+edges on the current layer(&A)\tDel";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER]
-        = L"Remove selected nodes on each layer(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER]
-        = L"Remove selected edges on each layer(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER]
-        = L"Remove selected nodes+edges on each layer(&A)\tCtrl+Del";
-
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ALL]
-        = L"Remove elements identical to selected elements(&7)";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_CURRENT_LAYER_ALL]
-        = L"Remove elements identical to selected nodes on the current layer(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_CURRENT_LAYER_ALL]
-        = L"Remove elements identical to selected edges on the current layer(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_CURRENT_LAYER_ALL]
-        = L"Remove elements identical to selected nodes+edges on the current layer(&A)";
-      menu[IDM_EDIT_REMOVE_MARKED_NODES_ON_EACH_LAYER_ALL]
-        = L"Remove elements identical to selected nodes on each layer(&N)";
-      menu[IDM_EDIT_REMOVE_MARKED_EDGES_ON_EACH_LAYER_ALL]
-        = L"Remove elements identical to selected edges on each layer(&E)";
-      menu[IDM_EDIT_REMOVE_MARKED_ELEMENTS_ON_EACH_LAYER_ALL]
-        = L"Remove elements identical to selected nodes+edges on each layer(&A)";
 
 
       /////////////////////////////////////////////////////////////////////////////

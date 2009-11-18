@@ -81,7 +81,7 @@ namespace hashimoto_ut {
       color_.push_back(Vector3<float>(float(0xf1)/255, float(0x9e)/255, float(0xc2)/255)); // パステルマゼンダ
       color_.push_back(Vector3<float>(float(0xf6)/255, float(0xb3)/255, float(0x7f)/255)); // パステルレッドオレンジ
       color_.push_back(Vector3<float>(float(0x88)/255, float(0xab)/255, float(0xda)/255)); // パステルシアンブルー
-      color_.push_back(Vector3<float>(float(0xfa)/255, float(0xcd)/255, float(0x89)/255)); // パステルイエローオレンジ
+      //color_.push_back(Vector3<float>(float(0xfa)/255, float(0xcd)/255, float(0x89)/255)); // パステルイエローオレンジ
       color_.push_back(Vector3<float>(float(0xcc)/255, float(0xe1)/255, float(0x98)/255)); // パステルピーグリーン
       color_.push_back(Vector3<float>(float(0x7e)/255, float(0xce)/255, float(0xf4)/255)); // パステルシアン
       color_.push_back(Vector3<float>(float(0x84)/255, float(0xcc)/255, float(0xc9)/255)); // パステルグリーンシアン
@@ -92,7 +92,7 @@ namespace hashimoto_ut {
       color_.push_back(Vector3<float>(float(0xec)/255, float(0x69)/255, float(0x41)/255)); // レッド(明)
       color_.push_back(Vector3<float>(float(0xf1)/255, float(0x91)/255, float(0x49)/255)); // レッドオレンジ(明)
       color_.push_back(Vector3<float>(float(0xf8)/255, float(0xb5)/255, float(0x51)/255)); // イエローオレンジ(明)
-      color_.push_back(Vector3<float>(float(0xff)/255, float(0xf4)/255, float(0x5c)/255)); // イエロー(明)
+      //color_.push_back(Vector3<float>(float(0xff)/255, float(0xf4)/255, float(0x5c)/255)); // イエロー(明)
       color_.push_back(Vector3<float>(float(0xb3)/255, float(0xd4)/255, float(0x65)/255)); // ピーグリーン(明)
       color_.push_back(Vector3<float>(float(0x80)/255, float(0xc2)/255, float(0x69)/255)); // イエローグリーン(明)
       color_.push_back(Vector3<float>(float(0x32)/255, float(0xb1)/255, float(0x6c)/255)); // グリーン(明)
@@ -108,7 +108,7 @@ namespace hashimoto_ut {
       color_.push_back(Vector3<float>(float(0xe6)/255, float(0x00)/255, float(0x12)/255)); // レッド(純色)
       color_.push_back(Vector3<float>(float(0xeb)/255, float(0x61)/255, float(0x00)/255)); // レッドオレンジ(純色)
       color_.push_back(Vector3<float>(float(0xf3)/255, float(0x98)/255, float(0x00)/255)); // イエローオレンジ(純色)
-      color_.push_back(Vector3<float>(float(0xff)/255, float(0xf1)/255, float(0x00)/255)); // イエロー(純色)
+      //color_.push_back(Vector3<float>(float(0xff)/255, float(0xf1)/255, float(0x00)/255)); // イエロー(純色)
       color_.push_back(Vector3<float>(float(0x8f)/255, float(0xc3)/255, float(0x1f)/255)); // ピーグリーン(純色)
       color_.push_back(Vector3<float>(float(0x22)/255, float(0xac)/255, float(0x38)/255)); // イエローグリーン(純色)
     }

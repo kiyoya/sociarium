@@ -94,221 +94,215 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
-      /*
-       * Don't forget to call read_unlock().
-       */
-
-      deque<wstring>& status = get_status(LAYOUT);
-
-      // --------------------------------------------------------------------------------
-      // Extract marked elements.
-
-      size_t const index_of_current_layer = ts->index_of_current_layer();
-      shared_ptr<SociariumGraph> g = ts->get_graph(0, index_of_current_layer);
-
-      unordered_map<Node*, Node const*> node2node; // Map nodes in @g_target to nodes in @g.
-      unordered_map<Edge*, Edge const*> edge2edge; // not used.
-
-      pair<bool, shared_ptr<Graph const> > const ext
-        = sociarium_project_graph_extractor::get(
-          this, &status[0], g, node2node, edge2edge, ElementFlag::MARKED);
-
-      if (ext.first==false) {
-        ts->read_unlock();
-        return terminate();
-      }
-
-      shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
-
-      status[0] = (boost::wformat(L"%s")
-                   %get_message(Message::LAYOUTING)).str();
-
-      // --------------------------------------------------------------------------------
-      // Memory the position of extracted nodes.
-
-      size_t const nsz = g->nsize();
-
-      vector<double> hint; // for versatile use.
-      hint.reserve(nsz);
-
-      vector<Vector2<double> > position(nsz); // The position before.
-
       {
-        node_property_iterator i   = g->node_property_begin();
-        node_property_iterator end = g->node_property_end();
+        TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
-        for (; i!=end; ++i)
-          position[i->first->index()]
-            = i->second.get_static_property()->get_position();
-      }
+        deque<wstring>& status = get_status(LAYOUT);
 
-      vector<Vector2<double> > position_target; // The position after.
-      position_target.reserve(nsz);
+        // --------------------------------------------------------------------------------
+        // Extract marked elements.
 
-      {
-        node_iterator i   = g_target->nbegin();
-        node_iterator end = g_target->nend();
+        size_t const index_of_current_layer = ts->index_of_current_layer();
+        shared_ptr<SociariumGraph> g = ts->get_graph(0, index_of_current_layer);
 
-        for (; i!=end; ++i) {
-          DynamicNodeProperty& dnp = g->property(node2node[*i]);
-          position_target.push_back(dnp.get_static_property()->get_position());
-        }
-      }
+        unordered_map<Node*, Node const*> node2node; // Map nodes in @g_target to nodes in @g.
+        unordered_map<Edge*, Edge const*> edge2edge; // not used.
 
-      switch (get_layout_algorithm()) {
+        pair<bool, shared_ptr<Graph const> > const ext
+          = sociarium_project_graph_extractor::get(
+            this, &status[0], g, node2node, edge2edge, ElementFlag::MARKED);
 
-      case LayoutAlgorithm::CIRCLE: {
-        hint.resize(nsz);
+        if (ext.first==false) return terminate();
 
-        node_iterator i   = g_target->nbegin();
-        node_iterator end = g_target->nend();
+        shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
 
-        for (; i!=end; ++i)
-          hint[(*i)->index()] = node2node[*i]->index();
+        status[0] = (boost::wformat(L"%s")
+                     %get_message(Message::LAYOUTING)).str();
 
-        break;
-      }
+        // --------------------------------------------------------------------------------
+        // Memory the position of extracted nodes.
 
-      case LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER:
-      case LayoutAlgorithm::LATTICE:
-      case LayoutAlgorithm::CARTOGRAMS: {
+        size_t const nsz = g->nsize();
 
-        hint.reserve(nsz+4);
+        vector<double> hint; // for versatile use.
+        hint.reserve(nsz);
 
-        node_iterator i   = g_target->nbegin();
-        node_iterator end = g_target->nend();
+        vector<Vector2<double> > position(nsz); // The position before.
 
-        for (; i!=end; ++i) {
-          DynamicNodeProperty& dnp = g->property(node2node[*i]);
-          hint.push_back(dnp.get_size());
+        {
+          node_property_iterator i   = g->node_property_begin();
+          node_property_iterator end = g->node_property_end();
+
+          for (; i!=end; ++i)
+            position[i->first->index()]
+              = i->second.get_static_property()->get_position();
         }
 
-        if (get_layout_algorithm()==LayoutAlgorithm::CARTOGRAMS) {
-          Vector2<float> const& pos = get_layout_frame_position();
-          float const sz = get_layout_frame_size();
-          hint.push_back(pos.x-sz);
-          hint.push_back(pos.y-sz);
-          hint.push_back(pos.x+sz);
-          hint.push_back(pos.y+sz);
+        vector<Vector2<double> > position_target; // The position after.
+        position_target.reserve(nsz);
+
+        {
+          node_iterator i   = g_target->nbegin();
+          node_iterator end = g_target->nend();
+
+          for (; i!=end; ++i) {
+            DynamicNodeProperty& dnp = g->property(node2node[*i]);
+            position_target.push_back(dnp.get_static_property()->get_position());
+          }
         }
 
-        break;
-      }
+        switch (get_layout_algorithm()) {
 
-      case LayoutAlgorithm::KAMADA_KAWAI_METHOD:
-        hint.push_back(double(get_layout_frame_size()));
-        break;
+        case LayoutAlgorithm::CIRCLE: {
+          hint.resize(nsz);
 
-      case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2:
-        hint.push_back(1);
-        break;
+          node_iterator i   = g_target->nbegin();
+          node_iterator end = g_target->nend();
 
-      case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3:
-        hint.push_back(2);
-        break;
+          for (; i!=end; ++i)
+            hint[(*i)->index()] = node2node[*i]->index();
 
-      case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3:
-        hint.push_back(3);
-        break;
-
-      default:
-        assert(g_target->nsize()==position_target.size());
-      }
-
-      // --------------------------------------------------------------------------------
-      // Load a layout module.
-
-      FuncLayout layout = 0;
-
-      try {
-        layout = sociarium_project_module_layout::get(get_layout_algorithm());
-      } catch (wchar_t const* errmsg) {
-        show_last_error(hwnd, errmsg);
-        ts->read_unlock();
-        return terminate();
-      }
-
-      assert(layout!=0);
-
-      // --------------------------------------------------------------------------------
-      // Execute the module.
-
-      layout(*this,
-             status[1],
-             get_message_object(),
-             position_target,
-             g_target,
-             hint);
-
-      // --------------------------------------------------------------------------------
-      // Adjust positions inside the layout frame.
-
-      Vector2<double> pos_max(-1e+10, -1e+10);
-      Vector2<double> pos_min( 1e+10,  1e+10);
-
-      size_t count = 0;
-
-      {
-        node_iterator i   = g_target->nbegin();
-        node_iterator end = g_target->nend();
-
-        for (; i!=end; ++i) {
-          Node const* n = node2node[*i];
-          assert(n!=0);
-
-          Vector2<double> const& pos = position[n->index()]
-            = position_target[(*i)->index()];
-
-          if (pos_max.x<pos.x) pos_max.x = pos.x;
-          if (pos_min.x>pos.x) pos_min.x = pos.x;
-          if (pos_max.y<pos.y) pos_max.y = pos.y;
-          if (pos_min.y>pos.y) pos_min.y = pos.y;
+          break;
         }
-      }
 
-      Vector2<double> const pos_center(0.5*(pos_max+pos_min));
-      Vector2<double> const size(0.5*(pos_max-pos_min));
-      double const scale = size.x>size.y?get_layout_frame_size()/size.x
-        :(size.y>0.0?get_layout_frame_size()/size.y:0.0);
+        case LayoutAlgorithm::CIRCLE_IN_SIZE_ORDER:
+        case LayoutAlgorithm::LATTICE:
+        case LayoutAlgorithm::CARTOGRAMS: {
 
-      {
-        node_iterator i   = g_target->nbegin();
-        node_iterator end = g_target->nend();
+          hint.reserve(nsz+4);
 
-        for (; i!=end; ++i) {
-          Node const* n = node2node[*i];
-          assert(n!=0);
-          Vector2<double>& pos = position[n->index()];
-          pos = scale*(pos-pos_center)+get_layout_frame_position();
+          node_iterator i   = g_target->nbegin();
+          node_iterator end = g_target->nend();
+
+          for (; i!=end; ++i) {
+            DynamicNodeProperty& dnp = g->property(node2node[*i]);
+            hint.push_back(dnp.get_size());
+          }
+
+          if (get_layout_algorithm()==LayoutAlgorithm::CARTOGRAMS) {
+            Vector2<float> const& pos = get_layout_frame_position();
+            float const sz = get_layout_frame_size();
+            hint.push_back(pos.x-sz);
+            hint.push_back(pos.y-sz);
+            hint.push_back(pos.x+sz);
+            hint.push_back(pos.y+sz);
+          }
+
+          break;
         }
-      }
 
-      vector<Vector2<double> > position_prev(nsz);
+        case LayoutAlgorithm::KAMADA_KAWAI_METHOD:
+          hint.push_back(double(get_layout_frame_size()));
+          break;
 
-      {
-        node_property_iterator i   = g->node_property_begin();
-        node_property_iterator end = g->node_property_end();
+        case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_2:
+          hint.push_back(1);
+          break;
 
-        for (; i!=end; ++i)
-          position_prev[i->first->index()]
-            = i->second.get_static_property()->get_position();
-      }
+        case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_1_3:
+          hint.push_back(2);
+          break;
+
+        case LayoutAlgorithm::HIGH_DIMENSIONAL_EMBEDDING_2_3:
+          hint.push_back(3);
+          break;
+
+        default:
+          assert(g_target->nsize()==position_target.size());
+        }
+
+        // --------------------------------------------------------------------------------
+        // Load a layout module.
+
+        FuncLayout layout = 0;
+
+        try {
+          layout = sociarium_project_module_layout::get(get_layout_algorithm());
+        } catch (wstring const& errmsg) {
+          show_last_error(hwnd, errmsg.c_str());
+          return terminate();
+        }
+
+        assert(layout!=0);
+
+        // --------------------------------------------------------------------------------
+        // Execute the module.
+
+        layout(*this,
+               status[1],
+               get_message_object(),
+               position_target,
+               g_target,
+               hint);
+
+        // --------------------------------------------------------------------------------
+        // Adjust positions inside the layout frame.
+
+        Vector2<double> pos_max(-1e+10, -1e+10);
+        Vector2<double> pos_min( 1e+10,  1e+10);
+
+        size_t count = 0;
+
+        {
+          node_iterator i   = g_target->nbegin();
+          node_iterator end = g_target->nend();
+
+          for (; i!=end; ++i) {
+            Node const* n = node2node[*i];
+            assert(n!=0);
+
+            Vector2<double> const& pos = position[n->index()]
+              = position_target[(*i)->index()];
+
+            if (pos_max.x<pos.x) pos_max.x = pos.x;
+            if (pos_min.x>pos.x) pos_min.x = pos.x;
+            if (pos_max.y<pos.y) pos_max.y = pos.y;
+            if (pos_min.y>pos.y) pos_min.y = pos.y;
+          }
+        }
+
+        Vector2<double> const pos_center(0.5*(pos_max+pos_min));
+        Vector2<double> const size(0.5*(pos_max-pos_min));
+        double const scale = size.x>size.y?get_layout_frame_size()/size.x
+          :(size.y>0.0?get_layout_frame_size()/size.y:0.0);
+
+        {
+          node_iterator i   = g_target->nbegin();
+          node_iterator end = g_target->nend();
+
+          for (; i!=end; ++i) {
+            Node const* n = node2node[*i];
+            assert(n!=0);
+            Vector2<double>& pos = position[n->index()];
+            pos = scale*(pos-pos_center)+get_layout_frame_position();
+          }
+        }
+
+        vector<Vector2<double> > position_prev(nsz);
+
+        {
+          node_property_iterator i   = g->node_property_begin();
+          node_property_iterator end = g->node_property_end();
+
+          for (; i!=end; ++i)
+            position_prev[i->first->index()]
+              = i->second.get_static_property()->get_position();
+        }
 
 #if 0
-      ts->update_node_position(index, position);
+        ts->update_node_position(index, position);
 #else
-      // Asymptotically locating.
-      for (int iteration=0; iteration<20; ++iteration) {
-        Sleep(10);
-        double const j = double(20-iteration);
-        for (size_t i=0; i<nsz; ++i)
-          position_prev[i] = (position[i]+(j-1.0)*position_prev[i])/j;
-        ts->update_node_position(index_of_current_layer, position_prev);
-      }
+        // Asymptotically locating.
+        for (int iteration=0; iteration<20; ++iteration) {
+          Sleep(10);
+          double const j = double(20-iteration);
+          for (size_t i=0; i<nsz; ++i)
+            position_prev[i] = (position[i]+(j-1.0)*position_prev[i])/j;
+          ts->update_node_position(index_of_current_layer, position_prev);
+        }
 #endif
+      }
 
-      ts->read_unlock();
       terminate();
     }
 

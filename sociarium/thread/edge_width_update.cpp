@@ -86,198 +86,177 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
-      /*
-       * Don't forget to call read_unlock().
-       */
+      {
+        TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
-      deque<wstring>& status = get_status(EDGE_WIDTH_UPDATE);
+        deque<wstring>& status = get_status(EDGE_WIDTH_UPDATE);
 
-      size_t const number_of_layers = ts->number_of_layers();
+        size_t const number_of_layers = ts->number_of_layers();
 
-      vector<vector<double> > edge_width(number_of_layers);
+        vector<vector<double> > edge_width(number_of_layers);
 
-      double mean = 0.0;
-      double denom = 0.0;
+        double mean = 0.0;
+        double denom = 0.0;
 
-      // --------------------------------------------------------------------------------
-      // Uniform
-      if (get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::UNIFORM) {
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
+        // --------------------------------------------------------------------------------
+        // Uniform
+        if (get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::UNIFORM) {
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
 
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
 
-          status[0]
-            = number_of_layers<2
-              ?get_message(Message::UPDATING_EDGE_WIDTH)
-                :(boost::wformat(L"%s: %d%%")
-                  %get_message(Message::UPDATING_EDGE_WIDTH)
-                  %int(100.0*(layer+1.0)/number_of_layers)).str();
+            status[0]
+              = number_of_layers<2
+                ?get_message(Message::UPDATING_EDGE_WIDTH)
+                  :(boost::wformat(L"%s: %d%%")
+                    %get_message(Message::UPDATING_EDGE_WIDTH)
+                    %int(100.0*(layer+1.0)/number_of_layers)).str();
 
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-          edge_property_iterator i   = g->edge_property_begin();
-          edge_property_iterator end = g->edge_property_end();
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+            edge_property_iterator i   = g->edge_property_begin();
+            edge_property_iterator end = g->edge_property_end();
 
-          for (; i!=end; ++i) {
-            DynamicEdgeProperty& dep = i->second;
-            dep.set_width(1.0f);
-          }
-        }
-      }
-
-      // --------------------------------------------------------------------------------
-      // Use weight
-      else if (get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::WEIGHT) {
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          status[0]
-            = number_of_layers<2
-              ?get_message(Message::UPDATING_EDGE_WIDTH)
-                :(boost::wformat(L"%s: %d%%")
-                  %get_message(Message::UPDATING_EDGE_WIDTH)
-                  %int(100.0*(layer+1.0)/number_of_layers)).str();
-
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-          edge_width[layer].resize(g->esize());
-          edge_property_iterator i   = g->edge_property_begin();
-          edge_property_iterator end = g->edge_property_end();
-
-          for (; i!=end; ++i) {
-            DynamicEdgeProperty& dep = i->second;
-            mean += edge_width[layer][i->first->index()] = sqrt(double(dep.get_weight()));
-          }
-
-          denom += g->esize();
-        }
-
-        if (denom>0.0) mean /= denom;
-        if (mean==0.0) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-          edge_property_iterator i   = g->edge_property_begin();
-          edge_property_iterator end = g->edge_property_end();
-
-          for (; i!=end; ++i) {
-            DynamicEdgeProperty& dep = i->second;
-            dep.set_width(float(edge_width[layer][i->first->index()]/mean));
-          }
-        }
-      }
-
-      else {
-
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          status[0]
-            = number_of_layers<2
-              ?get_message(Message::UPDATING_EDGE_WIDTH)
-                :(boost::wformat(L"%s: %d%%")
-                  %get_message(Message::UPDATING_EDGE_WIDTH)
-                  %int(100.0*(layer+1.0)/number_of_layers)).str();
-
-          // --------------------------------------------------------------------------------
-          // Extract visible elements.
-
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-
-          unordered_map<Node*, Node const*> node2node; // not used.
-          unordered_map<Edge*, Edge const*> edge2edge; // Map edges in @g_target to edges in @g.
-
-          pair<bool, shared_ptr<Graph const> > const ext
-            = sociarium_project_graph_extractor::get(
-              this, 0, g, node2node, edge2edge, ElementFlag::VISIBLE);
-
-          if (ext.first==false) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
-
-          size_t const nsz = g->nsize();
-          size_t const esz = g->esize();
-          size_t const tnsz = g_target->nsize();
-          size_t const tesz = g_target->esize();
-
-          if (tesz==0) {
-            edge_width.push_back(vector<double>(esz, 1.0));
-            continue;
-          }
-
-          // --------------------------------------------------------------------------------
-          // Use Betweenness Centrality
-          if (get_edge_width_update_algorithm()
-              ==EdgeWidthUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
-
-            vector<double> width(esz, 1.0);
-
-            shared_ptr<BFSRecordingTraverser> t =
-              g_target->is_directed()?BFSRecordingTraverser::create<downward_tag>(g_target)
-                :BFSRecordingTraverser::create<bidirectional_tag>(g_target);
-
-            pair<bool, pair<vector<double>, vector<double> > > bc =
-              sociarium_project_graph_utility::betweenness_centrality(
-                this, &status[1], &get_message_object(), t);
-
-            if (bc.first) {
-              assert(bc.second.second.size()==tesz);
-
-              for (edge_iterator i=g_target->ebegin(); i!=g_target->eend(); ++i)
-                mean += width[edge2edge[*i]->index()] = bc.second.second[(*i)->index()];
-
-              denom += tesz;
-              width.swap(edge_width[layer]);
-            }
-
-            else {
-              ts->read_unlock();
-              return terminate();
+            for (; i!=end; ++i) {
+              DynamicEdgeProperty& dep = i->second;
+              dep.set_width(1.0f);
             }
           }
-        }
-
-        if (denom>0.0) mean /= denom;
-        if (mean==0.0) {
-          ts->read_unlock();
-          return terminate();
         }
 
         // --------------------------------------------------------------------------------
-        // Fine adjustment
+        // Use weight
+        else if (get_edge_width_update_algorithm()==EdgeWidthUpdateAlgorithm::WEIGHT) {
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
 
-        if (get_edge_width_update_algorithm()
-            ==EdgeWidthUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
-          for (size_t i=0; i<edge_width.size(); ++i) {
-            for (size_t j=0; j<edge_width[i].size(); ++j) {
-              edge_width[i][j] = log(edge_width[i][j]/mean+1.0);
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
+
+            status[0]
+              = number_of_layers<2
+                ?get_message(Message::UPDATING_EDGE_WIDTH)
+                  :(boost::wformat(L"%s: %d%%")
+                    %get_message(Message::UPDATING_EDGE_WIDTH)
+                    %int(100.0*(layer+1.0)/number_of_layers)).str();
+
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+            edge_width[layer].resize(g->esize());
+            edge_property_iterator i   = g->edge_property_begin();
+            edge_property_iterator end = g->edge_property_end();
+
+            for (; i!=end; ++i) {
+              DynamicEdgeProperty& dep = i->second;
+              mean += edge_width[layer][i->first->index()] = sqrt(double(dep.get_weight()));
+            }
+
+            denom += g->esize();
+          }
+
+          if (denom>0.0) mean /= denom;
+
+          if (mean==0.0) return terminate();
+
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+            edge_property_iterator i   = g->edge_property_begin();
+            edge_property_iterator end = g->edge_property_end();
+
+            for (; i!=end; ++i) {
+              DynamicEdgeProperty& dep = i->second;
+              dep.set_width(float(edge_width[layer][i->first->index()]/mean));
             }
           }
         }
 
-        ts->update_edge_width(edge_width);
+        else {
+
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
+
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
+
+            status[0]
+              = number_of_layers<2
+                ?get_message(Message::UPDATING_EDGE_WIDTH)
+                  :(boost::wformat(L"%s: %d%%")
+                    %get_message(Message::UPDATING_EDGE_WIDTH)
+                    %int(100.0*(layer+1.0)/number_of_layers)).str();
+
+            // --------------------------------------------------------------------------------
+            // Extract visible elements.
+
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+
+            unordered_map<Node*, Node const*> node2node; // not used.
+            unordered_map<Edge*, Edge const*> edge2edge; // Map edges in @g_target to edges in @g.
+
+            pair<bool, shared_ptr<Graph const> > const ext
+              = sociarium_project_graph_extractor::get(
+                this, 0, g, node2node, edge2edge, ElementFlag::ACTIVE);
+
+            if (ext.first==false) return terminate();
+
+            shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
+
+            size_t const nsz = g->nsize();
+            size_t const esz = g->esize();
+            size_t const tnsz = g_target->nsize();
+            size_t const tesz = g_target->esize();
+
+            if (tesz==0) {
+              edge_width.push_back(vector<double>(esz, 1.0));
+              continue;
+            }
+
+            // --------------------------------------------------------------------------------
+            // Use Betweenness Centrality
+            if (get_edge_width_update_algorithm()
+                ==EdgeWidthUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
+
+              vector<double> width(esz, 1.0);
+
+              shared_ptr<BFSRecordingTraverser> t =
+                g_target->is_directed()?BFSRecordingTraverser::create<downward_tag>(g_target)
+                  :BFSRecordingTraverser::create<bidirectional_tag>(g_target);
+
+              pair<bool, pair<vector<double>, vector<double> > > bc =
+                sociarium_project_graph_utility::betweenness_centrality(
+                  this, &status[1], &get_message_object(), t);
+
+              if (bc.first) {
+                assert(bc.second.second.size()==tesz);
+
+                for (edge_iterator i=g_target->ebegin(); i!=g_target->eend(); ++i)
+                  mean += width[edge2edge[*i]->index()] = bc.second.second[(*i)->index()];
+
+                denom += tesz;
+                width.swap(edge_width[layer]);
+              }
+
+              else return terminate();
+            }
+          }
+
+          if (denom>0.0) mean /= denom;
+
+          if (mean==0.0) return terminate();
+
+          // --------------------------------------------------------------------------------
+          // Fine adjustment
+
+          if (get_edge_width_update_algorithm()
+              ==EdgeWidthUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
+            for (size_t i=0; i<edge_width.size(); ++i) {
+              for (size_t j=0; j<edge_width[i].size(); ++j) {
+                edge_width[i][j] = log(edge_width[i][j]/mean+1.0);
+              }
+            }
+          }
+
+          ts->update_edge_width(edge_width);
+        }
       }
 
-      ts->read_unlock();
       terminate();
     }
 

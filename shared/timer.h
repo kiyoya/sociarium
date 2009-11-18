@@ -59,7 +59,7 @@ namespace hashimoto_ut {
       return true;
     }
 
-    bool is_active(UINT id) const {
+    bool is_on(UINT id) const {
       std::map<UINT, std::pair<UINT, bool> >::const_iterator i = id2sec_.find(id);
       if (i==id2sec_.end()) return false;
       return i->second.second;

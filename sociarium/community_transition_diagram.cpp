@@ -330,7 +330,7 @@ namespace hashimoto_ut {
           diagram_mode = mode;
 
           shared_ptr<SociariumGraphTimeSeries> ts = sociarium_project_graph_time_series::get();
-          ts->read_lock();
+          TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
           trajectory_.clear();
 
@@ -510,8 +510,6 @@ namespace hashimoto_ut {
           }
 
           set_current_layer(ts->index_of_current_layer());
-
-          ts->read_unlock();
         }
 
       void clear(void) {

@@ -44,6 +44,7 @@
 #include "layout.h"
 #include "selection.h"
 #include "sociarium_graph_time_series.h"
+#include "texture.h"
 #include "thread/force_direction.h"
 #include "../shared/mutex.h"
 #include "../shared/predefined_color.h"
@@ -51,6 +52,7 @@
 namespace hashimoto_ut {
 
   using std::vector;
+  using std::deque;
   using std::wstring;
   using std::accumulate;
   using std::pair;
@@ -487,7 +489,7 @@ namespace hashimoto_ut {
           node_property_iterator end = g0->node_property_end();
 
           for (; i!=end; ++i)
-            if (is_active(*i->second.get_static_property(),
+            if (is_on(*i->second.get_static_property(),
                           ElementFlag::TEXTURE_IS_SPECIFIED))
               i->second.set_color_id(PredefinedColor::WHITE);
             else
@@ -670,102 +672,6 @@ namespace hashimoto_ut {
         diagram->write_unlock();
       }
     }
-
-
-//     ////////////////////////////////////////////////////////////////////////////////
-//     void append(unordered_set<wstring> const& node_list, vector<pair<pair<wstring, wstring>, double> > const& edge_list) {
-//
-//       if (node_list.empty()) return;
-//
-//       shared_ptr<SociariumGraph> g = graph_series_[0][index_of_current_layer_];
-//       unordered_map<wstring, Node*> name2node;
-//       unordered_map<wstring, Edge*> name2edge;
-//
-//       for (node_iterator i=g->nbegin(); i!=g->nend(); ++i)
-//         name2node[g->property(*i)->get_static_property()->get_name()] = *i;
-//       for (edge_iterator i=g->ebegin(); i!=g->eend(); ++i)
-//         name2edge[g->property(*i)->get_static_property()->get_name()] = *i;
-//
-//       // ----------------------------------------------------------------------------------------------------
-//       read_to_write_lock();
-//       // ----------------------------------------------------------------------------------------------------
-//
-//       float const deg = float(M_2PI)/node_list.size();
-//       float const rad = sociarium_project_layout::get_layout_frame_size();
-//       Vector2<float> const& center = sociarium_project_layout::get_layout_frame_position();
-//
-//       size_t count = 0;
-//       for (unordered_set<wstring>::const_iterator i=node_list.begin(); i!=node_list.end(); ++i) {
-//         StaticNodeProperty* snp = find_node(0, *i);
-//
-//         if (snp==0) {
-//           snp.reset(new StaticNodeProperty(static_node_property_[0].size()));
-//           static_node_property_[0].insert(snp);
-//           snp->set_name(*i);
-//           snp->set_position(Vector2<float>(center.x+rad*cosf(count*deg), center.y+rad*sinf(count*deg))); ++count;
-//           snp->set_texture(sociarium_project_texture::get_node_texture(*i));
-//         } else {
-//           unordered_map<wstring, Node*>::const_iterator j = name2node.find(*i);
-//           if (j!=name2node.end()) continue;
-//         }
-//
-//         Node* n = g->add_node();
-//         name2node[*i] = n;
-//         DynamicNodeProperty* dnp = g->property(n);
-//         dnp->set_graph_element(n);
-//         dnp->set_static_property(snp);
-//         dnp->set_flag(ElementFlag::VISIBLE);
-//         dnp->set_color_id(sociarium_project_color::get_default_node_color_id());
-//         dnp->set_weight(1.0f);
-//         dnp->set_size(sociarium_project_draw::get_node_size());
-//         // 静的属性に動的属性を登録
-//         snp->register_dynamic_property(dnp.get(), index_of_current_layer_);
-//         assert(dnp->is_valid(snp));
-//       }
-//
-//       for (vector<pair<pair<wstring, wstring>, double> >::const_iterator i=edge_list.begin(); i!=edge_list.end(); ++i) {
-//         wstring const& name0 = g->is_directed()?i->first.first:(i->first.first<i->first.second?i->first.first:i->first.second);
-//         wstring const& name1 = g->is_directed()?i->first.second:(i->first.first<i->first.second?i->first.second:i->first.first);
-//         double const weight = i->second;
-//         wstring const name = name0+L"~"+name1;
-//         StaticEdgeProperty* sep = find_edge(0, name);
-//
-//         if (sep==0) {
-//           sep.reset(new StaticEdgeProperty(static_edge_property_[0].size()));
-//           static_edge_property_[0].insert(sep);
-//           sep->set_name(name);
-//           sep->set_texture(sociarium_project_texture::get_default_edge_texture());
-//         } else {
-//           unordered_map<wstring, Edge*>::const_iterator j = name2edge.find(name);
-//           if (j!=name2edge.end()) {
-//             g->property(j->second)->set_weight(float(weight));
-//             continue;
-//           }
-//         }
-//
-//         Node* n0 = name2node[name0];
-//         Node* n1 = name2node[name1];
-//         assert(n0!=0);
-//         assert(n1!=0);
-//         Edge* e = g->add_edge(n0, n1);
-//         DynamicEdgeProperty* dep = g->property(e);
-//         dep->set_graph_element(e);
-//         dep->set_static_property(sep);
-//         dep->set_flag(ElementFlag::VISIBLE);
-//         dep->set_color_id(sociarium_project_color::get_default_edge_color_id());
-//         dep->set_weight(float(weight));
-//         // 静的属性に動的属性を登録
-//         sep->register_dynamic_property(dep.get(), index_of_current_layer_);
-//         assert(dep->is_valid(sep));
-//       }
-//
-//       sociarium_project_force_direction::should_be_updated();
-//
-//       // ----------------------------------------------------------------------------------------------------
-//       write_to_read_lock();
-//       // ----------------------------------------------------------------------------------------------------
-//     }
-
 
   private:
     size_t index_of_current_layer_;

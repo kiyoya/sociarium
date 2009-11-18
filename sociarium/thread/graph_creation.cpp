@@ -124,338 +124,319 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
-      /*
-       * Don't forget to call read_unlock().
-       */
+      {
+        TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
-      deque<wstring>& status = get_status(GRAPH_CREATION);
+        deque<wstring>& status = get_status(GRAPH_CREATION);
 
-      // --------------------------------------------------------------------------------
-      // Read and parse a given file.
+        // --------------------------------------------------------------------------------
+        // Read and parse a given file.
 
-      unordered_map<wstring, pair<wstring, int> > params;
-      vector<pair<wstring, int> > data;
+        unordered_map<wstring, pair<wstring, int> > params;
+        vector<pair<wstring, int> > data;
 
-      try {
-        read_file(this, filename_.c_str(), params, data);
-      } catch (wchar_t const* errmsg) {
-        if (errmsg!=0) message_box(hwnd, mb_error, APPLICATION_TITLE, errmsg);
-        ts->read_unlock();
-        return terminate();
-      }
-
-      if (params.empty() && data.empty()) {
-        ts->read_unlock();
-        return terminate();
-      }
-
-      // --------------------------------------------------------------------------------
-      // Load a graph creation module.
-
-      unordered_map<wstring, pair<wstring, int> >::const_iterator pos_format
-        = params.find(L"format");
-
-      unordered_map<wstring, pair<wstring, int> >::const_iterator pos_module
-        = params.find(L"module");
-
-      int data_format = DataFormat::UNSUPPORTED;
-      wstring module_filename;
-
-      if (pos_format==params.end()) {
-        if (pos_module==params.end()) {
-          update_predefined_parameters(params);
-          ts->read_unlock();
+        try {
+          read_file(this, filename_.c_str(), params, data);
+        } catch (wstring const& errmsg) {
+          if (!errmsg.empty())
+            message_box(hwnd, mb_error, APPLICATION_TITLE, errmsg.c_str());
           return terminate();
+        }
+
+        if (params.empty() && data.empty())
+          return terminate();
+
+        // --------------------------------------------------------------------------------
+        // Load a graph creation module.
+
+        unordered_map<wstring, pair<wstring, int> >::const_iterator pos_format
+          = params.find(L"format");
+
+        unordered_map<wstring, pair<wstring, int> >::const_iterator pos_module
+          = params.find(L"module");
+
+        int data_format = DataFormat::UNSUPPORTED;
+        wstring module_filename;
+
+        if (pos_format==params.end()) {
+          if (pos_module==params.end()) {
+            update_predefined_parameters(params);
+            return terminate();
+          } else {
+            module_filename = pos_module->second.first;
+            data_format = DataFormat::USER_DEFINED_MODULE;
+            params.erase(pos_module);
+          }
         } else {
-          module_filename = pos_module->second.first;
-          data_format = DataFormat::USER_DEFINED_MODULE;
-          params.erase(pos_module);
-        }
-      } else {
 
-        if (pos_format->second.first==L"AdjacencyMatrix")
-          data_format = DataFormat::ADJACENCY_MATRIX;
-        else if (pos_format->second.first==L"AdjacencyList")
-          data_format = DataFormat::ADJACENCY_LIST;
-        else if (pos_format->second.first==L"EdgeList")
-          data_format = DataFormat::EDGE_LIST;
-        else {
-          message_box(hwnd, mb_error, APPLICATION_TITLE,
-                      L"%s: %s", get_message(Message::UNSUPPORTED_DATA_FORMAT),
-                      filename_.c_str());
-          ts->read_lock();
+          if (pos_format->second.first==L"AdjacencyMatrix")
+            data_format = DataFormat::ADJACENCY_MATRIX;
+          else if (pos_format->second.first==L"AdjacencyList")
+            data_format = DataFormat::ADJACENCY_LIST;
+          else if (pos_format->second.first==L"EdgeList")
+            data_format = DataFormat::EDGE_LIST;
+          else {
+            message_box(hwnd, mb_error, APPLICATION_TITLE,
+                        L"%s: %s", get_message(Message::UNSUPPORTED_DATA_FORMAT),
+                        filename_.c_str());
+            return terminate();
+          }
+
+          params.erase(pos_format);
+        }
+
+        FuncCreateGraphTimeSeries create_graph_time_series = 0;
+
+        try {
+          create_graph_time_series = get(data_format, module_filename.c_str());
+        } catch (wstring const& errmsg) {
+          show_last_error(hwnd, errmsg.c_str());
           return terminate();
         }
 
-        params.erase(pos_format);
-      }
+        assert(create_graph_time_series!=0);
 
-      FuncCreateGraphTimeSeries create_graph_time_series = 0;
+        HDC dc = world_->get_device_context();
+        HGLRC rc = world_->get_rendering_context(RenderingContext::LOAD_TEXTURES);
 
-      try {
-        create_graph_time_series = get(data_format, module_filename.c_str());
-      } catch (wchar_t const* errmsg) {
-        show_last_error(hwnd, errmsg);
-        ts->read_unlock();
-        return terminate();
-      }
+        if (wglMakeCurrent(dc, rc)==FALSE)
+          show_last_error(hwnd, L"GraphCreationThread::operator()/wglMakeCurrent");
 
-      assert(create_graph_time_series!=0);
+        // --------------------------------------------------------------------------------
+        // Execute the module.
 
-      HDC dc = world_->get_device_context();
-      HGLRC rc = world_->get_rendering_context(RenderingContext::LOAD_TEXTURES);
+        vector<shared_ptr<Graph> > graph_base;
 
-      if (wglMakeCurrent(dc, rc)==FALSE)
-        show_last_error(hwnd, L"GraphCreationThread::operator()/wglMakeCurrent");
+        vector<vector<NodeProperty> > node_property;
+        vector<vector<EdgeProperty> > edge_property;
 
-      // --------------------------------------------------------------------------------
-      // Execute the module.
+        vector<wstring> layer_name;
 
-      vector<shared_ptr<Graph> > graph_base;
-
-      vector<vector<NodeProperty> > node_property;
-      vector<vector<EdgeProperty> > edge_property;
-
-      vector<wstring> layer_name;
-
-      try {
-        create_graph_time_series(
-          *this,
-          status,
-          get_message_object(),
-          graph_base,
-          node_property,
-          edge_property,
-          layer_name,
-          params, data,
-          filename_);
-      } catch (wstring message) {
-        message_box(hwnd, mb_error, APPLICATION_TITLE, message.c_str());
-        ts->read_unlock();
-        return terminate();
-      }
-
-      update_texture_parameters(params);
-
-      // --------------------------------------------------------------------------------
-      // Create a sociarium graph.
-
-      size_t const number_of_layers = graph_base.size();
-
-      vector<shared_ptr<SociariumGraph> > graph(number_of_layers);
-
-      SociariumGraphTimeSeries::StaticNodePropertySet static_node_property;
-      SociariumGraphTimeSeries::StaticEdgePropertySet static_edge_property;
-
-      unordered_map<wstring, StaticNodeProperty*> identifier2snp;
-      unordered_map<wstring, StaticEdgeProperty*> identifier2sep;
-
-      for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
+        try {
+          create_graph_time_series(
+            *this,
+            status,
+            get_message_object(),
+            graph_base,
+            node_property,
+            edge_property,
+            layer_name,
+            params, data,
+            filename_);
+        } catch (wstring message) {
+          message_box(hwnd, mb_error, APPLICATION_TITLE, message.c_str());
           return terminate();
         }
 
-        if (number_of_layers>1) {
-          status[0]
-            = (boost::wformat(L"%s: %d%%")
-               %get_message(Message::MAKING_GRAPH_ATTRIBUTES)
-               %int(100.0*(layer+1)/number_of_layers)).str();
-        } else {
-          status[0]
-            = (boost::wformat(L"%s")
-               %get_message(Message::MAKING_GRAPH_ATTRIBUTES)).str();
-        }
+        update_texture_parameters(params);
 
-        shared_ptr<SociariumGraph> g = graph[layer] = SociariumGraph::create();
-        g->import_raw_graph(graph_base[layer]);
+        // --------------------------------------------------------------------------------
+        // Create a sociarium graph.
 
-        size_t const nsz = g->nsize();
-        size_t const esz = g->esize();
+        size_t const number_of_layers = graph_base.size();
 
-        float const deg = float(M_2PI)/nsz;
-        float const rad = sociarium_project_layout::get_layout_frame_size();
+        vector<shared_ptr<SociariumGraph> > graph(number_of_layers);
 
-        Vector2<float> const& center
-          = sociarium_project_layout::get_layout_frame_position();
+        SociariumGraphTimeSeries::StaticNodePropertySet static_node_property;
+        SociariumGraphTimeSeries::StaticEdgePropertySet static_edge_property;
 
-        unordered_set<wstring> check_node_id_duplication;
-        unordered_set<wstring> check_edge_id_duplication;
+        unordered_map<wstring, StaticNodeProperty*> identifier2snp;
+        unordered_map<wstring, StaticEdgeProperty*> identifier2sep;
 
-        // Make a node property.
-        for (size_t i=0; i<nsz; ++i) {
+        for (size_t layer=0; layer<number_of_layers; ++layer) {
 
           // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
+          if (cancel_check()) return terminate();
+
+          if (number_of_layers>1) {
+            status[0]
+              = (boost::wformat(L"%s: %d%%")
+                 %get_message(Message::MAKING_GRAPH_ATTRIBUTES)
+                 %int(100.0*(layer+1)/number_of_layers)).str();
+          } else {
+            status[0]
+              = (boost::wformat(L"%s")
+                 %get_message(Message::MAKING_GRAPH_ATTRIBUTES)).str();
           }
 
-          status[1]
-            = (boost::wformat(L"%s: %d%%")
-               %get_message(Message::MAKING_NODE_PROPERTIES)
-               %int(100.0*(i+1.0)/nsz)).str();
+          shared_ptr<SociariumGraph> g = graph[layer] = SociariumGraph::create();
+          g->import_raw_graph(graph_base[layer]);
 
-          NodeProperty const& np = node_property[layer][i];
+          size_t const nsz = g->nsize();
+          size_t const esz = g->esize();
 
-          if (check_node_id_duplication.find(np.identifier)
-              !=check_node_id_duplication.end()) {
-            message_box(hwnd, mb_error, APPLICATION_TITLE,
-                        L"%s: %s [%s]",
-                        get_message(Message::NODE_IDENTIFIER_DUPLICATION),
-                        filename_.c_str(), np.identifier.c_str());
-            ts->read_unlock();
-            return terminate();
-          }
+          float const deg = float(M_2PI)/nsz;
+          float const rad = sociarium_project_layout::get_layout_frame_size();
 
-          check_node_id_duplication.insert(np.name);
+          Vector2<float> const& center
+            = sociarium_project_layout::get_layout_frame_position();
 
-          // Associate a node with a static property.
-          StaticNodeProperty* snp = 0;
-          unordered_map<wstring, StaticNodeProperty*>::iterator id2snp
-            = identifier2snp.find(np.identifier);
+          unordered_set<wstring> check_node_id_duplication;
+          unordered_set<wstring> check_edge_id_duplication;
 
-          if (id2snp==identifier2snp.end()) {
-            // Make a new static property for a newly appeared node.
-            pair<StaticNodePropertySet::iterator, bool>
-              p = static_node_property.insert(
-                StaticNodeProperty(static_node_property.size()));
-            assert(p.second==true);
-            snp = &*p.first;
+          // Make a node property.
+          for (size_t i=0; i<nsz; ++i) {
 
-            {
-              // Set identifier and name.
-              snp->set_identifier(np.identifier);
-              snp->set_name(np.name);
-            }{
-              // Set texture.
-              if (np.texture_file_name.empty()) {
-                Texture const* texture = get_texture_by_name(np.name);
-                if (texture) {
-                  snp->set_texture(texture);
-                  snp->set_flag(snp->get_flag()|ElementFlag::TEXTURE_IS_SPECIFIED);
-                } else
-                  snp->set_texture(get_default_node_texture_tmp());
-              } else {
-                Texture const* texture = get_texture(np.texture_file_name);
-                if (texture) snp->set_texture(texture);
-                else         snp->set_texture(get_default_node_texture_tmp());
-              }
-            }{
-              // Set position.
-              if (np.position!=0)
-                snp->set_position(*np.position);
-              else
-                snp->set_position(Vector2<float>(
-                  center.x+rad*cosf(i*deg), center.y+rad*sinf(i*deg)));
-              if (np.position_is_fixed)
-                snp->set_flag(ElementFlag::CAPTURED);
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
+
+            status[1]
+              = (boost::wformat(L"%s: %d%%")
+                 %get_message(Message::MAKING_NODE_PROPERTIES)
+                 %int(100.0*(i+1.0)/nsz)).str();
+
+            NodeProperty const& np = node_property[layer][i];
+
+            if (check_node_id_duplication.find(np.identifier)
+                !=check_node_id_duplication.end()) {
+              message_box(hwnd, mb_error, APPLICATION_TITLE,
+                          L"%s: %s [%s]",
+                          get_message(Message::NODE_IDENTIFIER_DUPLICATION),
+                          filename_.c_str(), np.identifier.c_str());
+              return terminate();
             }
 
-            // Store.
-            identifier2snp.insert(make_pair(snp->get_identifier(), snp));
+            check_node_id_duplication.insert(np.name);
 
-          } else snp = id2snp->second;
+            // Associate a node with a static property.
+            StaticNodeProperty* snp = 0;
+            unordered_map<wstring, StaticNodeProperty*>::iterator id2snp
+              = identifier2snp.find(np.identifier);
 
-          assert(snp!=0);
+            if (id2snp==identifier2snp.end()) {
+              // Make a new static property for a newly appeared node.
+              pair<StaticNodePropertySet::iterator, bool>
+                p = static_node_property.insert(
+                  StaticNodeProperty(static_node_property.size()));
+              assert(p.second==true);
+              snp = &*p.first;
 
-          // Make a dynamic property, and associate it with a graph element and
-          // a static property.
-          Node* n = g->node(i);
+              {
+                // Set identifier and name.
+                snp->set_identifier(np.identifier);
+                snp->set_name(np.name);
+              }{
+                // Set texture.
+                if (np.texture_file_name.empty()) {
+                  Texture const* texture = get_texture_by_name(np.name);
+                  if (texture) {
+                    snp->set_texture(texture);
+                    snp->set_flag(snp->get_flag()|ElementFlag::TEXTURE_IS_SPECIFIED);
+                  } else
+                    snp->set_texture(get_default_node_texture_tmp());
+                } else {
+                  Texture const* texture = get_texture(np.texture_file_name);
+                  if (texture) snp->set_texture(texture);
+                  else         snp->set_texture(get_default_node_texture_tmp());
+                }
+              }{
+                // Set position.
+                if (np.position!=0)
+                  snp->set_position(*np.position);
+                else
+                  snp->set_position(Vector2<float>(
+                    center.x+rad*cosf(i*deg), center.y+rad*sinf(i*deg)));
+                if (np.position_is_fixed)
+                  snp->set_flag(ElementFlag::CAPTURED);
+              }
 
-          DynamicNodeProperty& dnp
-            = link_dynamic_property_and_graph_element<DynamicNodeProperty>(g, n);
+              // Store.
+              identifier2snp.insert(make_pair(snp->get_identifier(), snp));
 
-          link_dynamic_and_static_properties(layer, &dnp, snp);
+            } else snp = id2snp->second;
 
-          dnp.set_flag(ElementFlag::VISIBLE);
+            assert(snp!=0);
 
-          if (is_active(*snp, ElementFlag::TEXTURE_IS_SPECIFIED))
-            dnp.set_color_id(PredefinedColor::WHITE);
-          else
-            dnp.set_color_id(sociarium_project_color::get_default_node_color_id());
+            // Make a dynamic property, and associate it with a graph element and
+            // a static property.
+            Node* n = g->node(i);
 
-          dnp.set_weight(np.weight);
-          dnp.set_size(1.0f);
-        }
+            DynamicNodeProperty& dnp
+              = link_dynamic_property_and_graph_element<DynamicNodeProperty>(g, n);
 
-        // Make an edge property.
-        for (size_t i=0; i<esz; ++i) {
+            link_dynamic_and_static_properties(layer, &dnp, snp);
 
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
+            dnp.set_flag(ElementFlag::ACTIVE);
+
+            if (is_on(*snp, ElementFlag::TEXTURE_IS_SPECIFIED))
+              dnp.set_color_id(PredefinedColor::WHITE);
+            else
+              dnp.set_color_id(sociarium_project_color::get_default_node_color_id());
+
+            dnp.set_weight(np.weight);
+            dnp.set_size(1.0f);
           }
 
-          status[1]
-            = (boost::wformat(L"%s: %d%%")
-               %get_message(Message::MAKING_EDGE_PROPERTIES)
-               %int(100.0*(i+1.0)/esz)).str();
+          // Make an edge property.
+          for (size_t i=0; i<esz; ++i) {
 
-          EdgeProperty const& ep = edge_property[layer][i];
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
 
-          if (check_edge_id_duplication.find(ep.identifier)
-              !=check_edge_id_duplication.end()) {
-            message_box(hwnd, mb_error, APPLICATION_TITLE,
-                        L"%s: %s [%s]",
-                        get_message(Message::EDGE_IDENTIFIER_DUPLICATION),
-                        filename_.c_str(), ep.identifier.c_str());
-            ts->read_unlock();
-            return terminate();
+            status[1]
+              = (boost::wformat(L"%s: %d%%")
+                 %get_message(Message::MAKING_EDGE_PROPERTIES)
+                 %int(100.0*(i+1.0)/esz)).str();
+
+            EdgeProperty const& ep = edge_property[layer][i];
+
+            if (check_edge_id_duplication.find(ep.identifier)
+                !=check_edge_id_duplication.end()) {
+              message_box(hwnd, mb_error, APPLICATION_TITLE,
+                          L"%s: %s [%s]",
+                          get_message(Message::EDGE_IDENTIFIER_DUPLICATION),
+                          filename_.c_str(), ep.identifier.c_str());
+              return terminate();
+            }
+
+            check_edge_id_duplication.insert(ep.identifier);
+
+            // Associate an edge with a static property.
+            StaticEdgeProperty* sep = 0;
+            unordered_map<wstring, StaticEdgeProperty*>::iterator id2sep
+              = identifier2sep.find(ep.identifier);
+
+            if (id2sep==identifier2sep.end()) {
+              // Make a new static property for a newly appeared edge.
+              pair<StaticEdgePropertySet::iterator, bool>
+                p = static_edge_property.insert(
+                  StaticEdgeProperty(static_edge_property.size()));
+              assert(p.second==true);
+              sep = &*p.first;
+
+              sep->set_identifier(ep.identifier);
+              sep->set_name(ep.name);
+              sep->set_texture(sociarium_project_texture::get_default_edge_texture_tmp());
+
+              // Store.
+              identifier2sep.insert(make_pair(sep->get_identifier(), sep));
+
+            } else sep = id2sep->second;
+
+            assert(sep!=0);
+
+            // Make a dynamic property, and associate it with a graph element and
+            // a static property.
+            Edge* e = g->edge(i);
+
+            DynamicEdgeProperty& dep
+              = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(g, e);
+
+            link_dynamic_and_static_properties(layer, &dep, sep);
+
+            dep.set_flag(ElementFlag::ACTIVE);
+            dep.set_color_id(sociarium_project_color::get_default_edge_color_id());
+            dep.set_weight(ep.weight);
+            dep.set_width(1.0f);
           }
-
-          check_edge_id_duplication.insert(ep.identifier);
-
-          // Associate an edge with a static property.
-          StaticEdgeProperty* sep = 0;
-          unordered_map<wstring, StaticEdgeProperty*>::iterator id2sep
-            = identifier2sep.find(ep.identifier);
-
-          if (id2sep==identifier2sep.end()) {
-            // Make a new static property for a newly appeared edge.
-            pair<StaticEdgePropertySet::iterator, bool>
-              p = static_edge_property.insert(
-                StaticEdgeProperty(static_edge_property.size()));
-            assert(p.second==true);
-            sep = &*p.first;
-
-            sep->set_identifier(ep.identifier);
-            sep->set_name(ep.name);
-            sep->set_texture(sociarium_project_texture::get_default_edge_texture_tmp());
-
-            // Store.
-            identifier2sep.insert(make_pair(sep->get_identifier(), sep));
-
-          } else sep = id2sep->second;
-
-          assert(sep!=0);
-
-          // Make a dynamic property, and associate it with a graph element and
-          // a static property.
-          Edge* e = g->edge(i);
-
-          DynamicEdgeProperty& dep
-            = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(g, e);
-
-          link_dynamic_and_static_properties(layer, &dep, sep);
-
-          dep.set_flag(ElementFlag::VISIBLE);
-          dep.set_color_id(sociarium_project_color::get_default_edge_color_id());
-          dep.set_weight(ep.weight);
-          dep.set_width(1.0f);
         }
+
+        ts->update(graph, static_node_property, static_edge_property, layer_name);
+
+        update_predefined_parameters(params);
+        sociarium_project_texture::update_default_textures();
       }
 
-      ts->update(graph, static_node_property, static_edge_property, layer_name);
-
-      update_predefined_parameters(params);
-      sociarium_project_texture::update_default_textures();
-
-      ts->read_unlock();
       is_completed_ = true;
       terminate();
     }

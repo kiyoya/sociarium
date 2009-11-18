@@ -152,6 +152,28 @@ namespace hashimoto_ut {
     // EdgeWidthUpdateThread
     virtual void update_edge_width(
       std::vector<std::vector<double> > const& edge_width) = 0;
+
+    //virtual void tamabi_update(std::vector<std::wstring> const& layer_name) = 0;
+  };
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  struct TimeSeriesLock {
+    enum { Read, Write };
+    std::tr1::shared_ptr<SociariumGraphTimeSeries> ts_;
+    int op_;
+
+    TimeSeriesLock(std::tr1::shared_ptr<SociariumGraphTimeSeries> ts, int op) : ts_(ts), op_(op) {
+      if (op_==Read) ts_->read_lock();
+      else if (op_==Write) ts_->write_lock();
+      else assert(0);
+    }
+
+    ~TimeSeriesLock() {
+      if (op_==Read) ts_->read_unlock();
+      else if (op_==Write) ts_->write_unlock();
+      else assert(0);
+    }
   };
 
 

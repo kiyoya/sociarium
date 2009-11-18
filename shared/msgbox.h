@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SHARED_MessageBOX_H
-#define INCLUDE_GUARD_SHARED_MessageBOX_H
+#ifndef INCLUDE_GUARD_SHARED_MSGBOX_H
+#define INCLUDE_GUARD_SHARED_MSGBOX_H
 
 namespace hashimoto_ut {
 
@@ -44,4 +44,4 @@ namespace hashimoto_ut {
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SHARED_MessageBOX_H
+#endif // INCLUDE_GUARD_SHARED_MSGBOX_H

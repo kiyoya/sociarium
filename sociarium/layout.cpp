@@ -151,7 +151,7 @@ namespace hashimoto_ut {
       vector<DynamicNodeProperty*>::const_iterator end = dnp.lower_nend();
 
       for (; i!=end; ++i) {
-        if (is_visible(**i)) {
+        if (is_active(**i)) {
           pos += (*i)->get_static_property()->get_position();
           ++number_of_visible_members;
         }

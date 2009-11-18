@@ -230,7 +230,7 @@ namespace hashimoto_ut {
     void draw_node_with_polygon_circle(
       DynamicNodeProperty const& dnp, bool is_selected) {
 
-      if (is_hidden(dnp)) return;
+      if (is_inactive(dnp)) return;
 
       StaticNodeProperty const* snp = dnp.get_static_property();
       Vector2<float> const& pos = snp->get_position();
@@ -252,7 +252,7 @@ namespace hashimoto_ut {
     void draw_node_with_polygon_circle2(
       DynamicNodeProperty const& dnp, bool is_selected) {
 
-      if (is_hidden(dnp)) return;
+      if (is_inactive(dnp)) return;
 
       StaticNodeProperty const* snp = dnp.get_static_property();
       Vector2<float> const& pos = snp->get_position();
@@ -275,7 +275,7 @@ namespace hashimoto_ut {
     void draw_node_with_texture(
       DynamicNodeProperty const& dnp, float angleH, float angleV, bool is_selected) {
 
-      if (is_hidden(dnp)) return;
+      if (is_inactive(dnp)) return;
 
       StaticNodeProperty const* snp = dnp.get_static_property();
       Vector2<float> const& pos = snp->get_position();
@@ -346,7 +346,7 @@ namespace hashimoto_ut {
     void draw_directed_edge(
       DynamicEdgeProperty const& dep, SociariumGraph const* g, bool is_selected) {
 
-      if (is_hidden(dep)) return;
+      if (is_inactive(dep)) return;
 
       Edge const* e = dep.get_graph_element();
 
@@ -397,7 +397,7 @@ namespace hashimoto_ut {
     void draw_undirected_edge(
       DynamicEdgeProperty const& dep, SociariumGraph const* g, bool is_selected) {
 
-      if (is_hidden(dep)) return;
+      if (is_inactive(dep)) return;
 
       Edge const* e = dep.get_graph_element();
 
@@ -430,7 +430,7 @@ namespace hashimoto_ut {
     void draw_directed_edge_with_polygon(
       DynamicEdgeProperty const& dep, SociariumGraph const* g, bool is_selected) {
 
-      if (is_hidden(dep)) return;
+      if (is_inactive(dep)) return;
 
       Edge const* e = dep.get_graph_element();
 
@@ -511,7 +511,7 @@ namespace hashimoto_ut {
     void draw_undirected_edge_with_polygon(
       DynamicEdgeProperty const& dep, SociariumGraph const* g, bool is_selected) {
 
-      if (is_hidden(dep)) return;
+      if (is_inactive(dep)) return;
 
       Edge const* e = dep.get_graph_element();
 
@@ -555,7 +555,7 @@ namespace hashimoto_ut {
       DynamicNodeProperty const& dnp,
       float scale, float angleH, float angleV) {
 
-      if (is_hidden(dnp)) return;
+      if (is_inactive(dnp)) return;
 
       StaticNodeProperty const* snp = dnp.get_static_property();
 
@@ -643,7 +643,7 @@ namespace hashimoto_ut {
       DynamicEdgeProperty const& dep, SociariumGraph const* g,
       float scale, float angleH, float angleV) {
 
-      if (is_hidden(dep)) return;
+      if (is_inactive(dep)) return;
 
       Edge const* e = dep.get_graph_element();
 
@@ -699,7 +699,7 @@ namespace hashimoto_ut {
       DynamicEdgeProperty const& dep, SociariumGraph const* g,
       float scale, float angleH, float angleV) {
 
-      if (is_hidden(dep)) return;
+      if (is_inactive(dep)) return;
 
       Edge const* e = dep.get_graph_element();
 

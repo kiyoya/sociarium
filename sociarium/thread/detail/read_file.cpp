@@ -203,12 +203,13 @@ namespace hashimoto_ut {
              %get_message(Message::READING_DATA_FILE)
              %int(100.0*i/num)).str();
 
+        if (i==1 && !line.empty() && (line[0]==0xFEFF || line[0]==0xFFFE))
+            line = line.substr(1); // omit BOM.
+
         remove_comment_part(line);
         trim(line);
 
         if (!line.empty()) {
-          if (i==1 && line[0]==0xFEFF || line[0]==0xFFFE)
-            line = line.substr(1); // omit BOM.
           if (line[0]==param_symbol) {
             size_t pos = line.find(L'=');
             if (pos==wstring::npos) {

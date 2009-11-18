@@ -86,7 +86,8 @@ namespace hashimoto_ut {
             path += L"layout_random.dll";
           else if (method==LayoutAlgorithm::CARTOGRAMS)
             path += L"layout_cartograms.dll";
-          else assert(0 && "never reach");
+          else
+            assert(0 && "never reach");
 
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {

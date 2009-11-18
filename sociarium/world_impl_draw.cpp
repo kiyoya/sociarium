@@ -186,6 +186,7 @@ namespace hashimoto_ut {
 
       draw_thread_status(scale);
       draw_selection_result(scale);
+      //sociarium_project_tamabi_library::draw_selection(scale);
     }
   }
 
@@ -213,10 +214,7 @@ namespace hashimoto_ut {
 
     { // Draw graph elements.
 
-      ts->read_lock();
-      /*
-       * Don't forget to call read_unlock().
-       */
+      TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
       size_t const index_of_current_layer = ts->index_of_current_layer();
 
@@ -374,8 +372,6 @@ namespace hashimoto_ut {
             }
         }
       }
-
-      ts->read_unlock();
     }
 
 
@@ -391,10 +387,7 @@ namespace hashimoto_ut {
       {
         // Draw element names.
 
-        ts->read_lock();
-        /*
-         * Don't forget to call read_unlock().
-         */
+        TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
         size_t const index_of_current_layer = ts->index_of_current_layer();
 
@@ -448,13 +441,11 @@ namespace hashimoto_ut {
             for (; i!=end; ++i)
               draw_undirected_edge_name(i->second, g1.get(), scale, angleH, angleV);
         }
-
-        ts->read_unlock();
       }
 
-      //sociarium_project_designtide::draw(angleH, angleV);
-      //sociarium_project_tamabi_library::draw();
     }
+
+    //sociarium_project_tamabi_library::draw();
 
     glPopMatrix();
   }

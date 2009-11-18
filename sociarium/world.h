@@ -39,8 +39,6 @@
 
 namespace hashimoto_ut {
 
-  class ThreadManager;
-
   ////////////////////////////////////////////////////////////////////////////////
   class World {
   public:
@@ -60,8 +58,10 @@ namespace hashimoto_ut {
     virtual void zoom(double mag) = 0;
 
     virtual void clear_community(void) const = 0;
-    virtual void forward_layer(Vector2<int> const& mpos) = 0;
-    virtual void backward_layer(Vector2<int> const& mpos) = 0;
+    virtual void step_forward_layer(void) = 0;
+    virtual void step_backward_layer(void) = 0;
+    virtual void output_degree_distribution(wchar_t const* filename) const = 0;
+    virtual void output_community_information(wchar_t const* filename) const = 0;
 
     virtual void create_graph(wchar_t const* filename) const = 0;
     virtual void layout(void) const = 0;

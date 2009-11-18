@@ -68,8 +68,10 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     void clear_community(void) const;
-    void forward_layer(Vector2<int> const& mpos);
-    void backward_layer(Vector2<int> const& mpos);
+    void step_forward_layer(void);
+    void step_backward_layer(void);
+    void output_degree_distribution(wchar_t const* filename) const;
+    void output_community_information(wchar_t const* filename) const;
 
     ////////////////////////////////////////////////////////////////////////////////
     void create_graph(wchar_t const* filename) const;

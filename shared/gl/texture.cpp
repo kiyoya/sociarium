@@ -107,7 +107,7 @@ namespace hashimoto_ut {
 
       switch (bpp) {
       case 24:
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_pot_, height_pot_,
                      0, GL_BGR, GL_UNSIGNED_BYTE, 0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
@@ -160,7 +160,7 @@ namespace hashimoto_ut {
 
       switch (bpp) {
       case 24:
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width_, height_,
                           GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
         break;
@@ -204,7 +204,7 @@ namespace hashimoto_ut {
 
       switch (bpp) {
       case 3:
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h,
                         GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;
@@ -244,7 +244,7 @@ namespace hashimoto_ut {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_pot_, height_pot_, 0,
                    GL_BGRA, GL_UNSIGNED_BYTE, 0);
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
@@ -283,7 +283,7 @@ namespace hashimoto_ut {
 
       switch (nChannels) {
       case 3:
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_pot_, height_pot_, 0,
                      GL_BGR, GL_UNSIGNED_BYTE, 0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_,
@@ -328,7 +328,7 @@ namespace hashimoto_ut {
 
       switch (nChannels) {
       case 3:
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width_, height_,
                           GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;
@@ -364,7 +364,7 @@ namespace hashimoto_ut {
 
       switch (nChannels) {
       case 3:
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h,
                         GL_BGR, GL_UNSIGNED_BYTE, pixels);
         break;

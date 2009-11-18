@@ -75,7 +75,8 @@ namespace hashimoto_ut {
             path += L"graph_creation_read_edge_list.dll";
           else if (data_format==DataFormat::USER_DEFINED_MODULE)
             path += module_filename;
-          else assert(0 && "never reach");
+          else
+            assert(0 && "never reach");
 
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {

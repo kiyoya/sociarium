@@ -114,9 +114,9 @@ namespace hashimoto_ut {
 
       size_t source_column = 0;
       size_t target_column = 1;
+      size_t weight_column = 2;
       size_t source_texture_column = -1;
       size_t target_texture_column = -1;
-      size_t weight_column = -1;
       size_t name_column = -1;
 
       if ((pos=params.find(L"columns"))!=params.end()) {
@@ -124,6 +124,7 @@ namespace hashimoto_ut {
 
         source_column = -1;
         target_column = -1;
+        weight_column = -1;
 
         for (size_t i=0; i<row.size(); ++i)
           trim(row[i]);

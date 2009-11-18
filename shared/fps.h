@@ -76,20 +76,18 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   class FPSKeeper {
   public:
-    FPSKeeper(unsigned long fps=1) : frame_time_(1000), last_(0), err_(0), fps_(fps) {
-      if (fps_<1) fps_ = 1;
-    }
+    FPSKeeper(unsigned long fps=1)
+         : frame_time_(1000), last_(0), err_(0), fps_(fps<1?1:fps) {}
 
     ~FPSKeeper() {}
 
     void set(unsigned long fps) {
-      if (fps<1) fps = 1;
-      fps_ = fps;
+      fps_ = fps<1?1:fps;
     }
 
     // To be inserted into a target loop.
     void wait(void) {
-      
+
       unsigned long now = timeGetTime()*fps_;
 
       if (last_>now){

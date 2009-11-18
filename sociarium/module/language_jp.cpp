@@ -53,8 +53,12 @@ namespace hashimoto_ut {
       /////////////////////////////////////////////////////////////////////////////
       menu[IDM_FILE]
         = L"ファイル(&F)";
+      menu[IDM_FILE_OUTPUT_DEGREE_DISTRIBUTION]
+        = L"次数分布の出力(&D)";
+      menu[IDM_FILE_OUTPUT_COMMUNITY_INFORMATION]
+        = L"コミュニティ情報の出力(&C)";
       menu[IDM_FILE_CANCEL]
-        = L"キャンセル(&C)\tESC";
+        = L"読み込みのキャンセル\tESC";
       menu[IDM_FILE_QUIT]
         = L"終了(&X)\tESC";
 
@@ -81,11 +85,11 @@ namespace hashimoto_ut {
       menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER]
         = L"コミュニティに所属しないノードとエッジを選択(&8)";
       menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
-        = L"選択されたコミュニティに所属するノードを選択(&9)";
+        = L"選択されたコミュニティに所属するノードを選択(&X)";
       menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
-        = L"選択されたコミュニティに所属するエッジを選択(&9)";
+        = L"選択されたコミュニティに所属するエッジを選択(&Y)";
       menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER]
-        = L"選択されたコミュニティに所属するノードとエッジを選択(&9)";
+        = L"選択されたコミュニティに所属するノードとエッジを選択(&Z)";
       menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER]
         = L"全てを選択(&A)\tCtrl+A";
       menu[IDM_EDIT_INVERT_MARK_ON_CURRENT_LAYER]
@@ -110,11 +114,11 @@ namespace hashimoto_ut {
       menu[IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_EACH_LAYER]
         = L"コミュニティに所属しないノードとエッジを選択(&8)";
       menu[IDM_EDIT_MARK_NODES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
-        = L"選択されたコミュニティ連続体に所属するノードを選択(&9)";
+        = L"選択されたコミュニティ連続体に所属するノードを選択(&X)";
       menu[IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
-        = L"選択されたコミュニティ連続体に所属するエッジを選択(&9)";
+        = L"選択されたコミュニティ連続体に所属するエッジを選択(&Y)";
       menu[IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER]
-        = L"選択されたコミュニティ連続体に所属するノードとエッジを選択(&9)";
+        = L"選択されたコミュニティ連続体に所属するノードとエッジを選択(&Z)";
       menu[IDM_EDIT_MARK_ALL_ELEMENTS_ON_EACH_LAYER]
         = L"全てを選択(&A)\tShift+Ctrl+A";
       menu[IDM_EDIT_INVERT_MARK_ON_EACH_LAYER]
@@ -645,7 +649,7 @@ namespace hashimoto_ut {
       message[Message::FTGL_ERROR_FACESIZE]
         = L"FTFont::FaceSizeの呼び出しに失敗しました";
       message[Message::FTGL_ERROR_CREATE]
-        = L"Failed to create a font object";
+        = L"フォントの生成に失敗しました";
     }
 
 } // The end of the namespace "hashimoto_ut"

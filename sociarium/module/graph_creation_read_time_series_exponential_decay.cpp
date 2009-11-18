@@ -152,9 +152,9 @@ namespace hashimoto_ut {
       size_t time_column = 0;
       size_t source_column = 1;
       size_t target_column = 2;
+      size_t weight_column = 3;
       size_t source_texture_column = -1;
       size_t target_texture_column = -1;
-      size_t weight_column = -1;
       size_t name_column = -1;
 
       if ((pos=params.find(L"columns"))!=params.end()) {
@@ -163,6 +163,7 @@ namespace hashimoto_ut {
         time_column = -1;
         source_column = -1;
         target_column = -1;
+        weight_column = -1;
 
         for (size_t i=0; i<row.size(); ++i)
           trim(row[i]);
@@ -432,26 +433,44 @@ namespace hashimoto_ut {
         ID2Weight node_weight; // Node weights at time @t.
         ID2Weight edge_weight; // Edge weights at time @t.
 
-        // Calculate node and wdge weights at time @t.
+        // Calculate node and edge weights at time @t.
 
-        struct TimeDiff {
-          time_t operator()(time_t lhs, time_t rhs) const {
-            return lhs>rhs?lhs-rhs:rhs-lhs;
+        {
+          time_t const t0 = t>range?t-range:0;
+
+#define SOCIARIUM_PROJECT_USE_ONESIDE_DECAY_FUNCTION
+#ifdef SOCIARIUM_PROJECT_USE_ONESIDE_DECAY_FUNCTION
+          { // Accumulate node weights between @t-@range and @t.
+            TimeSeries::const_iterator now = node_time_series.upper_bound(t);
+            TimeSeries::const_iterator i = node_time_series.upper_bound(t0);
+            for (; i!=now; ++i)
+              node_weight[i->second.first]
+                += (i->second.second)*exp(-double(t-i->first)/characteristic_time);
+          }{// Accumulate edge weights between @t-@range and @t.
+            TimeSeries::const_iterator now = edge_time_series.upper_bound(t);
+            TimeSeries::const_iterator i = edge_time_series.upper_bound(t0);
+            for (; i!=now; ++i)
+              edge_weight[i->second.first]
+                += (i->second.second)*exp(-double(t-i->first)/characteristic_time);
           }
-        };
+#else
+          time_t const t1 = t+range;
+          assert(t1>=t);
 
-        { // Accumulate node weights between @t-@range and @t.
-          TimeSeries::const_iterator now = node_time_series.upper_bound(t);
-          TimeSeries::const_iterator i = node_time_series.upper_bound(TimeDiff()(t,range));
-          for (; i!=now; ++i)
-            node_weight[i->second.first]
-              += (i->second.second)*exp(-double(TimeDiff()(t,i->first))/characteristic_time);
-        }{// Accumulate edge weights between @t-@range and @t.
-          TimeSeries::const_iterator now = edge_time_series.upper_bound(t);
-          TimeSeries::const_iterator i = edge_time_series.upper_bound(TimeDiff()(t,range));
-          for (; i!=now; ++i)
-            edge_weight[i->second.first]
-              += (i->second.second)*exp(-double(TimeDiff()(t,i->first))/characteristic_time);
+          { // Accumulate node weights between @t-@range and @t+@range.
+            TimeSeries::const_iterator i = node_time_series.upper_bound(t0);
+            TimeSeries::const_iterator end = node_time_series.upper_bound(t1);
+            for (; i!=end; ++i)
+              node_weight[i->second.first]
+                += (i->second.second)*exp(-abs(double(t)-i->first)/characteristic_time);
+          }{// Accumulate edge weights between @t-@range and @t+@range.
+            TimeSeries::const_iterator i = edge_time_series.upper_bound(t0);
+            TimeSeries::const_iterator end = edge_time_series.upper_bound(t1);
+            for (; i!=end; ++i)
+              edge_weight[i->second.first]
+                += (i->second.second)*exp(-abs(double(t)-i->first)/characteristic_time);
+          }
+#endif
         }
 
         // **********  Catch a termination signal  **********

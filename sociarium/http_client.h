@@ -1,4 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m: thread/force_direction.h
+﻿// s.o.c.i.a.r.i.u.m: http_client.h
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.
@@ -29,38 +29,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_FORCE_DIRECTION_H
-#define INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_FORCE_DIRECTION_H
+#ifndef INCLUDE_GUARD_SOCIARIUM_PROJECT_HTTP_CLIENT_H
+#define INCLUDE_GUARD_SOCIARIUM_PROJECT_HTTP_CLIENT_H
 
-#include <vector>
+#define WIN32_LEAN_AND_MEAN
+
 #include <memory>
-#include "../../shared/thread.h"
+#include <string>
+#include <boost/asio.hpp>
+#include <windows.h>
 
 namespace hashimoto_ut {
 
-  ////////////////////////////////////////////////////////////////////////////////
-  class ForceDirectionThread : public Thread {
+  class HTTPClient {
   public:
-    virtual ~ForceDirectionThread() {}
-    static std::tr1::shared_ptr<ForceDirectionThread> create(void);
+    virtual ~HTTPClient() {}
+    virtual std::string get_contents(void) const = 0;
+    virtual std::string get_header(void) const = 0;
+    virtual std::string get_error_log(void) const = 0;
+
+    static std::tr1::shared_ptr<HTTPClient>
+      create(boost::asio::io_service& io_service,
+             std::string const& server, std::string const& path);
+
+    /* Example:
+     * 
+     * boost::asio::io_service io_service;
+     * shared_ptr<HTTPClient> c
+     *    = HTTPClient::create(io_service,
+     *                         "syrinx.q.t.u-tokyo.ac.jp",
+     *                         "/hashimoto/sociarium/index.html");
+     * io_service.run();
+     */
   };
-
-  ////////////////////////////////////////////////////////////////////////////////
-  namespace sociarium_project_force_direction {
-
-    void toggle_execution(void);
-    bool is_on(void);
-    void should_be_updated(void);
-    void set_force_scale(float scale);
-    void set_kk_force_NN(float value);
-    void set_kk_force_CC(float value);
-    void set_spring_force_CN(float value);
-    void set_spring_length_CN(float value);
-    void set_spring_force_NN(float value);
-    void set_spring_length_NN(float value);
-
-  } // The end of the namespace "sociarium_project_force_direction"
 
 } // The end of the namespace "hashimoto_ut"
 
-#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_THREAD_FORCE_DIRECTION_H
+#endif // INCLUDE_GUARD_SOCIARIUM_PROJECT_HTTP_CLIENT_H

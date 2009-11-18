@@ -50,14 +50,11 @@
 #include "../shared/GL/glview.h"
 #include "../shared/GL/texture.h"
 
-// #include "cvframe.h"
-// #include "designtide.h"
-//#include "tamabi_library.h"
-
 #pragma comment(lib, "glew32.lib")
 
 namespace hashimoto_ut {
 
+  using std::wstring;
   using std::tr1::shared_ptr;
 
   using namespace sociarium_project_common;
@@ -90,8 +87,8 @@ namespace hashimoto_ut {
 
     try {
       sociarium_project_glew::initialize();
-    } catch (wchar_t const* errmsg) {
-      show_last_error(hwnd_, errmsg);
+    } catch (wstring const& errmsg) {
+      show_last_error(hwnd_, errmsg.c_str());
       glew_is_available = false;
     }
 
@@ -132,42 +129,31 @@ namespace hashimoto_ut {
         WGL_STENCIL_BITS_ARB, 0,
         WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
         WGL_SAMPLE_BUFFERS_ARB, 1,
-        WGL_SAMPLES_ARB, 8,
+        WGL_SAMPLES_ARB, 4,
         0, 0
         };
 
-      // Try to use Multi-Sampling Anti-Aliasing (x8).
+      // Try to use Multi-Sampling Anti-Aliasing (x4).
       msaa_is_available
         = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
       if (msaa_is_available && number_of_formats>0) {
         message_box(hwnd_, mb_info, APPLICATION_TITLE,
-                    get_message(Message::GLEW_MSAA_8));
+                    get_message(Message::GLEW_MSAA_4));
       } else {
-        // Try to use Multi-Sampling Anti-Aliasing (x4).
-        iattr[19] = 4;
+        // Try to use Multi-Sampling Anti-Aliasing (x2).
+        iattr[19] = 2;
 
         msaa_is_available
           = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
 
         if (msaa_is_available && number_of_formats>0) {
           message_box(hwnd_, mb_info, APPLICATION_TITLE,
-                      get_message(Message::GLEW_MSAA_4));
+                      get_message(Message::GLEW_MSAA_2));
         } else {
-          // Try to use Multi-Sampling Anti-Aliasing (x2).
-          iattr[19] = 2;
-
-          msaa_is_available
-            = wglChoosePixelFormatARB(dc_, iattr, fattr, 1, &pf, &number_of_formats);
-
-          if (msaa_is_available && number_of_formats>0) {
-            message_box(hwnd_, mb_info, APPLICATION_TITLE,
-                        get_message(Message::GLEW_MSAA_2));
-          } else {
-            message_box(hwnd_, mb_info, APPLICATION_TITLE,
-                        get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
-            msaa_is_available = FALSE;
-          }
+          message_box(hwnd_, mb_info, APPLICATION_TITLE,
+                      get_message(Message::GLEW_FAILED_TO_ENABLE_MSAA));
+          msaa_is_available = FALSE;
         }
       }
     } else {
@@ -249,8 +235,8 @@ namespace hashimoto_ut {
     // Create font objects.
     try {
       sociarium_project_font::initialize();
-    } catch (wchar_t const* errmsg) {
-      message_box(hwnd_, mb_error, APPLICATION_TITLE, errmsg);
+    } catch (wstring const& errmsg) {
+      message_box(hwnd_, mb_error, APPLICATION_TITLE, errmsg.c_str());
       exit(1);
     }
 
@@ -270,23 +256,23 @@ namespace hashimoto_ut {
       initialize();
 
       shared_ptr<Thread> tf = ForceDirectionThread::create();
-      if (!sociarium_project_force_direction::is_active()) tf->suspend();
+      if (!sociarium_project_force_direction::is_on()) tf->suspend();
       invoke(FORCE_DIRECTION, tf);
     }
 
     // --------------------------------------------------------------------------------
     // Initialize FPS counter.
     sociarium_project_fps_manager::start(60);
-
-    //sociarium_project_designtide::initialize();
-    //sociarium_project_tamabi_library::initialize();
   }
 
 
   ////////////////////////////////////////////////////////////////////////////////
   WorldImpl::~WorldImpl() {
 
-    //sociarium_project_cvframe::terminate();
+    // --------------------------------------------------------------------------------
+#ifdef SOCIAIRUM_PROJECT_USES_OPENCV
+    sociarium_project_cvframe::terminate();
+#endif
 
     // --------------------------------------------------------------------------------
     sociarium_project_thread::finalize();

@@ -152,9 +152,9 @@ namespace hashimoto_ut {
       size_t time_column = 0;
       size_t source_column = 1;
       size_t target_column = 2;
+      size_t weight_column = 3;
       size_t source_texture_column = -1; // Unavailable in a default format.
       size_t target_texture_column = -1; // Unavailable in a default format.
-      size_t weight_column = -1; // Unavailable in a default format.
       size_t name_column = -1; // Unavailable in a default format.
 
       if ((pos=params.find(L"columns"))!=params.end()) {
@@ -163,6 +163,7 @@ namespace hashimoto_ut {
         time_column = -1;
         source_column = -1;
         target_column = -1;
+        weight_column = -1;
 
         for (size_t i=0; i<row.size(); ++i)
           trim(row[i]);
@@ -432,14 +433,18 @@ namespace hashimoto_ut {
 
         // Calculate node and wdge weights at time @t.
 
-        { // Accumulate node weights between @t-@characteristic_time and @t.
-          TimeSeries::const_iterator now = node_time_series.upper_bound(t);
-          TimeSeries::const_iterator i = node_time_series.upper_bound(t-characteristic_time);
-          for (; i!=now; ++i) node_weight[i->second.first] += i->second.second;
-        }{// Accumulate edge weights between @t-@characteristic_time and @t.
-          TimeSeries::const_iterator now = edge_time_series.upper_bound(t);
-          TimeSeries::const_iterator i = edge_time_series.upper_bound(t-characteristic_time);
-          for (; i!=now; ++i) edge_weight[i->second.first] += i->second.second;
+        {
+          time_t const t0 = t>characteristic_time?t-characteristic_time:0;
+
+          { // Accumulate node weights between @t-@characteristic_time and @t.
+            TimeSeries::const_iterator now = node_time_series.upper_bound(t);
+            TimeSeries::const_iterator i = node_time_series.upper_bound(t0);
+            for (; i!=now; ++i) node_weight[i->second.first] += i->second.second;
+          }{// Accumulate edge weights between @t-@characteristic_time and @t.
+            TimeSeries::const_iterator now = edge_time_series.upper_bound(t);
+            TimeSeries::const_iterator i = edge_time_series.upper_bound(t0);
+            for (; i!=now; ++i) edge_weight[i->second.first] += i->second.second;
+          }
         }
 
         // **********  Catch a termination signal  **********

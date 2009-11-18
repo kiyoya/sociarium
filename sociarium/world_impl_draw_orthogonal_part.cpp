@@ -71,7 +71,7 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
+      TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
       size_t const index_of_current_layer
         = ts->index_of_current_layer();
@@ -220,8 +220,6 @@ namespace hashimoto_ut {
 
         glPopMatrix();
       }
-
-      ts->read_unlock();
     }
 
 
@@ -231,7 +229,7 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
+      TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
       size_t const index_of_current_layer = ts->index_of_current_layer();
 
@@ -241,7 +239,7 @@ namespace hashimoto_ut {
       shared_ptr<FTFont> f = get_font(FontCategory::MISC);
       float llx, lly, llz, urx, ury, urz;
 
-      wstring const text_tmp = L"XYZxyz\',"; // adjust height.
+      wstring const text_tmp = L"Yy\',"; // adjust height.
       f->BBox(text_tmp.c_str(), llx, lly, llz, urx, ury, urz);
 
       float const h_adjust = ury-lly;
@@ -286,8 +284,6 @@ namespace hashimoto_ut {
         f->Render(text.c_str());
         glPopMatrix();
       }
-
-      ts->read_unlock();
     }
 
 
@@ -297,7 +293,7 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
+      TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
       static float const transparent[] = { 0.0f, 0.0f, 0.0f, 0.0f, };
 
@@ -403,8 +399,6 @@ namespace hashimoto_ut {
       }
 
       glPopName();
-
-      ts->read_unlock();
     }
 
 
@@ -421,6 +415,7 @@ namespace hashimoto_ut {
       float const w = scale.x*(urx-llx);
       float const h = scale.y*(ury-lly);
 
+      glPushMatrix();
       glTranslatef(1.0f-w-scale.x*get_frame_offset().x,
                    1.0f-h-scale.y*get_frame_offset().y, 0.0f);
       glScalef(scale.x, scale.y, 0.0f);
@@ -450,21 +445,23 @@ namespace hashimoto_ut {
       Vector2<float> const sub_scale(0.8f*scale);
       shared_ptr<FTFont> f = get_font(FontCategory::MISC);
 
-      static float const upper_margin = 4;
-      static float const lower_margin = 8;
+      static float const upper_margin = 4.0f;
+      static float const lower_margin = 8.0f;
 
-      struct MessageBlock {
-        int index_of_status;
-        float w, h, w_sub, h_sub;
-        float frame_height;
-        MessageBlock(void) : index_of_status(0), w(0.0f), h(0.0f),
-        w_sub(0.0f), h_sub(0.0f), frame_height(0.0f) {}
+      float const interval = scale.y*4;
+
+      struct StatusBlock {
+        wchar_t const* status0;
+        wchar_t const* status1;
+        float w0, h0, w1, h1;
+        float block_height;
+        StatusBlock(void) : status0(0), status1(0),
+        w0(0.0f), h0(0.0f), w1(0.0f), h1(0.0f), block_height(0.0f) {}
       };
 
-      vector<MessageBlock> message_block;
+      vector<StatusBlock> status_block;
 
-      float frame_height_sum = 0.0f;
-      float const interval = scale.y*upper_margin;
+      float whole_height = 0.0f;
 
       for (int i=0; i<NUMBER_OF_THREAD_CATEGORIES; ++i) {
 
@@ -472,47 +469,49 @@ namespace hashimoto_ut {
 
         if (status[0]!=L"") {
 
-          wstring const text     = status[0];
-          wstring const text_sub = status[1];
+          StatusBlock sb;
+
+          sb.status0 = status[0].c_str();
 
           float llx, lly, llz, urx, ury, urz;
-          f->BBox(text.c_str(), llx, lly, llz, urx, ury, urz);
+          f->BBox(sb.status0, llx, lly, llz, urx, ury, urz);
 
-          MessageBlock mb;
+          sb.w0 = scale.x*(urx-llx);
+          sb.h0 = scale.y*(ury-lly);
 
-          mb.index_of_status = i;
-          mb.w = scale.x*(urx-llx);
-          mb.h = scale.y*(ury-lly);
+          float middle_margin = 0.0f;
 
-          if (!text_sub.empty()) {
-            f->BBox(text_sub.c_str(), llx, lly, llz, urx, ury, urz);
-            mb.w_sub = sub_scale.x*(urx-llx);
-            mb.h_sub = sub_scale.y*(ury-lly);
+          if (!status[1].empty()) {
+
+            sb.status1 = status[1].c_str();
+
+            f->BBox(sb.status1, llx, lly, llz, urx, ury, urz);
+
+            sb.w1 = sub_scale.x*(urx-llx);
+            sb.h1 = sub_scale.y*(ury-lly);
+
+            middle_margin = lower_margin;
           }
 
-          float const middle_margin = text_sub.empty()?0.0f:lower_margin;
-          mb.frame_height = mb.h+mb.h_sub+scale.y*(upper_margin+middle_margin+lower_margin);
+          sb.block_height = sb.h0+sb.h1+scale.y*(upper_margin+middle_margin+lower_margin);
 
-          message_block.push_back(mb);
+          status_block.push_back(sb);
 
-          frame_height_sum += mb.frame_height+interval;
+          whole_height += sb.block_height+interval;
         }
       }
 
       // Centering messages to the middle.
-      frame_height_sum -= message_block.empty()?0.0f:message_block.front().frame_height+interval;
-      float const base = -0.5f*frame_height_sum;
+      float base = -0.5f*whole_height;
 
-      for (size_t i=0; i<message_block.size(); ++i) {
+      for (size_t i=0; i<status_block.size(); ++i) {
 
-        MessageBlock const& mb = message_block[i];
-        deque<wstring> const& status = get_status(mb.index_of_status);
-        float const frame_height = mb.frame_height;
+        StatusBlock const& sb = status_block[i];
 
-        float const top    = 0.5f*(1.0f+frame_height)+frame_height_sum+base;
-        float const bottom = 0.5f*(1.0f-frame_height)+frame_height_sum+base;
+        float const bottom = 0.5f+base;
+        float const top    = bottom+sb.block_height;
 
-        frame_height_sum -= frame_height+interval;
+        base += sb.block_height+interval;
 
         // --------------------------------------------------------------------------------
         // Draw a frame.
@@ -529,17 +528,17 @@ namespace hashimoto_ut {
         // --------------------------------------------------------------------------------
         // Draw a main message.
         glPushMatrix();
-        glTranslatef(0.5f*(1.0f-mb.w), top-mb.h-scale.y*upper_margin, 0.0f);
+        glTranslatef(0.5f*(1.0f-sb.w0), top-sb.h0-scale.y*upper_margin, 0.0f);
         glScalef(scale.x, scale.y, 0.0f);
-        f->Render(status[0].c_str());
+        f->Render(sb.status0);
         glPopMatrix();
 
-        if (!status[1].empty()) {
+        if (sb.status1) {
           // Draw a sub message.
           glPushMatrix();
-          glTranslatef(0.5f*(1.0f-mb.w_sub), bottom+scale.y*lower_margin, 0.0f);
+          glTranslatef(0.5f*(1.0f-sb.w1), bottom+scale.y*lower_margin, 0.0f);
           glScalef(sub_scale.x, sub_scale.y, 0.0f);
-          f->Render(status[1].c_str());
+          f->Render(sb.status1);
           glPopMatrix();
         }
       }
@@ -588,15 +587,16 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      vector<vector<StaticNodeProperty const*> > xxx(ts->number_of_layers());
+      // Communities where the selected node belongs to in each layer.
+      vector<vector<StaticNodeProperty const*> > upper(ts->number_of_layers());
 
       if (sociarium_project_selection::is_selected(SelectionCategory::NODE)) {
-        StaticNodeProperty const* snp_sel = static_cast<StaticNodeProperty const*>(get_selected_static_object());
+        StaticNodeProperty const* snp = static_cast<StaticNodeProperty const*>(get_selected_static_object());
 
         typedef StaticNodeProperty::DynamicPropertyMap DynamicPropertyMap;
 
-        DynamicPropertyMap::const_iterator j = snp_sel->dynamic_property_begin();
-        DynamicPropertyMap::const_iterator jend = snp_sel->dynamic_property_end();
+        DynamicPropertyMap::const_iterator j = snp->dynamic_property_begin();
+        DynamicPropertyMap::const_iterator jend = snp->dynamic_property_end();
 
         for (; j!=jend; ++j) {
 
@@ -606,10 +606,11 @@ namespace hashimoto_ut {
             = j->first->upper_nend();
 
           for (; k!=kend; ++k)
-            xxx[j->second].push_back((*k)->get_static_property());
+            upper[j->second].push_back((*k)->get_static_property());
         }
       }
 
+      // Start drawing.
       vector<shared_ptr<Trajectory> >::const_iterator i
         = diagram->trajectory_begin();
       vector<shared_ptr<Trajectory> >::const_iterator end
@@ -656,14 +657,13 @@ namespace hashimoto_ut {
 
           {
             Vector3<float> rgb = (*i)->get_interpolated_color(j);
-            //= predefined_color[snp->dynamic_property_begin()->first->get_color_id()];
 
             using namespace sociarium_project_selection;
 
             bool b = false;
 
-            for (size_t k=0; k<xxx[index_of_layer].size(); ++k) {
-              if (xxx[index_of_layer][k]==snp) {
+            for (size_t k=0; k<upper[index_of_layer].size(); ++k) {
+              if (upper[index_of_layer][k]==snp) {
                 b = true;
                 break;
               }

@@ -1,5 +1,4 @@
-﻿// s.o.c.i.a.r.i.u.m
-// module/graph_creation_read_lattice.cpp
+﻿// s.o.c.i.a.r.i.u.m: module/graph_creation_read_lattice.cpp
 // HASHIMOTO, Yasuhiro (E-mail: hy @ sys.t.u-tokyo.ac.jp)
 
 /* Copyright (c) 2005-2009, HASHIMOTO, Yasuhiro, All rights reserved.

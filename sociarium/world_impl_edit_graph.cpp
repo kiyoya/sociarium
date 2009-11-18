@@ -70,10 +70,10 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     unsigned int const hide_mask
-      = ~(ElementFlag::VISIBLE|ElementFlag::MARKED|ElementFlag::HIGHLIGHT);
+      = ~(ElementFlag::ACTIVE|ElementFlag::MARKED|ElementFlag::HIGHLIGHT);
 
     unsigned int const show_mask
-      = ElementFlag::VISIBLE|ElementFlag::MARKED;
+      = ElementFlag::ACTIVE|ElementFlag::MARKED;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ namespace hashimoto_ut {
     struct ShowElement {
       template <typename T>
       void operator()(T& pp) {
-        if (is_hidden(pp.second))
+        if (is_inactive(pp.second))
           show(pp.second);
       }
     };
@@ -241,7 +241,7 @@ namespace hashimoto_ut {
           vector<DynamicNodeProperty*>::const_iterator end = dnp.lower_nend();
 
           for (; i!=end; ++i)
-            if (is_visible(**i))
+            if (is_active(**i))
               retval.push_back(*i);
         }
 
@@ -267,7 +267,7 @@ namespace hashimoto_ut {
           vector<DynamicEdgeProperty*>::const_iterator end = dnp.lower_eend();
 
           for (; i!=end; ++i)
-            if (is_visible(**i))
+            if (is_active(**i))
               retval.push_back(*i);
         }
 
@@ -304,7 +304,7 @@ namespace hashimoto_ut {
               = i->first->lower_nend();
 
             for (; j!=jend; ++j)
-              if (is_visible(**j))
+              if (is_active(**j))
                 retval.push_back(*j);
           }
         }
@@ -340,7 +340,7 @@ namespace hashimoto_ut {
               = i->first->lower_eend();
 
             for (; j!=jend; ++j)
-              if (is_visible(**j))
+              if (is_active(**j))
                 retval.push_back(*j);
           }
         }
@@ -719,10 +719,7 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
 
-    ts->read_lock();
-    /*
-     * Don't forget to call read_unlock().
-     */
+    TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
     // --------------------------------------------------------------------------------
     shared_ptr<SociariumGraph const> g0_current
@@ -737,20 +734,20 @@ namespace hashimoto_ut {
     if (menu==IDM_EDIT_MARK_ALL_NODES_ON_CURRENT_LAYER)
       // Mark all nodes on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
 
     else if (menu==IDM_EDIT_MARK_ALL_EDGES_ON_CURRENT_LAYER)
       // Mark all edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
 
     else if (menu==IDM_EDIT_MARK_ALL_ELEMENTS_ON_CURRENT_LAYER) {
       // Mark all nodes on the current layer.
       for_each(g0_current->node_property_begin(), g0_current->node_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       // Mark all edges on the current layer.
       for_each(g0_current->edge_property_begin(), g0_current->edge_property_end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
@@ -758,14 +755,14 @@ namespace hashimoto_ut {
       vector<DynamicNodeProperty*> const nodes = get_nodes_inside_communities(g0_current);
       // Mark all inner community nodes on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
       vector<DynamicEdgeProperty*> const edges = get_edges_inside_communities(g0_current);
       // Mark all inner community edges on the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_INSIDE_COMMUNITY_ON_CURRENT_LAYER) {
@@ -773,9 +770,9 @@ namespace hashimoto_ut {
       vector<DynamicEdgeProperty*> const edges = get_edges_inside_communities(g0_current);
       // Mark all inner community nodes and edges on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
@@ -783,14 +780,14 @@ namespace hashimoto_ut {
       vector<DynamicNodeProperty*> const nodes = get_nodes_outside_communities(g0_current);
       // Mark all outer community nodes on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
       vector<DynamicEdgeProperty*> const edges = get_edges_outside_communities(g0_current);
       // Mark all outer community edges on the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_OUTSIDE_COMMUNITY_ON_CURRENT_LAYER) {
@@ -798,9 +795,9 @@ namespace hashimoto_ut {
       vector<DynamicEdgeProperty*> const edges = get_edges_outside_communities(g0_current);
       // Mark all outer community nodes and edges on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
@@ -809,7 +806,7 @@ namespace hashimoto_ut {
          = get_nodes_inside_marked_communities(g1_current);
       // Mark nodes in selected communities on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER) {
@@ -817,7 +814,7 @@ namespace hashimoto_ut {
         = get_edges_inside_marked_communities(g1_current);
       // Mark edges in selected communities on the current layer.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_CURRENT_LAYER) {
@@ -827,9 +824,9 @@ namespace hashimoto_ut {
         = get_edges_inside_marked_communities(g1_current);
       // Mark elements in selected communities on the current layer.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
@@ -838,7 +835,7 @@ namespace hashimoto_ut {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
         // Mark all nodes on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
 
     else if (menu==IDM_EDIT_MARK_ALL_EDGES_ON_EACH_LAYER) {
@@ -846,7 +843,7 @@ namespace hashimoto_ut {
         shared_ptr<SociariumGraph const> g0 = ts->get_graph(0, layer);
         // Mark all edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -856,10 +853,10 @@ namespace hashimoto_ut {
         shared_ptr<SociariumGraph const> g1 = ts->get_graph(1, layer);
         // Mark all nodes on all layers.
         for_each(g0->node_property_begin(), g0->node_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
         // Mark all edges on all layers.
         for_each(g0->edge_property_begin(), g0->edge_property_end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -870,7 +867,7 @@ namespace hashimoto_ut {
         vector<DynamicNodeProperty*> nodes = get_nodes_inside_communities(g0);
         // Mark all inner community nodes on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
 
     else if (menu==IDM_EDIT_MARK_EDGES_INSIDE_COMMUNITY_ON_EACH_LAYER) {
@@ -879,7 +876,7 @@ namespace hashimoto_ut {
         vector<DynamicEdgeProperty*> edges = get_edges_inside_communities(g0);
         // Mark all inner community edges on all layers.
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -890,9 +887,9 @@ namespace hashimoto_ut {
         vector<DynamicEdgeProperty*> edges = get_edges_inside_communities(g0);
         // Mark all inner community nodes and edges on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -903,7 +900,7 @@ namespace hashimoto_ut {
         vector<DynamicNodeProperty*> nodes = get_nodes_outside_communities(g0);
         // Mark all outer community nodes on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -913,7 +910,7 @@ namespace hashimoto_ut {
         vector<DynamicEdgeProperty*> edges = get_edges_outside_communities(g0);
         // Mark all outer community edges on all layers.
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -924,9 +921,9 @@ namespace hashimoto_ut {
         vector<DynamicEdgeProperty*> edges = get_edges_outside_communities(g0);
         // Mark all outer community nodes and edges on all layers.
         for_each(nodes.begin(), nodes.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
         for_each(edges.begin(), edges.end(),
-                 boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+                 boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       }
     }
 
@@ -936,7 +933,7 @@ namespace hashimoto_ut {
         = get_nodes_in_marked_community_continuums(g1_current);
       // Mark nodes, on each layer, which are in selected community-continuums.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_EDGES_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER) {
@@ -944,7 +941,7 @@ namespace hashimoto_ut {
         = get_edges_in_marked_community_continuums(g1_current);
       // Mark edges, on each layer, which are in selected community-continuums.
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     else if (menu==IDM_EDIT_MARK_ELEMENTS_IN_SELECTED_COMMUNITY_CONTINUUMS_ON_EACH_LAYER) {
@@ -954,15 +951,13 @@ namespace hashimoto_ut {
         = get_edges_in_marked_community_continuums(g1_current);
       // Mark elements, on each layer, which are in selected community-continuums.
       for_each(nodes.begin(), nodes.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
       for_each(edges.begin(), edges.end(),
-               boost::bind<void>(ActivateFlag(), _1, ElementFlag::MARKED));
+               boost::bind<void>(SetFlag(), _1, ElementFlag::MARKED));
     }
 
     // --------------------------------------------------------------------------------
     else assert(0 && "never reach");
-
-    ts->read_unlock();
   }
 
 
@@ -972,10 +967,7 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
 
-    ts->read_lock();
-    /*
-     * Don't forget to call read_unlock().
-     */
+    TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
     // --------------------------------------------------------------------------------
     shared_ptr<SociariumGraph const> g0_current
@@ -1024,8 +1016,6 @@ namespace hashimoto_ut {
 
     // --------------------------------------------------------------------------------
     else assert(0 && "never reach");
-
-    ts->read_unlock();
   }
 
 
@@ -1035,10 +1025,7 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
 
-    ts->read_lock();
-    /*
-     * Don't forget to call read_unlock().
-     */
+    TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
     // --------------------------------------------------------------------------------
     shared_ptr<SociariumGraph const> g0_current
@@ -1133,8 +1120,6 @@ namespace hashimoto_ut {
     else assert(0 && "never reach");
 
     sociarium_project_force_direction::should_be_updated();
-
-    ts->read_unlock();
   }
 
 
@@ -1144,10 +1129,7 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
 
-    ts->read_lock();
-    /*
-     * Don't forget to call read_unlock().
-     */
+    TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
     // --------------------------------------------------------------------------------
     shared_ptr<SociariumGraph const> g0_current
@@ -1205,8 +1187,6 @@ namespace hashimoto_ut {
     else assert(0 && "never reach");
 
     sociarium_project_force_direction::should_be_updated();
-
-    ts->read_unlock();
   }
 
 
@@ -1239,7 +1219,7 @@ namespace hashimoto_ut {
     shared_ptr<SociariumGraphTimeSeries> ts
       = sociarium_project_graph_time_series::get();
 
-    ts->write_lock();
+    ts->read_unlock();
 
     shared_ptr<CommunityTransitionDiagram> diagram
       = sociarium_project_community_transition_diagram::get();

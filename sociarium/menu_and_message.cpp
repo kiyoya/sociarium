@@ -64,7 +64,7 @@ namespace hashimoto_ut {
       FuncLoadMenu func = (FuncLoadMenu)GetProcAddress(handle, "load_menu");
 
       if (func==0)
-        throw path.c_str();
+        throw path;
 
       unordered_map<int, wstring> menu;
 
@@ -102,6 +102,28 @@ namespace hashimoto_ut {
         mii.fMask = MIIM_TYPE|MIIM_ID;
         mii.fType = MFT_STRING;
         mii.wID = IDM_FILE_CANCEL;
+        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
+        InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
+
+        ZeroMemory(&mii, sizeof(mii));
+        mii.cbSize = sizeof(mii);
+        mii.fMask = MIIM_TYPE;
+        mii.fType = MFT_SEPARATOR;
+        InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
+
+        ZeroMemory(&mii, sizeof(mii));
+        mii.cbSize = sizeof(mii);
+        mii.fMask = MIIM_TYPE|MIIM_ID;
+        mii.fType = MFT_STRING;
+        mii.wID = IDM_FILE_OUTPUT_DEGREE_DISTRIBUTION;
+        mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
+        InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
+
+        ZeroMemory(&mii, sizeof(mii));
+        mii.cbSize = sizeof(mii);
+        mii.fMask = MIIM_TYPE|MIIM_ID;
+        mii.fType = MFT_STRING;
+        mii.wID = IDM_FILE_OUTPUT_COMMUNITY_INFORMATION;
         mii.dwTypeData = (LPWSTR)menu[mii.wID].c_str();
         InsertMenuItem(hmenu_file, ++pos, FALSE, &mii);
 
@@ -2119,7 +2141,7 @@ namespace hashimoto_ut {
       HMODULE handle = LoadLibrary(path.c_str());
 
       if (handle==0)
-        throw path.c_str();
+        throw path;
 
       FuncLoadMessage func = (FuncLoadMessage)GetProcAddress(handle, "load_message");
 

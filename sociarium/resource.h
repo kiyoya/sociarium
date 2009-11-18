@@ -221,7 +221,9 @@
 /////////////////////////////////////////////////////////////////////////////
 #define	IDM_FILE	400
 #define	IDM_FILE_CANCEL	401
-#define	IDM_FILE_QUIT	402
+#define	IDM_FILE_OUTPUT_DEGREE_DISTRIBUTION	402
+#define	IDM_FILE_OUTPUT_COMMUNITY_INFORMATION	403
+#define	IDM_FILE_QUIT	404
 
 
 /////////////////////////////////////////////////////////////////////////////

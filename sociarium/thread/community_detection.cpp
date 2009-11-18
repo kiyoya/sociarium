@@ -210,355 +210,309 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
-      /*
-       * Don't forget to call read_unlock().
-       */
+      {
+        TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
-      deque<wstring>& status
-        = sociarium_project_thread::get_status(
-          sociarium_project_thread::COMMUNITY_DETECTION);
-
-      // --------------------------------------------------------------------------------
-      // Load a community detection module.
-
-      FuncDetectCommunity detect_community = 0;
-
-      try {
-        detect_community = get(get_community_detection_algorithm());
-      } catch (wchar_t const* errmsg) {
-        show_last_error(hwnd, errmsg);
-        ts->read_unlock();
-        return terminate();
-      }
-
-      assert(detect_community!=0);
-
-      // --------------------------------------------------------------------------------
-      // Detect communities in graphs consisting of "visible" elements in all layers.
-
-      size_t const number_of_layers = ts->number_of_layers();
-      vector<shared_ptr<SociariumGraph> > community_series(number_of_layers);
-
-      for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        status[0]
-          = number_of_layers<2?
-            (boost::wformat(L"%s")
-             %get_message(Message::DETECTING_COMMUNITIES)).str()
-              :(boost::wformat(L"%s: %d%%")
-                %get_message(Message::DETECTING_COMMUNITIES)
-                %int((100.0*layer)/number_of_layers)).str();
+        deque<wstring>& status
+          = sociarium_project_thread::get_status(
+            sociarium_project_thread::COMMUNITY_DETECTION);
 
         // --------------------------------------------------------------------------------
-        // Extract marked elements.
+        // Load a community detection module.
 
-        shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+        FuncDetectCommunity detect_community = 0;
 
-        unordered_map<Node*, Node const*> node2node; // Map nodes in @g_target to nodes in @g.
-        unordered_map<Edge*, Edge const*> edge2edge; // Map edges in @g_target to edges in @g.
-
-        pair<bool, shared_ptr<Graph const> > const ext
-          = sociarium_project_graph_extractor::get(
-            this, &status[1], g, node2node, edge2edge, ElementFlag::VISIBLE);
-
-        if (ext.first==false) {
-          ts->read_unlock();
+        try {
+          detect_community = get(get_community_detection_algorithm());
+        } catch (wstring const& errmsg) {
+          show_last_error(hwnd, errmsg.c_str());
           return terminate();
         }
 
-        shared_ptr<Graph const> g_target = ext.second;
-
-        if (g_target->nsize()==0) {
-          community_series[layer] = SociariumGraph::create(g_target->is_directed());
-          continue;
-        }
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        vector<double> edge_weight;
-        edge_weight.reserve(g_target->esize());
-
-        if (use_weighted_modularity()) {
-          for (edge_iterator i=g_target->ebegin(); i!=g_target->eend(); ++i)
-            edge_weight.push_back(double(g->property(edge2edge[*i]).get_weight()));
-        }
+        assert(detect_community!=0);
 
         // --------------------------------------------------------------------------------
-        // Execute the module.
+        // Detect communities in graphs consisting of "visible" elements in all layers.
 
-        vector<vector<Node*> > community;
-        bool is_canceled = false;
+        size_t const number_of_layers = ts->number_of_layers();
+        vector<shared_ptr<SociariumGraph> > community_series(number_of_layers);
 
-        detect_community(
-          *this,
-          status[1],
-          get_message_object(),
-          community,
-          is_canceled,
-          g_target,
-          edge_weight);
-
-        if (is_canceled) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        // --------------------------------------------------------------------------------
-        // Create a community graph.
-
-        size_t const csz = community.size();
-        shared_ptr<SociariumGraph> cg(SociariumGraph::create(g_target->is_directed()));
-        vector<vector<DynamicNodeProperty*> > upper_nodes(g_target->nsize());
-
-        // Make community nodes.
-        for (size_t i=0; i<csz; ++i) {
-          Node* n = cg->add_node();
-          vector<Node*> const& cn = community[i];
-          vector<Edge*> const ce = induced_edges(cn.begin(), cn.end());
-          DynamicNodeProperty& dnp
-            = link_dynamic_property_and_graph_element<DynamicNodeProperty>(cg, n);
-
-          dnp.set_flag(ElementFlag::VISIBLE);
-          dnp.set_weight(0.0);
-          dnp.set_size(sqrtf(float(cn.size())));
-
-          for (vector<Node*>::const_iterator j=cn.begin(), jend=cn.end(); j!=jend; ++j) {
-            dnp.register_lower_element(&g->property(node2node[*j]));
-            upper_nodes[(*j)->index()].push_back(&dnp);
-          }
-
-          for (vector<Edge*>::const_iterator j=ce.begin(), jend=ce.end(); j!=jend; ++j)
-            dnp.register_lower_element(&g->property(edge2edge[*j]));
-          /*
-           * Don't forget to call "register_upper_element()" in
-           * SociariumGraphTimeSeries::update_community().
-           */
-        }
-
-        assert(cg->nsize()==csz);
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        // Make community edges.
-        vector<vector<double> > weight(csz, vector<double>(csz, 0.0));
-
-        for (edge_iterator i=g_target->ebegin(); i!=g_target->eend(); ++i) {
-
-          DynamicEdgeProperty& dep = g->property(edge2edge[*i]);
-
-          vector<DynamicNodeProperty*> const& un0 = upper_nodes[(*i)->source()->index()];
-          vector<DynamicNodeProperty*> const& un1 = upper_nodes[(*i)->target()->index()];
-
-          double const w = dep.get_weight()/(un0.size()*un1.size());
-
-          vector<DynamicNodeProperty*>::const_iterator j    = un0.begin();
-          vector<DynamicNodeProperty*>::const_iterator jend = un0.end();
-
-          for (; j!=jend; ++j) {
-
-            size_t const jj = (*j)->get_graph_element()->index();
-
-            vector<DynamicNodeProperty*>::const_iterator k    = un1.begin();
-            vector<DynamicNodeProperty*>::const_iterator kend = un1.end();
-
-            for (; k!=kend; ++k) {
-              if (*j!=*k) {
-                size_t const kk = (*k)->get_graph_element()->index();
-                weight[jj][kk] += w;
-              }
-            }
-          }
-        }
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        for (size_t i=0; i<csz; ++i) {
-          for (size_t j=i+1; j<csz; ++j) {
-
-            // Directed graph.
-            if (cg->is_directed()) {
-              if (weight[i][j]>0.0) {
-                Edge* e = cg->add_edge(cg->node(i), cg->node(j));
-
-                DynamicEdgeProperty& dep
-                  = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(cg, e);
-
-                dep.set_flag(ElementFlag::VISIBLE);
-                dep.set_color_id(
-                  sociarium_project_color::get_default_community_edge_color_id());
-                dep.set_weight(sqrtf(float(weight[i][j])));
-                dep.set_width(sqrtf(dep.get_weight()));
-              }
-
-              if (weight[j][i]>0.0) {
-                Edge* e = cg->add_edge(cg->node(j), cg->node(i));
-
-                DynamicEdgeProperty& dep
-                  = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(cg, e);
-
-                dep.set_flag(ElementFlag::VISIBLE);
-                dep.set_color_id(
-                  sociarium_project_color::get_default_community_edge_color_id());
-                dep.set_weight(sqrtf(float(weight[j][i])));
-                dep.set_width(sqrtf(dep.get_weight()));
-              }
-            }
-
-            // Undirected graph.
-            else {
-              if (weight[i][j]+weight[j][i]>0.0) {
-                Node* c0 = cg->node(i);
-                Node* c1 = cg->node(j);
-                Edge* e = c0<c1?cg->add_edge(c0, c1):cg->add_edge(c1, c0);
-                DynamicEdgeProperty& dep
-                  = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(cg, e);
-
-                dep.set_flag(ElementFlag::VISIBLE);
-                dep.set_color_id(
-                  sociarium_project_color::get_default_community_edge_color_id());
-                dep.set_weight(sqrtf(float(weight[i][j]+weight[j][i])));
-                dep.set_width(sqrtf(dep.get_weight()));
-              }
-            }
-          }
-        }
-
-        community_series[layer] = cg;
-
-        status[0]
-          = number_of_layers<2
-            ?(boost::wformat(L"%s")
-              %get_message(Message::DETECTING_COMMUNITIES)).str()
-              :(boost::wformat(L"%s: %d%%")
-                %get_message(Message::DETECTING_COMMUNITIES)
-                %int(100.0*(layer+1.0)/number_of_layers)).str();
-      }
-
-      status[1] = L"";
-
-      // --------------------------------------------------------------------------------
-      // Identify community pairs in successive layers.
-
-      static_community_property_.clear();
-      static_community_edge_property_.clear();
-      community_edge_identifier_.clear();
-
-      size_t const current_layer = ts->index_of_current_layer();
-
-      { // Make a base layer for the identification.
-        shared_ptr<SociariumGraph> cg = community_series[current_layer];
-
-        {
-          node_property_iterator i   = cg->node_property_begin();
-          node_property_iterator end = cg->node_property_end();
-
-          for (; i!=end; ++i) {
-
-            pair<StaticNodePropertySet::iterator, bool> pp
-              = static_community_property_.insert(
-                StaticNodeProperty(static_community_property_.size()));
-
-            assert(pp.second);
-
-            StaticNodeProperty* snp = &*pp.first;
-
-            DynamicNodeProperty& dnp = i->second;
-            link_dynamic_and_static_properties(current_layer, &dnp, snp);
-
-            snp->set_name((boost::wformat(L"%d")%snp->get_id()).str());
-            snp->set_texture(sociarium_project_texture::get_default_community_texture());
-
-            dnp.set_color_id(snp->get_id()%predefined_color.number_of_custom_colors()
-                             +predefined_color.number_of_reserved_colors());
-          }
-        }
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        {
-          edge_property_iterator i   = cg->edge_property_begin();
-          edge_property_iterator end = cg->edge_property_end();
-
-          for (; i!=end; ++i) {
-
-            pair<StaticEdgePropertySet::iterator, bool> pp
-              = static_community_edge_property_.insert(
-                StaticEdgeProperty(static_community_edge_property_.size()));
-
-            assert(pp.second);
-
-            StaticEdgeProperty* sep = &*pp.first;
-
-            DynamicEdgeProperty& dep = i->second;
-            link_dynamic_and_static_properties(current_layer, &dep, sep);
-
-            sep->set_name((boost::wformat(L"%d")%sep->get_id()).str());
-            sep->set_texture(sociarium_project_texture::get_default_edge_texture());
-
-            StaticNodeProperty* snp0
-              = cg->property(i->first->source()).get_static_property();
-            StaticNodeProperty* snp1
-              = cg->property(i->first->target()).get_static_property();
-
-            SNP2SEP m;
-            m.insert(make_pair(snp1, sep));
-            community_edge_identifier_.insert(make_pair(snp0, m));
-          }
-        }
-      }
-
-      int count = 0;
-
-      // Start iteration of the identification [forward].
-      for (size_t layer=current_layer+1; layer<number_of_layers; ++layer) {
-
-        // **********  Catch a termination signal  **********
-        if (cancel_check()) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        status[1]
-          = (boost::wformat(L"%s: %d%%")
-             %get_message(Message::MAKING_COMMUNITY_TIME_SERIES)
-             %int((100.0*count++)/number_of_layers)).str();
-
-        identify_communities(
-          layer, community_series[layer-1], community_series[layer]);
-      }
-
-      // Start iteration of the identification [backward].
-      if (current_layer!=0) {
-        for (size_t layer=current_layer-1; layer!=size_t(-1); --layer) {
+        for (size_t layer=0; layer<number_of_layers; ++layer) {
 
           // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
+          if (cancel_check()) return terminate();
+
+          status[0]
+            = number_of_layers<2?
+              (boost::wformat(L"%s")
+               %get_message(Message::DETECTING_COMMUNITIES)).str()
+                :(boost::wformat(L"%s: %d%%")
+                  %get_message(Message::DETECTING_COMMUNITIES)
+                  %int((100.0*layer)/number_of_layers)).str();
+
+          // --------------------------------------------------------------------------------
+          // Extract marked elements.
+
+          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+
+          unordered_map<Node*, Node const*> node2node; // Map nodes in @g_target to nodes in @g.
+          unordered_map<Edge*, Edge const*> edge2edge; // Map edges in @g_target to edges in @g.
+
+          pair<bool, shared_ptr<Graph const> > const ext
+            = sociarium_project_graph_extractor::get(
+              this, &status[1], g, node2node, edge2edge, ElementFlag::ACTIVE);
+
+          if (ext.first==false) return terminate();
+
+          shared_ptr<Graph const> g_target = ext.second;
+
+          if (g_target->nsize()==0) {
+            community_series[layer] = SociariumGraph::create(g_target->is_directed());
+            continue;
           }
+
+          // **********  Catch a termination signal  **********
+          if (cancel_check()) return terminate();
+
+          vector<double> edge_weight;
+          edge_weight.reserve(g_target->esize());
+
+          if (use_weighted_modularity()) {
+            for (edge_iterator i=g_target->ebegin(); i!=g_target->eend(); ++i)
+              edge_weight.push_back(double(g->property(edge2edge[*i]).get_weight()));
+          }
+
+          // --------------------------------------------------------------------------------
+          // Execute the module.
+
+          vector<vector<Node*> > community;
+          bool is_canceled = false;
+
+          detect_community(
+            *this,
+            status[1],
+            get_message_object(),
+            community,
+            is_canceled,
+            g_target,
+            edge_weight);
+
+          if (is_canceled) return terminate();
+
+          // --------------------------------------------------------------------------------
+          // Create a community graph.
+
+          size_t const csz = community.size();
+          shared_ptr<SociariumGraph> cg(SociariumGraph::create(g_target->is_directed()));
+          vector<vector<DynamicNodeProperty*> > upper_nodes(g_target->nsize());
+
+          // Make community nodes.
+          for (size_t i=0; i<csz; ++i) {
+            Node* n = cg->add_node();
+            vector<Node*> const& cn = community[i];
+            vector<Edge*> const ce = induced_edges(cn.begin(), cn.end());
+            DynamicNodeProperty& dnp
+              = link_dynamic_property_and_graph_element<DynamicNodeProperty>(cg, n);
+
+            dnp.set_flag(ElementFlag::ACTIVE);
+            dnp.set_weight(0.0);
+            dnp.set_size(sqrtf(float(cn.size())));
+
+            for (vector<Node*>::const_iterator j=cn.begin(), jend=cn.end(); j!=jend; ++j) {
+              dnp.register_lower_element(&g->property(node2node[*j]));
+              upper_nodes[(*j)->index()].push_back(&dnp);
+            }
+
+            for (vector<Edge*>::const_iterator j=ce.begin(), jend=ce.end(); j!=jend; ++j)
+              dnp.register_lower_element(&g->property(edge2edge[*j]));
+            /*
+             * Don't forget to call "register_upper_element()" in
+             * SociariumGraphTimeSeries::update_community().
+             */
+          }
+
+          assert(cg->nsize()==csz);
+
+          // **********  Catch a termination signal  **********
+          if (cancel_check()) return terminate();
+
+          // Make community edges.
+          vector<vector<double> > weight(csz, vector<double>(csz, 0.0));
+
+          for (edge_iterator i=g_target->ebegin(); i!=g_target->eend(); ++i) {
+
+            DynamicEdgeProperty& dep = g->property(edge2edge[*i]);
+
+            vector<DynamicNodeProperty*> const& un0 = upper_nodes[(*i)->source()->index()];
+            vector<DynamicNodeProperty*> const& un1 = upper_nodes[(*i)->target()->index()];
+
+            double const w = dep.get_weight()/(un0.size()*un1.size());
+
+            vector<DynamicNodeProperty*>::const_iterator j    = un0.begin();
+            vector<DynamicNodeProperty*>::const_iterator jend = un0.end();
+
+            for (; j!=jend; ++j) {
+
+              size_t const jj = (*j)->get_graph_element()->index();
+
+              vector<DynamicNodeProperty*>::const_iterator k    = un1.begin();
+              vector<DynamicNodeProperty*>::const_iterator kend = un1.end();
+
+              for (; k!=kend; ++k) {
+                if (*j!=*k) {
+                  size_t const kk = (*k)->get_graph_element()->index();
+                  weight[jj][kk] += w;
+                }
+              }
+            }
+          }
+
+          // **********  Catch a termination signal  **********
+          if (cancel_check()) return terminate();
+
+          for (size_t i=0; i<csz; ++i) {
+            for (size_t j=i+1; j<csz; ++j) {
+
+              // Directed graph.
+              if (cg->is_directed()) {
+                if (weight[i][j]>0.0) {
+                  Edge* e = cg->add_edge(cg->node(i), cg->node(j));
+
+                  DynamicEdgeProperty& dep
+                    = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(cg, e);
+
+                  dep.set_flag(ElementFlag::ACTIVE);
+                  dep.set_color_id(
+                    sociarium_project_color::get_default_community_edge_color_id());
+                  dep.set_weight(sqrtf(float(weight[i][j])));
+                  dep.set_width(sqrtf(dep.get_weight()));
+                }
+
+                if (weight[j][i]>0.0) {
+                  Edge* e = cg->add_edge(cg->node(j), cg->node(i));
+
+                  DynamicEdgeProperty& dep
+                    = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(cg, e);
+
+                  dep.set_flag(ElementFlag::ACTIVE);
+                  dep.set_color_id(
+                    sociarium_project_color::get_default_community_edge_color_id());
+                  dep.set_weight(sqrtf(float(weight[j][i])));
+                  dep.set_width(sqrtf(dep.get_weight()));
+                }
+              }
+
+              // Undirected graph.
+              else {
+                if (weight[i][j]+weight[j][i]>0.0) {
+                  Node* c0 = cg->node(i);
+                  Node* c1 = cg->node(j);
+                  Edge* e = c0<c1?cg->add_edge(c0, c1):cg->add_edge(c1, c0);
+                  DynamicEdgeProperty& dep
+                    = link_dynamic_property_and_graph_element<DynamicEdgeProperty>(cg, e);
+
+                  dep.set_flag(ElementFlag::ACTIVE);
+                  dep.set_color_id(
+                    sociarium_project_color::get_default_community_edge_color_id());
+                  dep.set_weight(sqrtf(float(weight[i][j]+weight[j][i])));
+                  dep.set_width(sqrtf(dep.get_weight()));
+                }
+              }
+            }
+          }
+
+          community_series[layer] = cg;
+
+          status[0]
+            = number_of_layers<2
+              ?(boost::wformat(L"%s")
+                %get_message(Message::DETECTING_COMMUNITIES)).str()
+                :(boost::wformat(L"%s: %d%%")
+                  %get_message(Message::DETECTING_COMMUNITIES)
+                  %int(100.0*(layer+1.0)/number_of_layers)).str();
+        }
+
+        status[1] = L"";
+
+        // --------------------------------------------------------------------------------
+        // Identify community pairs in successive layers.
+
+        static_community_property_.clear();
+        static_community_edge_property_.clear();
+        community_edge_identifier_.clear();
+
+        size_t const current_layer = ts->index_of_current_layer();
+
+        { // Make a base layer for the identification.
+          shared_ptr<SociariumGraph> cg = community_series[current_layer];
+
+          {
+            node_property_iterator i   = cg->node_property_begin();
+            node_property_iterator end = cg->node_property_end();
+
+            for (; i!=end; ++i) {
+
+              pair<StaticNodePropertySet::iterator, bool> pp
+                = static_community_property_.insert(
+                  StaticNodeProperty(static_community_property_.size()));
+
+              assert(pp.second);
+
+              StaticNodeProperty* snp = &*pp.first;
+
+              DynamicNodeProperty& dnp = i->second;
+              link_dynamic_and_static_properties(current_layer, &dnp, snp);
+
+              snp->set_name((boost::wformat(L"%d")%snp->get_id()).str());
+              snp->set_texture(sociarium_project_texture::get_default_community_texture());
+
+              dnp.set_color_id(snp->get_id()%predefined_color.number_of_custom_colors()
+                               +predefined_color.number_of_reserved_colors());
+            }
+          }
+
+          // **********  Catch a termination signal  **********
+          if (cancel_check()) return terminate();
+
+          {
+            edge_property_iterator i   = cg->edge_property_begin();
+            edge_property_iterator end = cg->edge_property_end();
+
+            for (; i!=end; ++i) {
+
+              pair<StaticEdgePropertySet::iterator, bool> pp
+                = static_community_edge_property_.insert(
+                  StaticEdgeProperty(static_community_edge_property_.size()));
+
+              assert(pp.second);
+
+              StaticEdgeProperty* sep = &*pp.first;
+
+              DynamicEdgeProperty& dep = i->second;
+              link_dynamic_and_static_properties(current_layer, &dep, sep);
+
+              sep->set_name((boost::wformat(L"%d")%sep->get_id()).str());
+              sep->set_texture(sociarium_project_texture::get_default_edge_texture());
+
+              StaticNodeProperty* snp0
+                = cg->property(i->first->source()).get_static_property();
+              StaticNodeProperty* snp1
+                = cg->property(i->first->target()).get_static_property();
+
+              SNP2SEP m;
+              m.insert(make_pair(snp1, sep));
+              community_edge_identifier_.insert(make_pair(snp0, m));
+            }
+          }
+        }
+
+        int count = 0;
+
+        // Start iteration of the identification [forward].
+        for (size_t layer=current_layer+1; layer<number_of_layers; ++layer) {
+
+          // **********  Catch a termination signal  **********
+          if (cancel_check()) return terminate();
 
           status[1]
             = (boost::wformat(L"%s: %d%%")
@@ -566,14 +520,31 @@ namespace hashimoto_ut {
                %int((100.0*count++)/number_of_layers)).str();
 
           identify_communities(
-            layer, community_series[layer+1], community_series[layer]);
+            layer, community_series[layer-1], community_series[layer]);
         }
+
+        // Start iteration of the identification [backward].
+        if (current_layer!=0) {
+          for (size_t layer=current_layer-1; layer!=size_t(-1); --layer) {
+
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
+
+            status[1]
+              = (boost::wformat(L"%s: %d%%")
+                 %get_message(Message::MAKING_COMMUNITY_TIME_SERIES)
+                 %int((100.0*count++)/number_of_layers)).str();
+
+            identify_communities(
+              layer, community_series[layer+1], community_series[layer]);
+          }
+        }
+
+        ts->update_community(community_series,
+                             static_community_property_,
+                             static_community_edge_property_);
       }
 
-      ts->update_community(community_series,
-                           static_community_property_,
-                           static_community_edge_property_);
-      ts->read_unlock();
       return terminate();
     }
 

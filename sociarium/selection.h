@@ -75,6 +75,7 @@ namespace hashimoto_ut {
       TRAJECTORY,
       DIAGRAM_FRAME,
       DIAGRAM_FRAME_BORDER,
+      CELL,
       NUMBER_OF_CATEGORIES
     };
 

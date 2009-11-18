@@ -88,7 +88,8 @@ namespace hashimoto_ut {
             path += L"community_detection_betweenness_centrality_separation.dll";
           else if (method==CommunityDetectionAlgorithm::INFORMATION_FLOW_MAPPING)
             path += L"community_detection_information_flow_mapping.dll";
-          else assert(0 && "never reach");
+          else
+            assert(0 && "never reach");
 
           // Check if the module has already loaded.
           if (module_.find(path)==module_.end()) {

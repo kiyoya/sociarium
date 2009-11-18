@@ -40,7 +40,7 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   struct ElementFlag {
     enum {
-      VISIBLE            = 0x01,
+      ACTIVE             = 0x01,
       CAPTURED           = 0x02,
       MARKED             = 0x04,
       TEMPORARY_MARKED   = 0x08,
@@ -56,18 +56,18 @@ namespace hashimoto_ut {
 
     ////////////////////////////////////////////////////////////////////////////////
     template <typename T>
-    bool is_active(T const& p, int flag) {
+    bool is_on(T const& p, int flag) {
       return (p.get_flag()&flag)!=0;
     }
 
     template <typename T>
-    bool is_visible(T const& p) {
-      return (p.get_flag()&ElementFlag::VISIBLE)!=0;
+    bool is_active(T const& p) {
+      return (p.get_flag()&ElementFlag::ACTIVE)!=0;
     }
 
     template <typename T>
-    bool is_hidden(T const& p) {
-      return (p.get_flag()&ElementFlag::VISIBLE)==0;
+    bool is_inactive(T const& p) {
+      return (p.get_flag()&ElementFlag::ACTIVE)==0;
     }
 
     template <typename T>
@@ -90,42 +90,31 @@ namespace hashimoto_ut {
      */
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct ActivateFlag {
+    struct SetFlag {
       template <typename T>
       void operator()(T* p, unsigned int flag) const {
-        if (is_visible(*p)) p->set_flag(p->get_flag()|flag);
+        if (is_active(*p)) p->set_flag(p->get_flag()|flag);
       }
 
       template <typename T>
       void operator()(T& p, unsigned int flag) const {
-        typename T::second_type& value = p.second;
-        if (is_visible(value)) value.set_flag(value.get_flag()|flag);
+        typename T::second_type& elm = p.second;
+        if (is_active(elm)) elm.set_flag(elm.get_flag()|flag);
       }
     };
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct DeactivateFlag {
+    struct UnsetFlag {
       template <typename T>
       void operator()(T* p, unsigned int flag) const {
-        if (is_visible(*p)) p->set_flag(p->get_flag()&~flag);
+        if (is_active(*p)) p->set_flag(p->get_flag()&~flag);
       }
 
       template <typename T>
       void operator()(T& p, unsigned int flag) const {
-        typename T::second_type& value = p.second;
-        if (is_visible(value)) value.set_flag(value.get_flag()&~flag);
-      }
-    };
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    struct ActivateFlagIfMarked {
-      template <typename T>
-      void operator()(T& p, unsigned int flag) const {
-        typename T::second_type& value = p.second;
-        if (is_visible(value) && value.get_flag()&HIGHLIGHT_AND_MARKED)
-          value.set_flag(value.get_flag()|flag);
+        typename T::second_type& elm = p.second;
+        if (is_active(elm)) elm.set_flag(elm.get_flag()&~flag);
       }
     };
 
@@ -134,9 +123,9 @@ namespace hashimoto_ut {
     struct ToggleFlag {
       template <typename T>
       void operator()(T& p, unsigned int flag) const {
-        typename T::second_type& value = p.second;
-        if (is_visible(value))
-          value.set_flag((value.get_flag()^flag)&ElementFlag::MASK);
+        typename T::second_type& elm = p.second;
+        if (is_active(elm))
+          elm.set_flag((elm.get_flag()^flag)&ElementFlag::MASK);
       }
     };
 
@@ -156,14 +145,14 @@ namespace hashimoto_ut {
           node_property_iterator end = g->node_property_end();
 
           for (; i!=end; ++i)
-            if (is_hidden(i->second)) nflag_[i->first->index()] = CLOSED;
+            if (is_inactive(i->second)) nflag_[i->first->index()] = CLOSED;
         }{
           // Set closed edges.
           edge_property_iterator i   = g->edge_property_begin();
           edge_property_iterator end = g->edge_property_end();
 
           for (; i!=end; ++i)
-            if (is_hidden(i->second)) eflag_[i->first->index()] = CLOSED;
+            if (is_inactive(i->second)) eflag_[i->first->index()] = CLOSED;
         }
       }
 

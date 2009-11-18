@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\http_client.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\layout.cpp"
 				>
 			</File>
@@ -658,6 +662,10 @@
 			</File>
 			<File
 				RelativePath="..\graph_utility.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http_client.h"
 				>
 			</File>
 			<File

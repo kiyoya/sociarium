@@ -29,12 +29,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <vector>
 #include <unordered_map>
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 #include <zmouse.h>
+#include <shellapi.h>
 #include <GL/gl.h>
 #include "algorithm_selector.h"
 #include "common.h"
@@ -57,10 +60,6 @@
 #include "../shared/timer.h"
 #include "../shared/util.h"
 #include "../shared/win32api.h"
-
-//#include "cvframe.h"
-//#include "designtide.h"
-//#include "tamabi_library.h"
 
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "opengl32.lib")
@@ -113,7 +112,6 @@ namespace hashimoto_ut {
       }
     }
 
-    // Set message.
     unordered_map<wstring, wstring>::const_iterator m
       = data_ini.find(L"language");
 
@@ -121,10 +119,11 @@ namespace hashimoto_ut {
     wchar_t const* ini_filename
       = (m!=data_ini.end())?m->second.c_str():L"language_en.dll";
 
+    // Set message.
     try {
       sociarium_project_menu_and_message::set_message(ini_filename);
-    } catch (wchar_t const* errmsg) {
-      show_last_error(hwnd, errmsg);
+    } catch (wstring const& errmsg) {
+      show_last_error(hwnd, errmsg.c_str());
       exit(1);
     }
 
@@ -134,8 +133,8 @@ namespace hashimoto_ut {
     // Set menu.
     try {
       sociarium_project_menu_and_message::set_menu(hwnd, ini_filename);
-    } catch (wchar_t const* errmsg) {
-      show_last_error(hwnd, errmsg);
+    } catch (wstring const& errmsg) {
+      show_last_error(hwnd, errmsg.c_str());
       exit(1);
     }
     /* 'SetMenu()' will cause the WM_SIZE command, and window sizing requires
@@ -143,7 +142,7 @@ namespace hashimoto_ut {
      * In 'World::create()', some messages may be shown depending on the PC environment.
      * So, the message object should be created before 'World::create()'.
      */
-    
+
     // Create and start the timer.
     timer_.reset(new Timer(hwnd));
     timer_->add(ID_TIMER_DRAW, 1);
@@ -168,117 +167,73 @@ namespace hashimoto_ut {
   ////////////////////////////////////////////////////////////////////////////////
   void MainWindow::wmCommand(HWND hwnd, WPARAM wp, LPARAM lp) {
     switch (LOWORD(wp)) {
-#if 0
-    case IDM_KEY_W: {
-      sociarium_project_designtide::switch_cvframe();
-      break;
-    }
-#endif
-    case IDM_KEY_Q:
-    case IDM_KEY_CTRL_Q: {
-#if 0
-      if (sociarium_project_cvframe::joinable()) {
-        sociarium_project_cvframe::terminate();
-        sociarium_project_tamabi_library::set_cell_texture(false);
-      } else {
-        sociarium_project_tamabi_library::set_cell_texture(true);
-        shared_ptr<CVFrame> cvframe = sociarium_project_cvframe::create();
-        if (GetKeyState(VK_CONTROL)<0) cvframe->set_camera();
-        else cvframe->set_movie(L"movie.avi");
-        sociarium_project_cvframe::invoke(cvframe);
-      }
-#endif
-#if 0
-      static Texture const* texture_prev = 0;
 
-      if (sociarium_project_cvframe::joinable()) {
-        sociarium_project_cvframe::terminate();
+      {
+        // --------------------------------------------------------------------------------
+        // FILE
 
-        shared_ptr<SociariumGraphTimeSeries> ts
-          = sociarium_project_graph_time_series::get();
+      case IDM_KEY_ESCAPE: {
+        using namespace sociarium_project_thread;
+        shared_ptr<Thread> tf = get_thread_function(GRAPH_CREATION);
 
-        ts->read_lock();
-
-        SociariumGraphTimeSeries::StaticNodePropertySet::iterator i
-          = ts->find_static_node(0, 0);
-
-        if (i==ts->static_node_property_end(0)) {
-          ts->read_unlock();
-          break;
-        }
-
-        i->set_texture(texture_prev);
-        ts->read_unlock();
-
-      } else {
-
-        shared_ptr<SociariumGraphTimeSeries> ts
-          = sociarium_project_graph_time_series::get();
-
-        ts->read_lock();
-
-        SociariumGraphTimeSeries::StaticNodePropertySet::iterator i
-          = ts->find_static_node(0, 0);
-
-        if (i==ts->static_node_property_end(0)) {
-          ts->read_unlock();
-          break;
-        }
-
-        texture_prev = i->get_texture();
-        ts->read_unlock();
-
-        shared_ptr<CVFrame> cvframe = sociarium_project_cvframe::create();
-        if (GetKeyState(VK_CONTROL)<0) cvframe->set_camera();
-        else cvframe->set_movie(L"movie.avi");
-        cvframe->set_masking_image(L"balloon_mask.png");
-        sociarium_project_cvframe::invoke(cvframe);
-      }
-#endif
-#if 0
-      sociarium_project_designtide::update();
-#endif
-      break;
-    }
-
-    case IDM_KEY_ESCAPE: {
-      using namespace sociarium_project_thread;
-      shared_ptr<Thread> tf = get_thread_function(GRAPH_CREATION);
-
-      if (joinable(GRAPH_CREATION)) {
-        tf->suspend();
-        if (message_box(hwnd, mb_ok_cancel, APPLICATION_TITLE,
-                        get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
-          tf->cancel();
-          join(GRAPH_CREATION);
+        if (joinable(GRAPH_CREATION)) {
+          tf->suspend();
+          if (message_box(hwnd, mb_ok_cancel, APPLICATION_TITLE,
+                          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+            tf->cancel();
+            join(GRAPH_CREATION);
+          } else
+            tf->resume();
         } else
-          tf->resume();
-      } else
+          SendMessage(hwnd, WM_CLOSE, 0, 0);
+
+        break;
+      }
+
+      case IDM_FILE_QUIT:
         SendMessage(hwnd, WM_CLOSE, 0, 0);
+        break;
 
-      break;
-    }
+      case IDM_FILE_CANCEL: {
+        using namespace sociarium_project_thread;
+        shared_ptr<Thread> tf = get_thread_function(GRAPH_CREATION);
 
-    case IDM_FILE_QUIT:
-      SendMessage(hwnd, WM_CLOSE, 0, 0);
-      break;
+        if (joinable(GRAPH_CREATION)) {
+          tf->suspend();
+          if (message_box(hwnd, mb_ok_cancel, APPLICATION_TITLE,
+                          get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
+            tf->cancel();
+            join(GRAPH_CREATION);
+          } else
+            tf->resume();
+        }
 
-    case IDM_FILE_CANCEL: {
-      using namespace sociarium_project_thread;
-      shared_ptr<Thread> tf = get_thread_function(GRAPH_CREATION);
-
-      if (joinable(GRAPH_CREATION)) {
-        tf->suspend();
-        if (message_box(hwnd, mb_ok_cancel, APPLICATION_TITLE,
-                        get_message(Message::CANCEL_RUNNING_THREAD))==IDOK) {
-          tf->cancel();
-          join(GRAPH_CREATION);
-        } else
-          tf->resume();
+        break;
       }
 
-      break;
-    }
+      case IDM_FILE_OUTPUT_DEGREE_DISTRIBUTION: {
+        static GetFileName gfn;
+        wchar_t const* filename = gfn.prev_filename().empty()?L"":gfn.prev_filename().c_str();
+        wchar_t const* title = L"Degree Distribution";
+        wchar_t const* filter = L"Text files(*.txt)\0*.txt\0All files(*.*)\0*.*\0\0";
+        wchar_t const* path = gfn.prev_dir().empty()?get_module_path().c_str():gfn.prev_dir().c_str();
+        wstring name = gfn.for_write(hwnd, filename, title, filter, path);
+        world_->output_degree_distribution(name.c_str());
+        break;
+      }
+
+      case IDM_FILE_OUTPUT_COMMUNITY_INFORMATION: {
+        static GetFileName gfn;
+        wchar_t const* filename = gfn.prev_filename().empty()?L"":gfn.prev_filename().c_str();
+        wchar_t const* title = L"Community Information";
+        wchar_t const* filter = L"Text files(*.txt)\0*.txt\0All files(*.*)\0*.*\0\0";
+        wchar_t const* path = gfn.prev_dir().empty()?get_module_path().c_str():gfn.prev_dir().c_str();
+        wstring name = gfn.for_write(hwnd, filename, title, filter, path);
+        world_->output_community_information(name.c_str());
+        break;
+      }
+
+      }
 
     case IDM_LAYOUT_CANCEL: {
       using namespace sociarium_project_thread;
@@ -379,14 +334,14 @@ namespace hashimoto_ut {
     }
 
     case IDM_KEY_NEXT:
-      if (!timer_->is_active(ID_TIMER_ZOOM)) {
+      if (!timer_->is_on(ID_TIMER_ZOOM)) {
         zoom_ = 0;
         timer_->start(ID_TIMER_ZOOM);
       }
       break;
 
     case IDM_KEY_PRIOR:
-      if (!timer_->is_active(ID_TIMER_ZOOM)) {
+      if (!timer_->is_on(ID_TIMER_ZOOM)) {
         zoom_ = 1;
         timer_->start(ID_TIMER_ZOOM);
       }
@@ -395,13 +350,15 @@ namespace hashimoto_ut {
     case IDM_TIMELINE_NEXT:
     case IDM_KEY_RIGHT:
     case IDM_KEY_UP:
-      world_->forward_layer(window2viewport(get_mouse_position(hwnd)));
+      world_->step_forward_layer();
+      world_->select(window2viewport(get_mouse_position(hwnd)));
       break;
 
     case IDM_TIMELINE_PREV:
     case IDM_KEY_LEFT:
     case IDM_KEY_DOWN:
-      world_->backward_layer(window2viewport(get_mouse_position(hwnd)));
+      world_->step_backward_layer();
+      world_->select(window2viewport(get_mouse_position(hwnd)));
       break;
 
       {
@@ -1096,11 +1053,14 @@ namespace hashimoto_ut {
     case ID_TIMER_AUTO_RUN: {
       using namespace sociarium_project_timeline;
       if (AutoRun::FORWARD_1<=sociarium_project_timeline::get_auto_run_id()
-          && sociarium_project_timeline::get_auto_run_id()<=AutoRun::FORWARD_4)
-        world_->forward_layer(window2viewport(get_mouse_position(hwnd)));
-      else if (AutoRun::BACKWARD_1<=sociarium_project_timeline::get_auto_run_id()
-               && sociarium_project_timeline::get_auto_run_id()<=AutoRun::BACKWARD_4)
-        world_->backward_layer(window2viewport(get_mouse_position(hwnd)));
+          && sociarium_project_timeline::get_auto_run_id()<=AutoRun::FORWARD_4) {
+        world_->step_forward_layer();
+        world_->select(window2viewport(get_mouse_position(hwnd)));
+      } else if (AutoRun::BACKWARD_1<=sociarium_project_timeline::get_auto_run_id()
+                 && sociarium_project_timeline::get_auto_run_id()<=AutoRun::BACKWARD_4) {
+        world_->step_backward_layer();
+        world_->select(window2viewport(get_mouse_position(hwnd)));
+      }
       break;
     }
 
@@ -1557,7 +1517,7 @@ namespace hashimoto_ut {
 
       {
         MENUITEMINFO mii = { sizeof(MENUITEMINFO),MIIM_STATE,0,0,0,0,0,0,0,0,0 };
-        mii.fState = sociarium_project_force_direction::is_active()
+        mii.fState = sociarium_project_force_direction::is_on()
           ?MFS_CHECKED:MFS_UNCHECKED;
         SetMenuItemInfo(hmenu, IDM_LAYOUT_FORCE_DIRECTION_RUN, FALSE, &mii);
       }{
@@ -1774,7 +1734,6 @@ namespace hashimoto_ut {
     if (GetCapture()==hwnd) {
       ReleaseCapture();
       world_->do_mouse_action(MouseAction::RBUTTON_UP, window2viewport(lp), wp);
-      //timer_->start(ID_TIMER_SELECT);
     }
   }
 
@@ -1858,8 +1817,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int nC
 
   // --------------------------------------------------------------------------------
   // Create a GL window.
-  const DWORD style = WS_OVERLAPPEDWINDOW | CS_DBLCLKS;
-  const DWORD exstyle = WS_EX_CLIENTEDGE;
+  DWORD const style = WS_OVERLAPPEDWINDOW | CS_DBLCLKS;
+  DWORD const exstyle = WS_EX_CLIENTEDGE;
   hashimoto_ut::MainWindow wnd;
   wnd.create(L"WCMAIN", hashimoto_ut::sociarium_project_common::APPLICATION_TITLE,
              style, exstyle, CW_USEDEFAULT, CW_USEDEFAULT, 809, 500, 0, 0);

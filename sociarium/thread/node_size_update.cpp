@@ -86,358 +86,321 @@ namespace hashimoto_ut {
       shared_ptr<SociariumGraphTimeSeries> ts
         = sociarium_project_graph_time_series::get();
 
-      ts->read_lock();
-      /*
-       * Don't forget to call read_unlock().
-       */
+      {
+        TimeSeriesLock lock(ts, TimeSeriesLock::Read);
 
-      deque<wstring>& status = get_status(NODE_SIZE_UPDATE);
+        deque<wstring>& status = get_status(NODE_SIZE_UPDATE);
 
-      size_t const number_of_layers = ts->number_of_layers();
+        size_t const number_of_layers = ts->number_of_layers();
 
-      vector<vector<double> > node_size(number_of_layers);
+        vector<vector<double> > node_size(number_of_layers);
 
-      double mean = 0.0;
-      double denom = 0.0;
+        double mean = 0.0;
+        double denom = 0.0;
 
-      // --------------------------------------------------------------------------------
-      // Point
-      if (get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::POINT) {
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
+        // --------------------------------------------------------------------------------
+        // Point
+        if (get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::POINT) {
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
 
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
 
-          status[0] = number_of_layers<2
-            ?get_message(Message::UPDATING_NODE_SIZE)
-              :(boost::wformat(L"%s: %d%%")
-                %get_message(Message::UPDATING_NODE_SIZE)
-                %int(100.0*(layer+1.0)/number_of_layers)).str();
-
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-
-          node_property_iterator i   = g->node_property_begin();
-          node_property_iterator end = g->node_property_end();
-
-          for (; i!=end; ++i) {
-            DynamicNodeProperty& dnp = i->second;
-            dnp.set_size(0.0f);
-          }
-        }
-      }
-
-      // --------------------------------------------------------------------------------
-      // Uniform
-      else if (get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::UNIFORM) {
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          status[0] = number_of_layers<2
-            ?get_message(Message::UPDATING_NODE_SIZE)
-              :(boost::wformat(L"%s: %d%%")
-                %get_message(Message::UPDATING_NODE_SIZE)
-                %int(100.0*(layer+1.0)/number_of_layers)).str();
-
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-
-          node_property_iterator i   = g->node_property_begin();
-          node_property_iterator end = g->node_property_end();
-
-          for (; i!=end; ++i) {
-            DynamicNodeProperty& dnp = i->second;
-            dnp.set_size(1.0f);
-          }
-        }
-      }
-
-      // --------------------------------------------------------------------------------
-      // Use weight
-      else if (get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::WEIGHT) {
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          status[0]
-            = number_of_layers<2
+            status[0] = number_of_layers<2
               ?get_message(Message::UPDATING_NODE_SIZE)
                 :(boost::wformat(L"%s: %d%%")
                   %get_message(Message::UPDATING_NODE_SIZE)
                   %int(100.0*(layer+1.0)/number_of_layers)).str();
 
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-          node_size[layer].resize(g->nsize());
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
 
-          node_property_iterator i   = g->node_property_begin();
-          node_property_iterator end = g->node_property_end();
+            node_property_iterator i   = g->node_property_begin();
+            node_property_iterator end = g->node_property_end();
 
-          for (; i!=end; ++i) {
-            DynamicNodeProperty& dnp = i->second;
-            mean += node_size[layer][i->first->index()] = sqrt(double(dnp.get_weight()));
-          }
-
-          denom += g->nsize();
-        }
-
-        if (denom>0.0)
-          mean /= denom;
-
-        if (mean==0.0) {
-          ts->read_unlock();
-          return terminate();
-        }
-
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-
-          node_property_iterator i   = g->node_property_begin();
-          node_property_iterator end = g->node_property_end();
-
-          for (; i!=end; ++i) {
-            DynamicNodeProperty& dnp = i->second;
-            dnp.set_size(float(node_size[layer][i->first->index()]/mean));
-          }
-        }
-      }
-
-      else {
-
-        for (size_t layer=0; layer<number_of_layers; ++layer) {
-
-          // **********  Catch a termination signal  **********
-          if (cancel_check()) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          status[0]
-            = number_of_layers<2
-              ?get_message(Message::UPDATING_NODE_SIZE)
-                :(boost::wformat(L"%s: %d%%")
-                  %get_message(Message::UPDATING_NODE_SIZE)
-                  %int(100.0*(layer+1.0)/number_of_layers)).str();
-
-          // --------------------------------------------------------------------------------
-          // Extract visible elements.
-
-          shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
-
-          unordered_map<Node*, Node const*> node2node; // Map nodes in @g_target to nodes in @g.
-          unordered_map<Edge*, Edge const*> edge2edge; // not used.
-
-          pair<bool, shared_ptr<Graph const> > const ext
-            = sociarium_project_graph_extractor::get(
-              this, 0, g, node2node, edge2edge, ElementFlag::VISIBLE);
-
-          if (ext.first==false) {
-            ts->read_unlock();
-            return terminate();
-          }
-
-          shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
-
-          size_t const nsz = g->nsize();
-          size_t const tnsz = g_target->nsize();
-
-          if (tnsz==0) {
-            node_size[layer].resize(nsz, 1.0);
-            continue;
-          }
-
-          // --------------------------------------------------------------------------------
-          // Use Degree Centrality
-          if (get_node_size_update_algorithm()
-              ==NodeSizeUpdateAlgorithm::DEGREE_CENTRALITY) {
-
-            vector<double> sz(nsz, 1.0);
-
-            for (size_t i=0; i<tnsz; ++i) {
-
-              // **********  Catch a termination signal  **********
-              if (cancel_check()) {
-                ts->read_unlock();
-                return terminate();
-              }
-
-              status[1]
-                = (boost::wformat(L"%s: %d%%")
-                   %get_message(Message::CALCULATING_DEGREE_CENTRALITY)
-                   %int(100.0*(i+1.0)/tnsz)).str();
-
-              Node* n = g_target->node(i);
-              double degree = 0;
-
-              for (adjacency_list_iterator k=n->obegin(); k!=n->oend(); ++k)
-                if (is_visible(g->property(node2node[(*k)->target()]))) ++degree;
-
-              for (adjacency_list_iterator k=n->ibegin(); k!=n->iend(); ++k)
-                if (is_visible(g->property(node2node[(*k)->source()])))
-                  ++degree;
-
-              mean += sz[node2node[n]->index()] = double(degree);
-            }
-
-            denom += tnsz;
-            sz.swap(node_size[layer]);
-          }
-
-          // --------------------------------------------------------------------------------
-          // Use Closeness Centrality
-          else if (get_node_size_update_algorithm()
-                   ==NodeSizeUpdateAlgorithm::CLOSENESS_CENTRALITY) {
-
-            vector<double> sz(nsz, 1.0);
-
-            shared_ptr<BFSTraverser> t
-              = g_target->is_directed()?BFSTraverser::create<downward_tag>(g_target)
-                :BFSTraverser::create<bidirectional_tag>(g_target);
-
-            pair<bool, vector<double> > cc
-              = sociarium_project_graph_utility::closeness_centrality(
-                this, &status[1], &get_message_object(), t);
-
-            if (cc.first) {
-              assert(cc.second.size()==tnsz);
-
-              for (node_iterator i=g_target->nbegin(); i!=g_target->nend(); ++i)
-                mean += sz[node2node[*i]->index()] = cc.second[(*i)->index()];
-
-              denom += tnsz;
-              sz.swap(node_size[layer]);
-            }
-
-            else {
-              ts->read_unlock();
-              return terminate();
+            for (; i!=end; ++i) {
+              DynamicNodeProperty& dnp = i->second;
+              dnp.set_size(0.0f);
             }
           }
-
-          // --------------------------------------------------------------------------------
-          // Use Betweenness Centrality
-          else if (get_node_size_update_algorithm()
-                   ==NodeSizeUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
-
-            vector<double> sz(nsz, 1.0);
-
-            shared_ptr<BFSRecordingTraverser> t
-              = g_target->is_directed()
-                ?BFSRecordingTraverser::create<downward_tag>(g_target)
-                  :BFSRecordingTraverser::create<bidirectional_tag>(g_target);
-
-            pair<bool, pair<vector<double>, vector<double> > > bc
-              = sociarium_project_graph_utility::betweenness_centrality(
-                this, &status[1], &get_message_object(), t);
-
-            if (bc.first) {
-              assert(bc.second.first.size()==tnsz);
-
-              for (node_iterator i=g_target->nbegin(); i!=g_target->nend(); ++i)
-                mean += sz[node2node[*i]->index()] = bc.second.first[(*i)->index()];
-
-              denom += tnsz;
-              sz.swap(node_size[layer]);
-            }
-
-            else {
-              ts->read_unlock();
-              return terminate();
-            }
-          }
-
-          // --------------------------------------------------------------------------------
-          // Use PageRank
-          else if (get_node_size_update_algorithm()
-                   ==NodeSizeUpdateAlgorithm::PAGERANK) {
-
-            vector<double> sz(nsz, 1.0);
-
-            pair<bool, vector<double> > pr
-              = sociarium_project_graph_utility::pagerank(
-                this, &status[1], &get_message_object(), g_target, 0.85, 1e-2);
-
-            if (pr.first) {
-              assert(pr.second.size()==tnsz);
-
-              for (node_iterator i=g_target->nbegin(); i!=g_target->nend(); ++i)
-                mean += sz[node2node[*i]->index()] = tnsz*pr.second[(*i)->index()];
-
-              denom += tnsz;
-              sz.swap(node_size[layer]);
-            }
-
-            else {
-              ts->read_unlock();
-              return terminate();
-            }
-          }
-        }
-
-        if (denom>0.0)
-          mean /= denom;
-
-        if (mean==0.0) {
-          ts->read_unlock();
-          return terminate();
         }
 
         // --------------------------------------------------------------------------------
-        // Fine adjustment
+        // Uniform
+        else if (get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::UNIFORM) {
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
 
-        if (get_node_size_update_algorithm()
-            ==NodeSizeUpdateAlgorithm::DEGREE_CENTRALITY) {
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
 
-          for (size_t i=0; i<node_size.size(); ++i) {
-            for (size_t j=0; j<node_size[i].size(); ++j) {
-              node_size[i][j] = sqrt((node_size[i][j]+1.0)/mean);
+            status[0] = number_of_layers<2
+              ?get_message(Message::UPDATING_NODE_SIZE)
+                :(boost::wformat(L"%s: %d%%")
+                  %get_message(Message::UPDATING_NODE_SIZE)
+                  %int(100.0*(layer+1.0)/number_of_layers)).str();
+
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+
+            node_property_iterator i   = g->node_property_begin();
+            node_property_iterator end = g->node_property_end();
+
+            for (; i!=end; ++i) {
+              DynamicNodeProperty& dnp = i->second;
+              dnp.set_size(1.0f);
             }
           }
         }
 
-        else if (get_node_size_update_algorithm()
-                 ==NodeSizeUpdateAlgorithm::CLOSENESS_CENTRALITY) {
+        // --------------------------------------------------------------------------------
+        // Use weight
+        else if (get_node_size_update_algorithm()==NodeSizeUpdateAlgorithm::WEIGHT) {
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
 
-          for (size_t i=0; i<node_size.size(); ++i) {
-            for (size_t j=0; j<node_size[i].size(); ++j) {
-              node_size[i][j] = sqrt(node_size[i][j]/mean+1.0);
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
+
+            status[0]
+              = number_of_layers<2
+                ?get_message(Message::UPDATING_NODE_SIZE)
+                  :(boost::wformat(L"%s: %d%%")
+                    %get_message(Message::UPDATING_NODE_SIZE)
+                    %int(100.0*(layer+1.0)/number_of_layers)).str();
+
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+            node_size[layer].resize(g->nsize());
+
+            node_property_iterator i   = g->node_property_begin();
+            node_property_iterator end = g->node_property_end();
+
+            for (; i!=end; ++i) {
+              DynamicNodeProperty& dnp = i->second;
+              mean += node_size[layer][i->first->index()] = sqrt(double(dnp.get_weight()));
+            }
+
+            denom += g->nsize();
+          }
+
+          if (denom>0.0) mean /= denom;
+
+          if (mean==0.0) return terminate();
+
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+
+            node_property_iterator i   = g->node_property_begin();
+            node_property_iterator end = g->node_property_end();
+
+            for (; i!=end; ++i) {
+              DynamicNodeProperty& dnp = i->second;
+              dnp.set_size(float(node_size[layer][i->first->index()]/mean));
             }
           }
         }
 
-        else if (get_node_size_update_algorithm()
-                 ==NodeSizeUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
+        else {
 
-          for (size_t i=0; i<node_size.size(); ++i) {
-            for (size_t j=0; j<node_size[i].size(); ++j) {
-              node_size[i][j] = log(node_size[i][j]/mean+1.0);
+          for (size_t layer=0; layer<number_of_layers; ++layer) {
+
+            // **********  Catch a termination signal  **********
+            if (cancel_check()) return terminate();
+
+            status[0]
+              = number_of_layers<2
+                ?get_message(Message::UPDATING_NODE_SIZE)
+                  :(boost::wformat(L"%s: %d%%")
+                    %get_message(Message::UPDATING_NODE_SIZE)
+                    %int(100.0*(layer+1.0)/number_of_layers)).str();
+
+            // --------------------------------------------------------------------------------
+            // Extract visible elements.
+
+            shared_ptr<SociariumGraph> g = ts->get_graph(0, layer);
+
+            unordered_map<Node*, Node const*> node2node; // Map nodes in @g_target to nodes in @g.
+            unordered_map<Edge*, Edge const*> edge2edge; // not used.
+
+            pair<bool, shared_ptr<Graph const> > const ext
+              = sociarium_project_graph_extractor::get(
+                this, 0, g, node2node, edge2edge, ElementFlag::ACTIVE);
+
+            if (ext.first==false) return terminate();
+
+            shared_ptr<Graph const> g_target = ext.second; // Extracted graph.
+
+            size_t const nsz = g->nsize();
+            size_t const tnsz = g_target->nsize();
+
+            if (tnsz==0) {
+              node_size[layer].resize(nsz, 1.0);
+              continue;
+            }
+
+            // --------------------------------------------------------------------------------
+            // Use Degree Centrality
+            if (get_node_size_update_algorithm()
+                ==NodeSizeUpdateAlgorithm::DEGREE_CENTRALITY) {
+
+              vector<double> sz(nsz, 1.0);
+
+              for (size_t i=0; i<tnsz; ++i) {
+
+                // **********  Catch a termination signal  **********
+                if (cancel_check()) return terminate();
+
+                status[1]
+                  = (boost::wformat(L"%s: %d%%")
+                     %get_message(Message::CALCULATING_DEGREE_CENTRALITY)
+                     %int(100.0*(i+1.0)/tnsz)).str();
+
+                Node* n = g_target->node(i);
+                double degree = 0;
+
+                for (adjacency_list_iterator k=n->obegin(); k!=n->oend(); ++k)
+                  if (is_active(g->property(node2node[(*k)->target()]))) ++degree;
+
+                for (adjacency_list_iterator k=n->ibegin(); k!=n->iend(); ++k)
+                  if (is_active(g->property(node2node[(*k)->source()])))
+                    ++degree;
+
+                mean += sz[node2node[n]->index()] = double(degree);
+              }
+
+              denom += tnsz;
+              sz.swap(node_size[layer]);
+            }
+
+            // --------------------------------------------------------------------------------
+            // Use Closeness Centrality
+            else if (get_node_size_update_algorithm()
+                     ==NodeSizeUpdateAlgorithm::CLOSENESS_CENTRALITY) {
+
+              vector<double> sz(nsz, 1.0);
+
+              shared_ptr<BFSTraverser> t
+                = g_target->is_directed()?BFSTraverser::create<downward_tag>(g_target)
+                  :BFSTraverser::create<bidirectional_tag>(g_target);
+
+              pair<bool, vector<double> > cc
+                = sociarium_project_graph_utility::closeness_centrality(
+                  this, &status[1], &get_message_object(), t);
+
+              if (cc.first) {
+                assert(cc.second.size()==tnsz);
+
+                for (node_iterator i=g_target->nbegin(); i!=g_target->nend(); ++i)
+                  mean += sz[node2node[*i]->index()] = cc.second[(*i)->index()];
+
+                denom += tnsz;
+                sz.swap(node_size[layer]);
+              }
+
+              else return terminate();
+            }
+
+            // --------------------------------------------------------------------------------
+            // Use Betweenness Centrality
+            else if (get_node_size_update_algorithm()
+                     ==NodeSizeUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
+
+              vector<double> sz(nsz, 1.0);
+
+              shared_ptr<BFSRecordingTraverser> t
+                = g_target->is_directed()
+                  ?BFSRecordingTraverser::create<downward_tag>(g_target)
+                    :BFSRecordingTraverser::create<bidirectional_tag>(g_target);
+
+              pair<bool, pair<vector<double>, vector<double> > > bc
+                = sociarium_project_graph_utility::betweenness_centrality(
+                  this, &status[1], &get_message_object(), t);
+
+              if (bc.first) {
+                assert(bc.second.first.size()==tnsz);
+
+                for (node_iterator i=g_target->nbegin(); i!=g_target->nend(); ++i)
+                  mean += sz[node2node[*i]->index()] = bc.second.first[(*i)->index()];
+
+                denom += tnsz;
+                sz.swap(node_size[layer]);
+              }
+
+              else return terminate();
+            }
+
+            // --------------------------------------------------------------------------------
+            // Use PageRank
+            else if (get_node_size_update_algorithm()
+                     ==NodeSizeUpdateAlgorithm::PAGERANK) {
+
+              vector<double> sz(nsz, 1.0);
+
+              pair<bool, vector<double> > pr
+                = sociarium_project_graph_utility::pagerank(
+                  this, &status[1], &get_message_object(), g_target, 0.85, 1e-2);
+
+              if (pr.first) {
+                assert(pr.second.size()==tnsz);
+
+                for (node_iterator i=g_target->nbegin(); i!=g_target->nend(); ++i)
+                  mean += sz[node2node[*i]->index()] = tnsz*pr.second[(*i)->index()];
+
+                denom += tnsz;
+                sz.swap(node_size[layer]);
+              }
+
+              else return terminate();
             }
           }
-        }
 
-        else if (get_node_size_update_algorithm()
-                 ==NodeSizeUpdateAlgorithm::PAGERANK) {
+          if (denom>0.0) mean /= denom;
 
-          for (size_t i=0; i<node_size.size(); ++i) {
-            for (size_t j=0; j<node_size[i].size(); ++j) {
-              node_size[i][j] = sqrt(node_size[i][j]/mean);
+          if (mean==0.0) return terminate();
+
+          // --------------------------------------------------------------------------------
+          // Fine adjustment
+
+          if (get_node_size_update_algorithm()
+              ==NodeSizeUpdateAlgorithm::DEGREE_CENTRALITY) {
+
+            for (size_t i=0; i<node_size.size(); ++i) {
+              for (size_t j=0; j<node_size[i].size(); ++j) {
+                node_size[i][j] = sqrt((node_size[i][j]+1.0)/mean);
+              }
             }
           }
-        }
 
-        ts->update_node_size(node_size);
+          else if (get_node_size_update_algorithm()
+                   ==NodeSizeUpdateAlgorithm::CLOSENESS_CENTRALITY) {
+
+            for (size_t i=0; i<node_size.size(); ++i) {
+              for (size_t j=0; j<node_size[i].size(); ++j) {
+                node_size[i][j] = sqrt(node_size[i][j]/mean+1.0);
+              }
+            }
+          }
+
+          else if (get_node_size_update_algorithm()
+                   ==NodeSizeUpdateAlgorithm::BETWEENNESS_CENTRALITY) {
+
+            for (size_t i=0; i<node_size.size(); ++i) {
+              for (size_t j=0; j<node_size[i].size(); ++j) {
+                node_size[i][j] = log(node_size[i][j]/mean+1.0);
+              }
+            }
+          }
+
+          else if (get_node_size_update_algorithm()
+                   ==NodeSizeUpdateAlgorithm::PAGERANK) {
+
+            for (size_t i=0; i<node_size.size(); ++i) {
+              for (size_t j=0; j<node_size[i].size(); ++j) {
+                node_size[i][j] = sqrt(node_size[i][j]/mean);
+              }
+            }
+          }
+
+          ts->update_node_size(node_size);
+        }
       }
 
-      ts->read_unlock();
       terminate();
     }
 

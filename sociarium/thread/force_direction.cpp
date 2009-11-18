@@ -187,13 +187,13 @@ namespace hashimoto_ut {
           Node const* n = i->first;
           DynamicNodeProperty const& dnp = i->second;
 
-          if (is_hidden(dnp))
+          if (is_inactive(dnp))
             continue;
 
           float& m = momentum_list[&dnp].mass = 1.0f;
 
           for (adjacency_list_iterator j=n->begin(); j!=n->end(); ++j)
-            if (is_visible(g->property(*j)))
+            if (is_active(g->property(*j)))
               ++m;
 
           for (t->reset(), t->start(n, 0.0); !t->end(); t->advance()) {
@@ -363,12 +363,12 @@ namespace hashimoto_ut {
           Node const* n0 = i->first;
           DynamicNodeProperty const& dnp0 = i->second;
 
-          if (is_hidden(dnp0)) continue;
+          if (is_inactive(dnp0)) continue;
 
           float& m = momentum_list[&dnp0].mass = 1.0f;
 
           for (adjacency_list_iterator j=n0->begin(); j!=n0->end(); ++j)
-            if (is_visible(g->property(*j)))
+            if (is_active(g->property(*j)))
               ++m;
 
           node_property_iterator j = i;
@@ -378,7 +378,7 @@ namespace hashimoto_ut {
             Node const* n1 = j->first;
             DynamicNodeProperty const& dnp1 = j->second;
 
-            if (is_hidden(dnp1)) continue;
+            if (is_inactive(dnp1)) continue;
 
             adjacency_list_iterator k = n0->find(n0->begin(), n0->end(), n1);
 
@@ -388,7 +388,7 @@ namespace hashimoto_ut {
             fde->p0 = &momentum_list[fde->dnp0];
             fde->p1 = &momentum_list[fde->dnp1];
 
-            if (k!=n0->end() && is_visible(g->property(*k)))
+            if (k!=n0->end() && is_active(g->property(*k)))
               fde->length = (n0->degree()==1||n1->degree()==1)?0.5f:2.0f;
             else
               fde->length = 0.0f;
@@ -638,7 +638,7 @@ namespace hashimoto_ut {
             StaticNodeProperty* snp = dnp.get_static_property();
             Vector2<float> const& pos = snp->get_position();
 
-            if (is_visible(dnp) &&
+            if (is_active(dnp) &&
                 pos.x>=position_min.x && pos.x<position_max.x &&
                 pos.y>=position_min.y && pos.y<position_max.y) {
               shared_ptr<Particle> particle(new Particle);
@@ -661,7 +661,7 @@ namespace hashimoto_ut {
               adjacency_list_iterator jend = i->first->end();
 
               for (; j!=jend; ++j)
-                if (is_visible(g0->property(*j)))
+                if (is_active(g0->property(*j)))
                   particle->p.mass += 0.2f;
 
               particle->p.momentum.set(gauss_df(temperature, 0.0f)/particle->p.mass,
@@ -782,7 +782,7 @@ namespace hashimoto_ut {
 
             DynamicNodeProperty const& dnp0 = i->second;
 
-            if (is_hidden(dnp0)) continue;
+            if (is_inactive(dnp0)) continue;
 
             float& m = momentum_list[&dnp0].mass = 1.0f;
 
@@ -790,7 +790,7 @@ namespace hashimoto_ut {
             vector<DynamicNodeProperty*>::const_iterator jend = dnp0.lower_nend();
 
             for (; j!=jend; ++j)
-              if (is_visible(**j)) ++m;
+              if (is_active(**j)) ++m;
           }
         }{
           shared_ptr<BFSTraverser> t = BFSTraverser::create<bidirectional_tag>(g1);
@@ -802,7 +802,7 @@ namespace hashimoto_ut {
             Node const* n = i->first;
             DynamicNodeProperty& dnp0 = i->second;
 
-            if (is_hidden(dnp0)) continue;
+            if (is_inactive(dnp0)) continue;
 
             for (t->reset(), t->start(n); !t->end(); t->advance()) {
               if (t->node()<=n) continue;
@@ -843,7 +843,7 @@ namespace hashimoto_ut {
 
             for (; j!=jend; ++j) {
 
-              if (is_hidden(**j)) continue;
+              if (is_inactive(**j)) continue;
 
               // Calculate the force between the center of the community and
               // its members.
@@ -870,7 +870,7 @@ namespace hashimoto_ut {
 
               for (; k!=jend; ++k) {
 
-                if (is_hidden(**k)) continue;
+                if (is_inactive(**k)) continue;
 
                 momentum_list[*j].mass = 1.0f;
                 shared_ptr<Spring::Element> se(new Spring::Element);
@@ -952,7 +952,7 @@ namespace hashimoto_ut {
           Edge const* e = i->first;
           DynamicEdgeProperty const& dep = i->second;
 
-          if (is_hidden(dep)) continue;
+          if (is_inactive(dep)) continue;
 
           DynamicNodeProperty const& dnp0 = g0->property(e->source());
           DynamicNodeProperty const& dnp1 = g0->property(e->target());
@@ -1114,7 +1114,7 @@ namespace hashimoto_ut {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool is_active(void) {
+    bool is_on(void) {
       return thread_is_active;
     }
 
